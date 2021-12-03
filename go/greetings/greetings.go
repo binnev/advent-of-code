@@ -12,7 +12,7 @@ import (
 func Hello(name string) (string, error) {
 	// If no name was given, return an error with a message.
 	if name == "" {
-		return "", errors.New("empty name")
+		return name, errors.New("empty name")
 	}
 
 	// message := ... is shorthand for declaring and initialising a variable in one line:
