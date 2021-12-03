@@ -22,6 +22,24 @@ func Hello(name string) (string, error) {
 	return message, nil
 }
 
+// Hellos returns a map that associates each of the named people with a greetings message
+// `names []string`: param "names" is type slice with contents string
+// `(map[string]string, error)` I'm guessing map[string]string is like {str: str} in python
+func Hellos(names []string) (map[string]string, error) {
+	messages := make(map[string]string) // make does some kind of instantiation magic
+
+	// loop through the received slice of names, calling the Hello function to get a message for each name.
+	for _, name := range names { // I'm guessing range is like enumerate: index and value
+		message, err := Hello(name)
+		if err != nil {
+			return nil, err
+		}
+		// in the map, associate the retrieved message with the name
+		messages[name] = message
+	}
+	return messages, nil
+}
+
 // init sets initial values for variables used in the function
 // go auto-executes init functions at the program startup, after global variables have been initialised!
 func init() {

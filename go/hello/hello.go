@@ -14,12 +14,14 @@ func main() {
 	// the time, source file, and line number
 	log.SetPrefix("greetings: ")
 	log.SetFlags(0)
+	// a slice of names
+	names := []string{"Gladys", "Samantha", "Darrin"}
 
 	// Get a greeting message and print it
-	message, err := greetings.Hello("Gladys")
+	messages, err := greetings.Hellos(names)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Println(message)
+	fmt.Println(messages)
 }
