@@ -540,7 +540,6 @@ def part1(skip_diagonals=True):
             if y != y2:
                 y += 1 if y < y2 else -1
 
-    print_matrix(sparse_matrix)
     return sum(1 for value in sparse_matrix.values() if value > 1)
 
 
