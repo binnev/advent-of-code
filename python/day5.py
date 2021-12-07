@@ -524,27 +524,15 @@ def init():
     return output, size
 
 
-def goodrange(x1, x2):
-    if x2 >= x1:
-        return range(x1, x2 + 1)
-    else:
-        return range(x1, x2 - 1, -1)
-
-
-def print_matrix(matrix):
-    for row in matrix:
-        print("".join((str(num) if num else ".") for num in row))
-
-
 def part1(skip_diagonals=True):
     coords, size = init()
-    matrix = numpy.zeros((size, size), dtype=int)
+    sparse_matrix = dict()
     for ((x1, y1), (x2, y2)) in coords:
         if skip_diagonals and (x1 != x2) and (y1 != y2):
             continue
         x, y = x1, y1
         while True:
-            matrix[y][x] += 1
+            sparse_matrix[(x, y)] = sparse_matrix.get((x, y), 0) + 1
             if x == x2 and y == y2:
                 break
             if x != x2:
@@ -552,7 +540,8 @@ def part1(skip_diagonals=True):
             if y != y2:
                 y += 1 if y < y2 else -1
 
-    return sum(1 for cell in matrix.flat if cell > 1)
+    print_matrix(sparse_matrix)
+    return sum(1 for value in sparse_matrix.values() if value > 1)
 
 
 def part2():
