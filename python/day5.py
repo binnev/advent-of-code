@@ -534,7 +534,6 @@ def goodrange(x1, x2):
 def print_matrix(matrix):
     for row in matrix:
         print("".join((str(num) if num else ".") for num in row))
-        # print(row)
 
 
 def part1(skip_diagonals=True):
@@ -544,15 +543,14 @@ def part1(skip_diagonals=True):
         if skip_diagonals and (x1 != x2) and (y1 != y2):
             continue
         x, y = x1, y1
-        matrix[y][x] += 1
         while True:
-            if x != x2:
-                x += (1 if x < x2 else -1)
-            if y != y2:
-                y += (1 if y < y2 else -1)
             matrix[y][x] += 1
             if x == x2 and y == y2:
                 break
+            if x != x2:
+                x += 1 if x < x2 else -1
+            if y != y2:
+                y += 1 if y < y2 else -1
 
     return sum(1 for cell in matrix.flat if cell > 1)
 
