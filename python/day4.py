@@ -1,5 +1,3 @@
-from pprint import pprint
-
 raw = """23,91,18,32,73,14,20,4,10,55,40,29,13,25,48,65,2,80,22,16,93,85,66,21,9,36,47,72,88,58,5,42,53,69,52,8,54,63,76,12,6,99,35,95,82,49,41,17,62,34,51,77,94,7,28,71,92,74,46,79,26,19,97,86,87,37,57,64,1,30,11,96,70,44,83,0,56,90,59,78,61,98,89,43,3,84,67,38,68,27,81,39,15,50,60,24,45,75,33,31
 
 67 97 50 51  1
@@ -609,15 +607,11 @@ def parse_board(board):
 
 class Board(list):
     @property
-    def rows(self):
-        return self
-
-    @property
     def columns(self):
         return [[row[ii] for row in self] for ii in range(len(self[0]))]
 
     @property
-    def is_winner(self):
+    def is_complete(self):
         win = ["x"] * 5
         return (win in self) or (win in self.columns)
 
@@ -632,18 +626,36 @@ class Board(list):
                     row[ii] = "x"
 
 
-numbers, *boards = raw.split("\n\n")
-numbers = list(map(int, numbers.split(",")))
-boards = list(map(Board, map(parse_board, boards)))
+def init():
+    numbers, *boards = raw.split("\n\n")
+    numbers = list(map(int, numbers.split(",")))
+    boards = list(map(Board, map(parse_board, boards)))
+    return numbers, boards
 
 
 def part1():
+    numbers, boards = init()
     for called_number in numbers:
         for board in boards:
             board.mark(called_number)
-            if board.is_winner:
+            if board.is_complete:
                 return board.sum_unmarked * called_number
+
+
+def part2():
+    numbers, boards = init()
+    for called_number in numbers:
+        for board in boards:
+            board.mark(called_number)
+
+        if len(boards) == 1 and boards[0].is_complete:
+            return boards[0].sum_unmarked * called_number
+
+        boards = [b for b in boards if not b.is_complete]
 
 
 if __name__ == "__main__":
     print(f"part1: {part1()}")
+    print(f"part2: {part2()}")
+    assert part1() == 33348
+    assert part2() == 8112
