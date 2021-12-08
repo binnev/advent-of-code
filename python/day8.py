@@ -4,7 +4,7 @@
 4 inputs = 4
 7 inputs = 8
 """
-from pprint import pprint
+import itertools
 
 raw = """ecfdbg decfba aegd fdcag fagecd gd gcafb efdac cbgeafd dfg | bgacf afdebc fceda cabfg
 cfdabeg cda bcgad bedfac aefbgd bfgcad dfbga egabc dgfc cd | gdbefac fgabcd dcbefag aedgfb
@@ -236,8 +236,106 @@ def part1():
     return count
 
 
+def gen_strings(possible_segments):
+    values = list(map(tuple, possible_segments.values()))
+    foo = list(itertools.product(*values))
+    bar = {"".join(thing) for thing in foo}
+    return bar
+
+
+def prune(segment_to_wire):
+
+    for char in "abcdefg":
+        # find highest count of this char
+        record_count = 0
+        record_segments = []
+        for segment, wires in segment_to_wire.items():
+            maximum = wires.get(char, 0)
+            if maximum == record_count:
+                record_segments.append(segment)
+            if maximum > record_count:
+                record_count = maximum
+                record_segments = [segment]
+
+        # remove any other chars with LOWER count from this segment
+        for segment in record_segments:
+            segment_values = segment_to_wire[segment]
+            segment_values = {
+                k: v for k, v in segment_values.items() if v == max(segment_values.values())
+            }
+            segment_to_wire[segment] = segment_values
+
+        # remove this char from other segments if the count is LOWER
+        for segment, values in segment_to_wire.items():
+            if segment not in record_segments and char in values:
+                values.pop(char)
+    return segment_to_wire
+
+
 def part2():
-    pass
+    def cluster_fuck(input, output):
+        """
+        My naming of the segments:
+         AAAA
+        F    B
+        F    B
+         GGGG
+        E    C
+        E    C
+         DDDD
+        """
+        number_to_segments = {
+            1: "BC",
+            2: "ABGED",
+            3: "ABCDG",
+            4: "BCFG",
+            5: "ACDFG",
+            6: "ACDEFG",
+            7: "ABC",
+            8: "ABCDEFG",
+            9: "ABCDFG",
+            0: "ABCDEF",
+        }
+        segment_to_wire = {char: {letter: 0 for letter in "abcdefg"} for char in "ABCDEFG"}
+        unique_lengths = {2: 1, 3: 7, 4: 4, 7: 8}
+        unique_wires = [wires for wires in input if len(wires) in unique_lengths]
+        non_unique_numbers = {
+            k: v for k, v in number_to_segments.items() if len(v) not in unique_lengths
+        }
+
+        # use unique values to populate mapping
+        for wires in unique_wires:
+            number = unique_lengths[len(wires)]
+            segments = number_to_segments[number]
+            for segment in segments:
+                d = segment_to_wire[segment]
+                for wire in wires:
+                    d[wire] = d.get(wire, 0) + 1
+
+        # prune mapping to keep only most common wire per segment
+        segment_to_wire = prune(segment_to_wire)
+
+        def deduce(wires):
+            possible_numbers = {k: v for k, v in non_unique_numbers.items() if len(v) == len(wires)}
+            possible_segments = {
+                wire: {segment for segment, wires in segment_to_wire.items() if wire in wires}
+                for wire in wires
+            }
+            possible_strings = gen_strings(possible_segments)
+            for number, segments in possible_numbers.items():
+                if set(segments) in map(set, possible_strings):
+                    return number
+            else:
+                print(f"couldn't find match for wires {wires}")
+
+        return int("".join(map(str, map(deduce, output))))
+
+    inputs, outputs = init()
+    for input, output in zip(inputs, outputs):
+        print(cluster_fuck(input, output))
+    # return cluster_fuck(input)
+
+
 
 
 if __name__ == "__main__":
