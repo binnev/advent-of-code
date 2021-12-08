@@ -303,8 +303,10 @@ def deduce_mapping(input: [str]):
     for wires in mystery_wires:
         number = deduce_number(wires, mapping)
         mapping = update_mapping(number, wires, mapping)
-
-    if any(len(value) > 1 for value in mapping.values()):
+        if all(len(value) == 1 for value in mapping.values()):
+            break
+    # if no unique mapping found
+    else:
         raise Exception("Non-unique mapping!")
 
     mapping = {value.pop(): key for key, value in mapping.items()}
@@ -331,14 +333,13 @@ def update_mapping(number: int, wires: str, mapping: dict):
     return mapping
 
 
-def calculate_result(wire_sequence, mapping):
-
-    number = ""
+def calculate_result(wire_sequence, mapping) -> int:
+    result = ""
     for wires in wire_sequence:
         segments = "".join(sorted(mapping[wire] for wire in wires))
-        digit = segments_to_number[segments]
-        number += str(digit)
-    return int(number)
+        number = segments_to_number[segments]
+        result += str(number)
+    return int(result)
 
 
 def part2():
@@ -354,3 +355,4 @@ def part2():
 if __name__ == "__main__":
     print(f"part1: {part1()}")
     print(f"part2: {part2()}")
+    assert part2() == 961734
