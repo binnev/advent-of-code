@@ -5,6 +5,7 @@
 7 inputs = 8
 """
 import itertools
+from pprint import pprint
 
 raw = """ecfdbg decfba aegd fdcag fagecd gd gcafb efdac cbgeafd dfg | bgacf afdebc fceda cabfg
 cfdabeg cda bcgad bedfac aefbgd bfgcad dfbga egabc dgfc cd | gdbefac fgabcd dcbefag aedgfb
@@ -243,99 +244,111 @@ def gen_strings(possible_segments):
     return bar
 
 
-def prune(segment_to_wire):
+number_to_segments = {
+    1: "BC",
+    2: "ABDEG",
+    3: "ABCDG",
+    4: "BCFG",
+    5: "ACDFG",
+    6: "ACDEFG",
+    7: "ABC",
+    8: "ABCDEFG",
+    9: "ABCDFG",
+    0: "ABCDEF",
+}
+segments_to_number = {v: k for k, v in number_to_segments.items()}
 
-    for char in "abcdefg":
-        # find highest count of this char
-        record_count = 0
-        record_segments = []
-        for segment, wires in segment_to_wire.items():
-            maximum = wires.get(char, 0)
-            if maximum == record_count:
-                record_segments.append(segment)
-            if maximum > record_count:
-                record_count = maximum
-                record_segments = [segment]
 
-        # remove any other chars with LOWER count from this segment
-        for segment in record_segments:
-            segment_values = segment_to_wire[segment]
-            segment_values = {
-                k: v for k, v in segment_values.items() if v == max(segment_values.values())
-            }
-            segment_to_wire[segment] = segment_values
+def deduce_number(wires, mapping):
+    possible_numbers = {
+        number: segments
+        for number, segments in number_to_segments.items()
+        if len(segments) == len(wires)
+    }
+    # this is generating a reverse of mapping. Probably don't need that
+    possible_segments = {
+        wire: {segment for segment, wires in mapping.items() if wire in wires} for wire in wires
+    }
+    possible_strings = gen_strings(possible_segments)
+    for number, segments in possible_numbers.items():
+        if set(segments) in map(set, possible_strings):
+            return number
+    else:
+        print(f"couldn't find match for wires {wires}")
 
-        # remove this char from other segments if the count is LOWER
-        for segment, values in segment_to_wire.items():
-            if segment not in record_segments and char in values:
-                values.pop(char)
-    return segment_to_wire
+
+def deduce_mapping(input: [str]):
+    """
+    My naming of the segments:
+     AAAA
+    F    B
+    F    B
+     GGGG
+    E    C
+    E    C
+     DDDD
+    """
+
+    unique_lengths = {2: 1, 3: 7, 4: 4, 7: 8}
+    mapping = {char: set("abcdefg") for char in "ABCDEFG"}
+    unique_wires = [wires for wires in input if len(wires) in unique_lengths]
+    mystery_wires = [wires for wires in input if len(wires) not in unique_lengths]
+
+    # use unique length wires to prune mapping
+    for wires in unique_wires:
+        number = unique_lengths[len(wires)]
+        mapping = update_mapping(number, wires, mapping)
+
+    # deduce configuration of mystery wires and update mapping further
+    for wires in mystery_wires:
+        number = deduce_number(wires, mapping)
+        mapping = update_mapping(number, wires, mapping)
+
+    if any(len(value) > 1 for value in mapping.values()):
+        raise Exception("Non-unique mapping!")
+
+    mapping = {value.pop(): key for key, value in mapping.items()}
+    return mapping
+
+
+def update_mapping(number: int, wires: str, mapping: dict):
+    segments = number_to_segments[number]
+    # for each segment associated with this number, take the union of the new wires and the
+    # segment's current possibilities. Set that as the possible wires for the segment
+    hits = []
+    for segment in segments:
+        intersection = mapping[segment].intersection(wires)
+        hits.append(intersection)
+        mapping[segment] = intersection
+
+    # for each intersection found, remove the result from any segments NOT associated with this
+    # number
+    other_segments = set(mapping.keys()).difference(segments)
+    for segment in other_segments:
+        for intersection in hits:
+            mapping[segment] = mapping[segment].difference(intersection)
+
+    return mapping
+
+
+def calculate_result(wire_sequence, mapping):
+
+    number = ""
+    for wires in wire_sequence:
+        segments = "".join(sorted(mapping[wire] for wire in wires))
+        digit = segments_to_number[segments]
+        number += str(digit)
+    return int(number)
 
 
 def part2():
-    def cluster_fuck(input, output):
-        """
-        My naming of the segments:
-         AAAA
-        F    B
-        F    B
-         GGGG
-        E    C
-        E    C
-         DDDD
-        """
-        number_to_segments = {
-            1: "BC",
-            2: "ABGED",
-            3: "ABCDG",
-            4: "BCFG",
-            5: "ACDFG",
-            6: "ACDEFG",
-            7: "ABC",
-            8: "ABCDEFG",
-            9: "ABCDFG",
-            0: "ABCDEF",
-        }
-        segment_to_wire = {char: {letter: 0 for letter in "abcdefg"} for char in "ABCDEFG"}
-        unique_lengths = {2: 1, 3: 7, 4: 4, 7: 8}
-        unique_wires = [wires for wires in input if len(wires) in unique_lengths]
-        non_unique_numbers = {
-            k: v for k, v in number_to_segments.items() if len(v) not in unique_lengths
-        }
-
-        # use unique values to populate mapping
-        for wires in unique_wires:
-            number = unique_lengths[len(wires)]
-            segments = number_to_segments[number]
-            for segment in segments:
-                d = segment_to_wire[segment]
-                for wire in wires:
-                    d[wire] = d.get(wire, 0) + 1
-
-        # prune mapping to keep only most common wire per segment
-        segment_to_wire = prune(segment_to_wire)
-
-        def deduce(wires):
-            possible_numbers = {k: v for k, v in non_unique_numbers.items() if len(v) == len(wires)}
-            possible_segments = {
-                wire: {segment for segment, wires in segment_to_wire.items() if wire in wires}
-                for wire in wires
-            }
-            possible_strings = gen_strings(possible_segments)
-            for number, segments in possible_numbers.items():
-                if set(segments) in map(set, possible_strings):
-                    return number
-            else:
-                print(f"couldn't find match for wires {wires}")
-
-        return int("".join(map(str, map(deduce, output))))
-
     inputs, outputs = init()
+    total = 0
     for input, output in zip(inputs, outputs):
-        print(cluster_fuck(input, output))
-    # return cluster_fuck(input)
-
-
+        mapping = deduce_mapping(input)
+        result = calculate_result(output, mapping)
+        total += result
+    return total
 
 
 if __name__ == "__main__":
