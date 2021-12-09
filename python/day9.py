@@ -138,9 +138,7 @@ def find_low_points(input):
 def part1():
     input = init()
     low_points = find_low_points(input)
-    risk_level = 0
-    for x, y in low_points:
-        risk_level += int(input[y][x]) + 1
+    risk_level = sum(int(input[y][x] + 1 for x, y in low_points))
     return risk_level
 
 
