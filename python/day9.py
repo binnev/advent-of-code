@@ -1,3 +1,5 @@
+from pprint import pprint
+
 raw = """8969799987646798965432975435334567987976999867976794468999979759865767896545699865678952123899325456
 7658678998434597654321984320123458976765789998965432367998968998754556789434987654489543535698912349
 6243457899325679997620195431934569765654667999993101246796856997643245679759865443356954656987894498
@@ -99,48 +101,103 @@ raw = """89697999876467989654329754353345679879769998679767944689999797598657678
 6531012456789996431239954321239986545646799986587893776789678993210127898767787899879745678998955897
 6542123568899987544398765510123497656656789987678954567898799654431338999978898910989656789209876789"""
 
-raw = """2199943210
-3987894921
-9856789892
-8767896789
-9899965678"""
+# raw = """2199943210
+# 3987894921
+# 9856789892
+# 8767896789
+# 9899965678"""
+
 
 def init():
-    return raw.splitlines()
+    return [list(map(int, row)) for row in raw.splitlines()]
+
+
+def get_neighbours(input, x, y):
+    neighbours = {}
+    above_y = y - 1
+    if above_y >= 0:
+        neighbours[(x, above_y)] = input[above_y][x]
+
+    left_x = x - 1
+    if left_x >= 0:
+        neighbours[(left_x, y)] = input[y][left_x]
+
+    try:
+        neighbours[(x, y + 1)] = input[y + 1][x]
+    except IndexError:
+        pass
+
+    try:
+        neighbours[(x + 1, y)] = input[y][x + 1]
+    except IndexError:
+        pass
+    return neighbours
+
+
+def find_low_points(input):
+    low_points = []
+    for y, row in enumerate(input):
+        for x, cell in enumerate(row):
+            neighbours = get_neighbours(input, x, y).values()
+            if cell < min(neighbours):
+                low_points.append((x, y))
+    return low_points
 
 
 def part1():
     input = init()
+    low_points = find_low_points(input)
     risk_level = 0
-    for y, row in enumerate(input):
-        for x, cell in enumerate(row):
-            neighbours = []
-            above_y = y-1
-            if above_y >= 0:
-                neighbours.append(input[above_y][x])
-
-            left_x = x-1
-            if left_x >= 0:
-                neighbours.append(input[y][left_x])
-
-            try:
-                neighbours.append(input[y+1][x])
-            except IndexError:
-                pass
-
-            try:
-                neighbours.append(input[y][x+1])
-            except IndexError:
-                pass
-
-            if cell < min(neighbours):
-                risk_level += int(cell) + 1
+    for x, y in low_points:
+        risk_level += int(input[y][x]) + 1
     return risk_level
 
+
+def breadth_first_search(xy, input):
+    """Each iteration
+    1. get neighbours of current square
+    2. add neighbours that are <= in height (add the coords)
+    3. if the size of the collection didnt' change; break
+    """
+    x, y = xy
+    basin = {(x, y)}
+    while True:
+        basin_size = len(basin)
+        for x, y in basin:
+            current_height = input[y][x]
+            neighbours = get_neighbours(input, x, y)
+            higher_neighbours = {
+                (a, b) for (a, b), height in neighbours.items() if 9 > height > current_height
+            }
+            basin = basin.union(higher_neighbours)
+
+        if len(basin) == basin_size:
+            return basin
+
+
 def part2():
-    pass
+    """
+    1. find lowest points
+    2. find surrounding basins (breadth first search?)
+    """
+
+    input = init()
+    low_points = find_low_points(input)
+    basins = []
+    basin_sizes = []
+    for nadir in low_points:
+        basin = breadth_first_search(nadir, input)
+        basins.append(basin)
+        basin_sizes.append(len(basin))
 
 
-if __name__ == '__main__':
+    answer = 1
+    highest3 = sorted(basin_sizes)[-3:]
+    for b in highest3:
+        answer *= b
+    return answer
+
+if __name__ == "__main__":
     print(f"part1: {part1()}")
     print(f"part2: {part2()}")
+
