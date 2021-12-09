@@ -1,5 +1,7 @@
 from pprint import pprint
 
+import numpy
+
 raw = """8969799987646798965432975435334567987976999867976794468999979759865767896545699865678952123899325456
 7658678998434597654321984320123458976765789998965432367998968998754556789434987654489543535698912349
 6243457899325679997620195431934569765654667999993101246796856997643245679759865443356954656987894498
@@ -167,21 +169,13 @@ def part2():
     1. find lowest points
     2. find surrounding basins (breadth first search?)
     """
-
     input = init()
     low_points = find_low_points(input)
-    basins = []
     basin_sizes = []
-    for nadir in low_points:
-        basin = breadth_first_search(nadir, input)
-        basins.append(basin)
+    for low_point in low_points:
+        basin = breadth_first_search(low_point, input)
         basin_sizes.append(len(basin))
-
-    answer = 1
-    highest3 = sorted(basin_sizes)[-3:]
-    for b in highest3:
-        answer *= b
-    return answer
+    return numpy.product(sorted(basin_sizes)[-3:])
 
 
 if __name__ == "__main__":
