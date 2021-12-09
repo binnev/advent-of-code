@@ -140,7 +140,9 @@ def find_low_points(input):
 def part1():
     input = init()
     low_points = find_low_points(input)
-    risk_level = sum(int(input[y][x] + 1 for x, y in low_points))
+    risk_level = 0
+    for x, y in low_points:
+        risk_level += int(input[y][x]) + 1
     return risk_level
 
 
@@ -181,5 +183,5 @@ def part2():
 if __name__ == "__main__":
     print(f"part1: {part1()}")
     print(f"part2: {part2()}")
-    assert part1() == 303
-    assert part2() == 961734
+    assert part1() == 522
+    assert part2() == 916688
