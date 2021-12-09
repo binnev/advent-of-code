@@ -114,12 +114,7 @@ def init():
 
 def get_neighbours(input, x, y):
     neighbours = {}
-    directions = [
-        (x + 1, y),
-        (x, y + 1),
-        (x - 1, y),
-        (x, y - 1),
-    ]
+    directions = [(x + 1, y), (x, y + 1), (x - 1, y), (x, y - 1)]
     for x, y in directions:
         if x < 0 or y < 0:
             continue
