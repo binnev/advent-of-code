@@ -168,6 +168,7 @@ def breadth_first_search(xy, input):
             neighbours = get_neighbours(input, x, y)
             higher_neighbours = filter(lambda key: 9 > neighbours[key] > current_height, neighbours)
             basin = basin.union(higher_neighbours)
+        # if basin didn't grow, we're done
         if len(basin) == basin_size:
             return basin
 
