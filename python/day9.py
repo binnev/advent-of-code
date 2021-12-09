@@ -114,23 +114,19 @@ def init():
 
 def get_neighbours(input, x, y):
     neighbours = {}
-    above_y = y - 1
-    if above_y >= 0:
-        neighbours[(x, above_y)] = input[above_y][x]
-
-    left_x = x - 1
-    if left_x >= 0:
-        neighbours[(left_x, y)] = input[y][left_x]
-
-    try:
-        neighbours[(x, y + 1)] = input[y + 1][x]
-    except IndexError:
-        pass
-
-    try:
-        neighbours[(x + 1, y)] = input[y][x + 1]
-    except IndexError:
-        pass
+    directions = [
+        (x + 1, y),
+        (x, y + 1),
+        (x - 1, y),
+        (x, y - 1),
+    ]
+    for x, y in directions:
+        if x < 0 or y < 0:
+            continue
+        try:
+            neighbours[(x, y)] = input[y][x]
+        except IndexError:
+            pass
     return neighbours
 
 
