@@ -166,11 +166,8 @@ def breadth_first_search(xy, input):
         for x, y in basin:
             current_height = input[y][x]
             neighbours = get_neighbours(input, x, y)
-            higher_neighbours = {
-                (a, b) for (a, b), height in neighbours.items() if 9 > height > current_height
-            }
+            higher_neighbours = filter(lambda key: 9 > neighbours[key] > current_height, neighbours)
             basin = basin.union(higher_neighbours)
-
         if len(basin) == basin_size:
             return basin
 
@@ -190,14 +187,15 @@ def part2():
         basins.append(basin)
         basin_sizes.append(len(basin))
 
-
     answer = 1
     highest3 = sorted(basin_sizes)[-3:]
     for b in highest3:
         answer *= b
     return answer
 
+
 if __name__ == "__main__":
     print(f"part1: {part1()}")
     print(f"part2: {part2()}")
-
+    assert part1() == 303
+    assert part2() == 961734
