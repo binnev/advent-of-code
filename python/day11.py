@@ -35,13 +35,12 @@ class Octopus:
 class Board:
     def __init__(self):
         self.contents = [list(map(Octopus, row)) for row in init()]
-        self.flashes = 0
 
     def __repr__(self):
         return "\n".join("".join(map(str, row)) for row in self.contents)
 
     def update(self):
-        flashed = set()
+        flashes = set()
         for oct in self.octopi:
             oct.energy += 1
 
@@ -49,16 +48,16 @@ class Board:
             (x, y, oct)
             for y, row in enumerate(self.contents)
             for x, oct in enumerate(row)
-            if oct.energy > 9 and oct not in flashed
+            if oct.energy > 9 and oct not in flashes
         ]:
             for x, y, oct in ready_to_flash:
-                flashed.add(oct)
+                flashes.add(oct)
                 for neighbour in self.get_neighbours(x, y):
                     neighbour.energy += 1
 
-        for oct in flashed:
+        for oct in flashes:
             oct.energy = 0
-        return flashed
+        return flashes
 
     def get_neighbours(self, x, y):
         directions = [
@@ -90,47 +89,6 @@ def init():
     return [list(map(int, row)) for row in raw.splitlines()]
 
 
-def get_neighbours(x, y):
-    return [
-        (x - 1, y - 1),
-        (x - 1, y),
-        (x - 1, y + 1),
-        (x, y - 1),
-        (x, y + 1),
-        (x + 1, y - 1),
-        (x + 1, y),
-        (x + 1, y + 1),
-    ]
-
-
-def update1(octopi):
-    flashed = set()
-    # update energy level
-    for y, row in enumerate(octopi):
-        for x, oct in enumerate(row):
-            octopi[y][x] += 1
-
-    # do flashes
-    while ready_to_flash := [
-        (x, y)
-        for y, row in enumerate(octopi)
-        for x, oct in enumerate(row)
-        if oct > 9 and (x, y) not in flashed
-    ]:
-        for (x, y) in ready_to_flash:
-            flashed.add((x, y))
-            for a, b in get_neighbours(x, y):
-                if a < 0 or b < 0:
-                    continue
-                try:
-                    octopi[b][a] += 1
-                except IndexError:
-                    pass
-    for x, y in flashed:
-        octopi[y][x] = 0  # reset to 0
-    return flashed
-
-
 def part1():
     board = Board()
     num_flashes = 0
@@ -141,12 +99,12 @@ def part1():
 
 
 def part2():
-    octopi = init()
+    board = Board()
     ii = 0
     while True:
         ii += 1
-        update1(octopi)
-        energies = set(oct for row in octopi for oct in row)
+        board.update()
+        energies = set(oct.energy for row in board.contents for oct in row)
         if energies == {0}:
             return ii
 
