@@ -159,7 +159,17 @@ def part1():
 
 
 def part2():
-    pass
+    octopi = init()
+    ii = 0
+    while True:
+        ii += 1
+        update1(octopi)
+        energies = set(oct for row in octopi for oct in row)
+        if energies == {0}:
+            print(f"iteration {ii}")
+            print("\n".join("".join(map(str, row)) for row in octopi))
+            break
+    return ii
 
 
 if __name__ == "__main__":
