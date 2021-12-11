@@ -129,7 +129,6 @@ def update1(octopi):
         if oct > 9 and (x, y) not in flashed
     ]:
         for (x, y) in ready_to_flash:
-            # flash
             flashed.add((x, y))
             for a, b in get_neighbours(x, y):
                 if a < 0 or b < 0:
@@ -146,15 +145,9 @@ def update1(octopi):
 def part1():
     octopi = init()
     num_flashes = 0
-    print("before any flashes")
-    print("\n".join("".join(map(str, row)) for row in octopi))
-
     for ii in range(100):
         flashes = update1(octopi)
         num_flashes += len(flashes)
-        print("")
-        print(f"iteration {ii+1}")
-        print("\n".join("".join(map(str, row)) for row in octopi))
     return num_flashes
 
 
@@ -166,12 +159,11 @@ def part2():
         update1(octopi)
         energies = set(oct for row in octopi for oct in row)
         if energies == {0}:
-            print(f"iteration {ii}")
-            print("\n".join("".join(map(str, row)) for row in octopi))
-            break
-    return ii
+            return ii
 
 
 if __name__ == "__main__":
     print(f"part1: {part1()}")
     print(f"part2: {part2()}")
+    assert part1() == 1721
+    assert part2() == 298
