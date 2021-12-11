@@ -20,10 +20,10 @@ raw = """7777838353
 7542127721
 4576678341"""
 
+
 class Octopus:
     def __init__(self, energy):
         self.energy = energy
-        self.has_flashed = False
 
     def __repr__(self):
         return f"{self.energy}"
@@ -31,41 +31,34 @@ class Octopus:
     def __str__(self):
         return self.__repr__()
 
-    @property
-    def ready_to_flash(self):
-        return self.energy > 9 and not self.has_flashed
-
-    def flash(self):
-        self.energy = 0
-        self.has_flashed = True
-
 
 class Board:
-    def __init__(self, raw):
-        self.raw = raw
-        self.contents = init()
+    def __init__(self):
+        self.contents = [list(map(Octopus, row)) for row in init()]
         self.flashes = 0
 
     def __repr__(self):
         return "\n".join("".join(map(str, row)) for row in self.contents)
 
     def update(self):
-        # update all octopuses' energy level
+        flashed = set()
         for oct in self.octopi:
             oct.energy += 1
-            oct.has_flashed = False
 
-        while self.ready_to_flash:
-            self.do_flashes()
+        while ready_to_flash := [
+            (x, y, oct)
+            for y, row in enumerate(self.contents)
+            for x, oct in enumerate(row)
+            if oct.energy > 9 and oct not in flashed
+        ]:
+            for x, y, oct in ready_to_flash:
+                flashed.add(oct)
+                for neighbour in self.get_neighbours(x, y):
+                    neighbour.energy += 1
 
-    def do_flashes(self):
-        for y, row in enumerate(self.contents):
-            for x, oct in enumerate(row):
-                if oct.ready_to_flash:
-                    oct.flash()
-                    self.flashes += 1
-                    for neighbour in self.get_neighbours(x, y):
-                        neighbour.energy += 1
+        for oct in flashed:
+            oct.energy = 0
+        return flashed
 
     def get_neighbours(self, x, y):
         directions = [
@@ -91,10 +84,6 @@ class Board:
     @property
     def octopi(self):
         return [o for row in self.contents for o in row]
-
-    @property
-    def ready_to_flash(self):
-        return any(oct.ready_to_flash for oct in self.octopi)
 
 
 def init():
@@ -143,10 +132,10 @@ def update1(octopi):
 
 
 def part1():
-    octopi = init()
+    board = Board()
     num_flashes = 0
     for ii in range(100):
-        flashes = update1(octopi)
+        flashes = board.update()
         num_flashes += len(flashes)
     return num_flashes
 
