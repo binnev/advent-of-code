@@ -24,6 +24,13 @@ gz-DK
 zq-la
 start-TF"""
 
+# raw = """start-A
+# start-b
+# A-c
+# A-b
+# b-d
+# A-end
+# b-end"""
 
 links = dict()
 for node1, node2 in [row.split("-") for row in raw.splitlines()]:
@@ -61,8 +68,7 @@ def dfs2(path):
             new_paths.append(path + [neighbour])
             continue
 
-        # if neighbour.islower() and path.count(neighbour) >= 2:
-        if neighbour.islower() and not check_small_cave_visits(path + [neighbour]):
+        if neighbour.islower() and (neighbour in path) and small_cave_visited_twice(path):
             continue
 
         # recursive case
@@ -77,12 +83,11 @@ def part1():
     return len(paths)
 
 
-def check_small_cave_visits(path):
-    counts = {node: path.count(node) for node in set(path) if node.islower()}
-    if max(counts.values()) > 2:
-        return False
-    gt1 = list(filter(lambda k: counts[k] > 1, counts))
-    return len(gt1) < 2
+def small_cave_visited_twice(path):
+    for node in {p for p in path if p.islower()}:
+        if path.count(node) > 1:
+            return True
+    return False
 
 
 def part2():
