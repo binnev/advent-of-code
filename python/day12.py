@@ -91,5 +91,9 @@ def part2():
 
 
 if __name__ == "__main__":
-    print(f"part1: {part1()}")
-    print(f"part2: {part2()}")
+    p1 = part1()
+    print(f"part1: {p1}")
+    p2 = part2()
+    print(f"part2: {p2}")
+    assert p1 == 4912
+    assert p2 == 150004
