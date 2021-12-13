@@ -879,10 +879,7 @@ def fold_left(matrix, fold_x):
 
 def part1():
     matrix, fold_instructions = init()
-    print_matrix(matrix)
-
     mapping = {"x": fold_left, "y": fold_up}
-
     direction, position = fold_instructions[0]
     fold_func = mapping[direction]
     matrix = fold_func(matrix, position)
@@ -891,10 +888,7 @@ def part1():
 
 def part2():
     matrix, fold_instructions = init()
-    print_matrix(matrix)
-
     mapping = {"x": fold_left, "y": fold_up}
-
     for direction, position in fold_instructions:
         fold_func = mapping[direction]
         matrix = fold_func(matrix, position)
