@@ -1,5 +1,6 @@
 import time
 from collections import deque
+from functools import reduce
 
 raw = """OHFNNCKCVOBHSSHONBNF
 
@@ -178,6 +179,16 @@ class LinkedList:
         return node
 
 
+def build_cache(substitutions, depth):
+    cache = dict()
+    for pair in substitutions:
+        polymer = pair
+        for ii in range(depth):
+            polymer = splice_polymer(polymer, substitutions)
+        cache[pair] = "".join(polymer)
+    return cache
+
+
 def splice_polymer(polymer, substitutions):
     right = deque(polymer)
     left = deque(right.popleft())
@@ -189,41 +200,58 @@ def splice_polymer(polymer, substitutions):
     return left
 
 
+def expand(polymer, cache):
+    pairs = [f"{polymer[ii]}{polymer[ii+1]}" for ii in range(len(polymer) - 1)]
+    expanded_pairs = [cache.get(pair, pair) for pair in pairs]
+
+    def foo(left, right):
+        return left[:-1] + right
+
+    whole = reduce(foo, expanded_pairs)
+    return whole
+
+
+def solver(polymer, substitutions, depth, cache_depth):
+    cache = build_cache(substitutions, depth=cache_depth)
+    for ii in range(depth):
+        polymer = expand(polymer, cache)
+        print(f"{ii=}")
+        # print(f"{polymer=}")
+    return polymer
+
+
 def count(polymer):
     return {char: polymer.count(char) for char in set(polymer)}
 
 
-def part1():
+def part1(n=10):
     polymer, substitutions = init()
     print(f"before anything: {polymer=}")
-    for ii in range(10):
+    for ii in range(n):
         polymer = splice_polymer(polymer, substitutions)
 
     counts = count(polymer)
     min_count = min(counts.values())
     max_count = max(counts.values())
     return max_count - min_count
-
 
 def part2():
+    return part1(20)
     polymer, substitutions = init()
     print(f"before anything: {polymer=}")
-    t1 = time.time()
-    for ii in range(20):
-        print(f"{ii=}")
-        polymer = splice_polymer(polymer, substitutions)
+    polymer = solver(polymer, substitutions, depth=5, cache_depth=4)
 
     counts = count(polymer)
     min_count = min(counts.values())
     max_count = max(counts.values())
-    t2 = time.time()
-    print(f"time: {t2-t1}")
     return max_count - min_count
+
 
 
 if __name__ == "__main__":
     p1 = part1()
     print(f"part1: {p1}")
-    # assert p1 == 2590
+    assert p1 == 1588
     p2 = part2()
+    assert p2 == 1961318
     print(f"part2: {p2}")
