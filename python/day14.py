@@ -104,24 +104,24 @@ BP -> O
 KB -> O
 KF -> O"""
 
-# raw = """NNCB
-#
-# CH -> B
-# HH -> N
-# CB -> H
-# NH -> C
-# HB -> C
-# HC -> B
-# HN -> C
-# NN -> C
-# BH -> H
-# NC -> B
-# NB -> B
-# BN -> B
-# BB -> N
-# BC -> B
-# CC -> N
-# CN -> C"""
+raw = """NNCB
+
+CH -> B
+HH -> N
+CB -> H
+NH -> C
+HB -> C
+HC -> B
+HN -> C
+NN -> C
+BH -> H
+NC -> B
+NB -> B
+BN -> B
+BB -> N
+BC -> B
+CC -> N
+CN -> C"""
 
 
 def init():
@@ -131,20 +131,66 @@ def init():
     return polymer, substitutions
 
 
-def splice_polymer(polymer, substitutions):
-    new_polymer = []
-    for ii, char in enumerate(polymer):
-        try:
-            next_char = polymer[ii + 1]
-        except IndexError:
-            break
-        pair = char + next_char
-        if pair in substitutions:
-            new_polymer.extend((char, substitutions[pair]))
+class Node:
+    def __init__(self, data):
+        self.data = data
+        self.next = None
+
+    def __repr__(self):
+        return self.data
+
+
+class LinkedList:
+    def __init__(self, nodes=None):
+        self.head = None
+        if nodes is not None:
+            node = Node(data=nodes.pop(0))
+            self.first = node
+            self.head = node
+            for elem in nodes:
+                node.next = Node(data=elem)
+                node = node.next
+
+    @property
+    def nodes(self):
+        node = self.first
+        nodes = []
+        while node is not None:
+            nodes.append(node.data)
+            node = node.next
+        return nodes
+
+    def __repr__(self):
+        return f"[{', '.join(map(str, self.nodes))}]"
+
+    def __iter__(self):
+        node = self.head
+        while node is not None:
+            yield node
+            node = node.next
+
+    def __next__(self):
+        node = self.head
+        if self.head.next is not None:
+            self.head = self.head.next
         else:
-            new_polymer.append(char)
-    new_polymer.append(next_char)
-    return "".join(new_polymer)
+            raise StopIteration
+        return node
+
+
+def splice_polymer(polymer: LinkedList, substitutions):
+    while True:
+        left = polymer.head
+        right = left.next
+        if right is None:
+            break
+        pair = left.data + right.data
+        if middle := substitutions.get(pair):
+            middle = Node(middle)
+            middle.next = right
+            left.next = middle
+        polymer.head = right
+    return polymer
 
 
 def count(polymer):
@@ -153,12 +199,14 @@ def count(polymer):
 
 def part1():
     polymer, substitutions = init()
+    polymer = LinkedList(list(polymer))
     print(f"before anything: {polymer=}")
     for ii in range(10):
         polymer = splice_polymer(polymer, substitutions)
-        print(f"{polymer=}")
+        polymer.head = polymer.first
+        print(f"{''.join(polymer.nodes)}")
 
-    counts = count(polymer)
+    counts = count(polymer.nodes)
     min_count = min(counts.values())
     max_count = max(counts.values())
     return max_count - min_count
@@ -166,12 +214,15 @@ def part1():
 
 def part2():
     polymer, substitutions = init()
+    polymer = LinkedList(list(polymer))
     t1 = time.time()
-    for ii in range(40):
+    for ii in range(20):
         print(f"{ii=}")
         polymer = splice_polymer(polymer, substitutions)
+        polymer.head = polymer.first
+        # print(f"{''.join(polymer.nodes)}")
 
-    counts = count(polymer)
+    counts = count(polymer.nodes)
     min_count = min(counts.values())
     max_count = max(counts.values())
     t2 = time.time()
@@ -182,6 +233,6 @@ def part2():
 if __name__ == "__main__":
     p1 = part1()
     print(f"part1: {p1}")
-    assert p1 == 2590
+    # assert p1 == 2590
     p2 = part2()
     print(f"part2: {p2}")
