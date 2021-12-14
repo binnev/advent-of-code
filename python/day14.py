@@ -1,5 +1,5 @@
 import time
-from functools import reduce
+from collections import deque
 
 raw = """OHFNNCKCVOBHSSHONBNF
 
@@ -178,19 +178,15 @@ class LinkedList:
         return node
 
 
-def splice_polymer(polymer: LinkedList, substitutions):
-    while True:
-        left = polymer.head
-        right = left.next
-        if right is None:
-            break
-        pair = left.data + right.data
-        if middle := substitutions.get(pair):
-            middle = Node(middle)
-            middle.next = right
-            left.next = middle
-        polymer.head = right
-    return polymer
+def splice_polymer(polymer, substitutions):
+    right = deque(polymer)
+    left = deque(right.popleft())
+    for rr in right:
+        ll = left[-1]
+        if middle := substitutions.get(ll + rr):
+            left.append(middle)
+        left.append(rr)
+    return left
 
 
 def count(polymer):
@@ -199,14 +195,11 @@ def count(polymer):
 
 def part1():
     polymer, substitutions = init()
-    polymer = LinkedList(list(polymer))
     print(f"before anything: {polymer=}")
     for ii in range(10):
         polymer = splice_polymer(polymer, substitutions)
-        polymer.head = polymer.first
-        print(f"{''.join(polymer.nodes)}")
 
-    counts = count(polymer.nodes)
+    counts = count(polymer)
     min_count = min(counts.values())
     max_count = max(counts.values())
     return max_count - min_count
@@ -214,19 +207,17 @@ def part1():
 
 def part2():
     polymer, substitutions = init()
-    polymer = LinkedList(list(polymer))
+    print(f"before anything: {polymer=}")
     t1 = time.time()
     for ii in range(20):
         print(f"{ii=}")
         polymer = splice_polymer(polymer, substitutions)
-        polymer.head = polymer.first
-        # print(f"{''.join(polymer.nodes)}")
 
-    counts = count(polymer.nodes)
+    counts = count(polymer)
     min_count = min(counts.values())
     max_count = max(counts.values())
     t2 = time.time()
-    print(f"{t2-t1}")
+    print(f"time: {t2-t1}")
     return max_count - min_count
 
 
