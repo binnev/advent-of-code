@@ -1,3 +1,6 @@
+import time
+from functools import reduce
+
 raw = """OHFNNCKCVOBHSSHONBNF
 
 SV -> O
@@ -128,15 +131,8 @@ def init():
     return polymer, substitutions
 
 
-def splice_polymer(pair, char, polymer):
-    joiner = pair[0] + char + pair[1]
-    components = polymer.split(pair)
-    result = joiner.join(components)
-    return result
-
-
-def splice_polymer2(polymer, substitutions):
-    new_polymer = ""
+def splice_polymer(polymer, substitutions):
+    new_polymer = []
     for ii, char in enumerate(polymer):
         try:
             next_char = polymer[ii + 1]
@@ -144,12 +140,11 @@ def splice_polymer2(polymer, substitutions):
             break
         pair = char + next_char
         if pair in substitutions:
-            new_polymer += pair[0] + substitutions[pair]
-            # print(f"after matching {pair}, {new_polymer=}")
+            new_polymer.extend((char, substitutions[pair]))
         else:
-            new_polymer += pair[0]
-    new_polymer += pair[1]
-    return new_polymer
+            new_polymer.append(char)
+    new_polymer.append(next_char)
+    return "".join(new_polymer)
 
 
 def count(polymer):
@@ -160,7 +155,7 @@ def part1():
     polymer, substitutions = init()
     print(f"before anything: {polymer=}")
     for ii in range(10):
-        polymer = splice_polymer2(polymer, substitutions)
+        polymer = splice_polymer(polymer, substitutions)
         print(f"{polymer=}")
 
     counts = count(polymer)
@@ -171,18 +166,22 @@ def part1():
 
 def part2():
     polymer, substitutions = init()
+    t1 = time.time()
     for ii in range(40):
         print(f"{ii=}")
-        polymer = splice_polymer2(polymer, substitutions)
+        polymer = splice_polymer(polymer, substitutions)
 
     counts = count(polymer)
     min_count = min(counts.values())
     max_count = max(counts.values())
+    t2 = time.time()
+    print(f"{t2-t1}")
     return max_count - min_count
 
 
 if __name__ == "__main__":
     p1 = part1()
     print(f"part1: {p1}")
+    assert p1 == 2590
     p2 = part2()
     print(f"part2: {p2}")
