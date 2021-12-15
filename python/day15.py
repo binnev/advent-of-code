@@ -189,10 +189,11 @@ def part1():
 
 def part2():
     cave = init2()
-    print_cave(cave)
-
+    shortest_path = dijkstra(cave)
+    return shortest_path
 
 if __name__ == "__main__":
     p1 = part1()
     print(f"part1: {p1}")
     p2 = part2()
+    print(f"part2: {p2}")
