@@ -192,8 +192,11 @@ def part2():
     shortest_path = dijkstra(cave)
     return shortest_path
 
+
 if __name__ == "__main__":
     p1 = part1()
     print(f"part1: {p1}")
+    assert p1 == 423
     p2 = part2()
     print(f"part2: {p2}")
+    assert p2 == 2778
