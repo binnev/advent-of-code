@@ -132,139 +132,11 @@ def init():
     return polymer, substitutions
 
 
-def build_cache(substitutions, depth):
-    cache = dict()
-    for pair in substitutions:
-        polymer = pair
-        for ii in range(depth):
-            polymer = expand(polymer, substitutions)
-        cache[pair] = "".join(polymer)
-    return cache
-
-
-polymer, substitutions = init()
-
-
-def simple_cache(func):
-    cache = dict()
-
-    @functools.wraps(func)
-    def inner(*args):
-        result = func(*args)
-        cache[args] = result
-        return result
-
-    inner.cache = cache
-    return inner
-
-
-def expand(polymer):
-    """This expands the string by depth 1. This is the fastest thing I got right now..."""
-    right = deque(polymer)
-    ll = right.popleft()
-    left = deque(ll)
-    for rr in right:
-        if middle := substitutions.get(ll + rr):
-            left.append(middle)
-        left.append(rr)
-        ll = rr
-    return "".join(left)
+_, substitutions = init()
 
 
 def get_pairs(string):
     return [f"{string[ii]}{string[ii + 1]}" for ii in range(len(string) - 1)]
-
-
-def recursive_simple(polymer, depth):
-    # base case
-    if depth == 0:
-        return Counter(polymer)
-    # recursive case
-    return Counter(recursive_simple(expand(polymer), depth - 1))
-
-
-def recursive_by_pairs(polymer, depth):
-    # base case
-    if depth == 0:
-        return Counter(polymer)
-    # recursive case
-    counts = Counter()
-    for ii, pair in enumerate(get_pairs(polymer)):
-        spliced = expand(pair)
-        new_counts = recursive_by_pairs(spliced, depth - 1)
-        # pop leftmost char to avoid fence post errors
-        if ii != 0:
-            left = pair[0]
-            new_counts[left] -= 1
-        counts += new_counts
-    return counts
-
-
-def hungry_caterpillar(polymer, depth):
-    totals = Counter()
-    for ii, pair in enumerate(get_pairs(polymer)):
-        counts = Counter(dead_simple(pair, depth))
-        # pop leftmost char to avoid fence post errors
-        if ii != 0:
-            left = pair[0]
-            counts[left] -= 1
-        totals += counts
-    return totals
-
-
-def dead_simple(polymer, depth):
-    """Generate the whole string and then count the elements"""
-    for ii in range(depth):
-        polymer = expand(polymer)
-    return Counter(polymer)
-
-
-"""
-ideas: 
-
-the problem grows with approx 4 * 1.94**depth
-for depth=40 that's a 1,300,556,393,886 length string.
-I need to be 1) not holding all that in memory, and 
-2) caching function calls to not do all that work 
-
-feed the whole string left<- into the function and expand it as it comes.
-Have the function "eat" the string pair by pair, and return the 40-deep counts for all the pairs.
-That way we never have to store the whole string. 
-Or keep expanding until the chunk you're working on is a certain length, then recurse with less 
-depth
-for depth = 2: 
-queue = ABC
-A-N-BC
-A-M-N-O-BC
-counts += Counter(A-M-N-O-)
-queue = BC
-B-Z-C
-B-X-Z-Y-C
-counts += Counter(B-X-Z-Y-)
-queue = C
-counts += Counter(C)
-
-transform the substitutions dict into a tree. Then just iterate over the tree and add the nodes (
-(e.g. "NB") to the counter, instead of building up the whole string. 
-
-
-don't worry about the order? 
-polymer = ABCD
-can be represented as 
-{
-  AB: 1,
-  BC: 1, 
-  CD: 1,
-}
-to go down 1 depth, iterate over the keys 
-    1. expand each key by 1 e.g. AB -> AXB
-    2. get the counts of the pairs: 
-       {AX: 1, XB: 1}
-    3. multiply those counts by the number of times AB occurred
-    4. add the result to the total counts
-    
-
-"""
 
 
 def galaxy_brain(polymer, depth):
@@ -292,50 +164,14 @@ def galaxy_brain(polymer, depth):
     pairs = Counter(get_pairs(polymer))
     new_pairs = Counter()
     for ii in range(depth):
-        print(f"depth {ii}")
-        num_pairs = len(pairs)
-        for jj, (pair, count) in enumerate(pairs.items()):
-            print(f"\tpair {jj} of {num_pairs}")
+        for pair, count in pairs.items():
             if middle := substitutions.get(pair, ""):
                 totals[middle] = totals.get(middle, 0) + count
-            else:
-                print("halp")
             expanded = pair[0] + middle + pair[-1]
             new_pairs += {key: value * count for key, value in Counter(get_pairs(expanded)).items()}
         pairs = new_pairs
         new_pairs = Counter()
     return totals
-
-
-def tests():
-    solver_functions = [
-        dead_simple,
-        # # recursive_by_pairs,
-        recursive_simple,
-        hungry_caterpillar,
-        galaxy_brain,
-    ]
-    print("tests")
-    for func in solver_functions:
-        print(f"\t{func.__name__}: ", end="")
-        assert func(polymer, depth=0) == Counter("NNCB")
-        assert func(polymer, depth=1) == Counter("NCNBCHB")
-        assert func(polymer, depth=2) == Counter("NBCCNBBBCBHCB")
-        assert func(polymer, depth=3) == Counter("NBBBCNCCNBBNBNBBCHBHHBCHB")
-        assert func(polymer, depth=4) == Counter(
-            "NBBNBNBBCCNBCNCCNBBNBBNBBBNBBNBBCBHCBHHNHCBBCBHCB"
-        )
-        print("passed")
-
-    depth = 22
-    print("")
-    print(f"profiling w. {depth=}")
-    for func in solver_functions:
-        print(f"\t{func.__name__}: ", end="")
-        t1 = time.time()
-        func(polymer, depth=depth)
-        t2 = time.time()
-        print(f"time={t2-t1}")
 
 
 def part1():
