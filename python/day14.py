@@ -248,6 +248,24 @@ counts += Counter(C)
 
 transform the substitutions dict into a tree. Then just iterate over the tree and add the nodes (
 (e.g. "NB") to the counter, instead of building up the whole string. 
+
+
+don't worry about the order? 
+polymer = ABCD
+can be represented as 
+{
+  AB: 1,
+  BC: 1, 
+  CD: 1,
+}
+to go down 1 depth, iterate over the keys 
+    1. expand each key by 1 e.g. AB -> AXB
+    2. get the counts of the pairs: 
+       {AX: 1, XB: 1}
+    3. multiply those counts by the number of times AB occurred
+    4. add the result to the total counts
+    
+
 """
 
 
