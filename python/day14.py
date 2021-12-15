@@ -189,18 +189,19 @@ def recursive(polymer, depth, cache):
     # base case
     if depth == 0:
         return Counter(polymer)
+    tab = '\t'*(5-depth)
+    print(f"{tab}{depth=}, {len(polymer)=}")
     # recursive case
-    else:
-        counts = Counter()
-        for ii, pair in enumerate(get_pairs(polymer)):
-            # spliced = splice_polymer(pair, substitutions)
-            spliced = cache[pair]
-            new_counts = recursive(spliced, depth - 1, cache)
-            # pop leftmost char to avoid fence post errors
-            if ii != 0:
-                left = pair[0]
-                new_counts[left] -= 1
-            counts += new_counts
+    counts = Counter()
+    for ii, pair in enumerate(get_pairs(polymer)):
+        # spliced = splice_polymer(pair, substitutions)
+        spliced = cache[pair]
+        new_counts = recursive(spliced, depth - 1, cache)
+        # pop leftmost char to avoid fence post errors
+        if ii != 0:
+            left = pair[0]
+            new_counts[left] -= 1
+        counts += new_counts
     return counts
 
 
@@ -225,8 +226,9 @@ def part2():
     t1 = time.time()
 
     polymer, substitutions = init()
+    cache = build_cache(substitutions, depth=10)
     print(f"before anything: {polymer=}")
-    counts = recursive(polymer, depth=20)
+    counts = recursive(polymer, depth=4, cache=cache)
     most_common = counts.most_common()
     min_count = most_common[-1][1]
     max_count = most_common[0][1]
@@ -236,9 +238,9 @@ def part2():
 
 
 if __name__ == "__main__":
-    p1 = part1()
-    print(f"part1: {p1}")
-    assert p1 == 1588
-    # p2 = part2()
-    # assert p2 == 1961318
-    # print(f"part2: {p2}")
+    # p1 = part1()
+    # print(f"part1: {p1}")
+    # assert p1 == 1588
+    p2 = part2()
+    assert p2 == 1961318  # for 20 reps
+    print(f"part2: {p2}")
