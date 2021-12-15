@@ -185,7 +185,7 @@ def count(polymer):
 _, substitutions = init()
 
 
-def recursive(polymer, depth):
+def recursive(polymer, depth, cache):
     # base case
     if depth == 0:
         return Counter(polymer)
@@ -193,8 +193,9 @@ def recursive(polymer, depth):
     else:
         counts = Counter()
         for ii, pair in enumerate(get_pairs(polymer)):
-            spliced = splice_polymer(pair, substitutions)
-            new_counts = recursive(spliced, depth - 1)
+            # spliced = splice_polymer(pair, substitutions)
+            spliced = cache[pair]
+            new_counts = recursive(spliced, depth - 1, cache)
             # pop leftmost char to avoid fence post errors
             if ii != 0:
                 left = pair[0]
@@ -205,8 +206,15 @@ def recursive(polymer, depth):
 
 def part1():
     polymer, substitutions = init()
+    cache = build_cache(substitutions, depth=5)
     print(f"before anything: {polymer=}")
-    counts = recursive(polymer, depth=10)
+    # cache = build_cache(substitutions, depth=1)
+    # assert recursive(polymer, depth=0, cache=cache) == Counter("NNCB")
+    # assert recursive(polymer, depth=1, cache=cache) == Counter("NCNBCHB")
+    # assert recursive(polymer, depth=2, cache=cache) == Counter("NBCCNBBBCBHCB")
+    # assert recursive(polymer, depth=3, cache=cache) == Counter("NBBBCNCCNBBNBNBBCHBHHBCHB")
+    # assert recursive(polymer, depth=4, cache=cache) == Counter("NBBNBNBBCCNBCNCCNBBNBBNBBBNBBNBBCBHCBHHNHCBBCBHCB")
+    counts = recursive(polymer, depth=2, cache=cache)
     most_common = counts.most_common()
     min_count = most_common[-1][1]
     max_count = most_common[0][1]
@@ -228,9 +236,9 @@ def part2():
 
 
 if __name__ == "__main__":
-    # p1 = part1()
-    # print(f"part1: {p1}")
-    # assert p1 == 1588
-    p2 = part2()
-    assert p2 == 1961318
-    print(f"part2: {p2}")
+    p1 = part1()
+    print(f"part1: {p1}")
+    assert p1 == 1588
+    # p2 = part2()
+    # assert p2 == 1961318
+    # print(f"part2: {p2}")
