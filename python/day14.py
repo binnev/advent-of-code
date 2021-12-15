@@ -1,5 +1,6 @@
+import math
 import time
-from collections import deque
+from collections import deque, Counter
 from functools import reduce
 
 raw = """OHFNNCKCVOBHSSHONBNF
@@ -153,8 +154,12 @@ def splice_polymer(polymer, substitutions):
     return left
 
 
+def get_pairs(string):
+    return [f"{string[ii]}{string[ii + 1]}" for ii in range(len(string) - 1)]
+
+
 def expand(polymer, cache):
-    pairs = [f"{polymer[ii]}{polymer[ii+1]}" for ii in range(len(polymer) - 1)]
+    pairs = get_pairs(polymer)
     expanded_pairs = [cache.get(pair, pair) for pair in pairs]
 
     def foo(left, right):
@@ -173,54 +178,59 @@ def solver(polymer, substitutions, depth, cache_depth):
     return polymer
 
 
-
 def count(polymer):
     return {char: polymer.count(char) for char in set(polymer)}
 
-def recursive(polymer, cache, depth):
+
+_, substitutions = init()
+
+
+def recursive(polymer, depth):
     # base case
     if depth == 0:
-        return count(polymer)
+        return Counter(polymer)
     # recursive case
     else:
-        counts = ...
-        for pair in polymer:
-            counts.update(recursive(polymer, cache, depth-1))
+        counts = Counter()
+        for ii, pair in enumerate(get_pairs(polymer)):
+            spliced = splice_polymer(pair, substitutions)
+            new_counts = recursive(spliced, depth - 1)
+            # pop leftmost char to avoid fence post errors
+            if ii != 0:
+                left = pair[0]
+                new_counts[left] -= 1
+            counts += new_counts
     return counts
 
-def part1(n=10):
+
+def part1():
     polymer, substitutions = init()
     print(f"before anything: {polymer=}")
-    for ii in range(n):
-        polymer = splice_polymer(polymer, substitutions)
-
-    counts = count(polymer)
-    min_count = min(counts.values())
-    max_count = max(counts.values())
+    counts = recursive(polymer, depth=10)
+    most_common = counts.most_common()
+    min_count = most_common[-1][1]
+    max_count = most_common[0][1]
     return max_count - min_count
 
 
 def part2():
     t1 = time.time()
-    result = part1(20)
 
-    # polymer, substitutions = init()
-    # print(f"before anything: {polymer=}")
-    # polymer = solver(polymer, substitutions, depth=2, cache_depth=10)
-    #
-    # counts = count(polymer)
-    # min_count = min(counts.values())
-    # max_count = max(counts.values())
+    polymer, substitutions = init()
+    print(f"before anything: {polymer=}")
+    counts = recursive(polymer, depth=20)
+    most_common = counts.most_common()
+    min_count = most_common[-1][1]
+    max_count = most_common[0][1]
     t2 = time.time()
     print(f"time: {t2-t1}")
-    return result
-    # return max_count - min_count
+    return max_count - min_count
 
 
 if __name__ == "__main__":
-    p1 = part1()
-    print(f"part1: {p1}")
-    assert p1 == 1588
-    # p2 = part2()
-    # assert p2 == 1961318
-    # print(f"part2: {p2}")
+    # p1 = part1()
+    # print(f"part1: {p1}")
+    # assert p1 == 1588
+    p2 = part2()
+    assert p2 == 1961318
+    print(f"part2: {p2}")
