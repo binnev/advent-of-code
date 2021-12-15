@@ -120,6 +120,19 @@ def init():
     }
 
 
+def init2():
+    cave = init()
+
+
+def print_cave(cave):
+    max_x = max([x for x, y in cave]) + 1
+    max_y = max([y for x, y in cave]) + 1
+    for y in range(max_y):
+        for x in range(max_x):
+            print(cave[(x, y)], end="")
+        print("")
+
+
 def get_neighbours(cave, x, y):
     directions = [
         (x - 1, y),
@@ -162,6 +175,12 @@ def part1():
     return shortest_path
 
 
+def part2():
+    cave = init()
+    print_cave(cave)
+
+
 if __name__ == "__main__":
     p1 = part1()
     print(f"part1: {p1}")
+    p2 = part2()
