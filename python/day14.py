@@ -163,12 +163,13 @@ def simple_cache(func):
 def expand(polymer):
     """This expands the string by depth 1. This is the fastest thing I got right now..."""
     right = deque(polymer)
-    left = deque(right.popleft())
+    ll = right.popleft()
+    left = deque(ll)
     for rr in right:
-        ll = left[-1]
         if middle := substitutions.get(ll + rr):
             left.append(middle)
         left.append(rr)
+        ll = rr
     return "".join(left)
 
 
@@ -253,7 +254,7 @@ def tests():
         )
         print("passed")
 
-    depth = 20
+    depth = 22
     print("")
     print(f"profiling w. {depth=}")
     for func in solver_functions:
