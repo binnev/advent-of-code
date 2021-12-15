@@ -121,7 +121,16 @@ def init():
 
 
 def init2():
+    repeats = 5
     cave = init()
+    new_cave = dict()
+    width = max([x for x, y in cave]) + 1
+    height = max([y for x, y in cave]) + 1
+
+    for (x, y), value in cave.items():
+        for ii in range(repeats):  # x
+            new_cave[(x + width * ii, y)] = max((value + ii) % 9, (value + ii) % 10)
+    return new_cave
 
 
 def print_cave(cave):
@@ -176,7 +185,7 @@ def part1():
 
 
 def part2():
-    cave = init()
+    cave = init2()
     print_cave(cave)
 
 
