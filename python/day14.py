@@ -132,53 +132,6 @@ def init():
     return polymer, substitutions
 
 
-class Node:
-    def __init__(self, data):
-        self.data = data
-        self.next = None
-
-    def __repr__(self):
-        return self.data
-
-
-class LinkedList:
-    def __init__(self, nodes=None):
-        self.head = None
-        if nodes is not None:
-            node = Node(data=nodes.pop(0))
-            self.first = node
-            self.head = node
-            for elem in nodes:
-                node.next = Node(data=elem)
-                node = node.next
-
-    @property
-    def nodes(self):
-        node = self.first
-        nodes = []
-        while node is not None:
-            nodes.append(node.data)
-            node = node.next
-        return nodes
-
-    def __repr__(self):
-        return f"[{', '.join(map(str, self.nodes))}]"
-
-    def __iter__(self):
-        node = self.head
-        while node is not None:
-            yield node
-            node = node.next
-
-    def __next__(self):
-        node = self.head
-        if self.head.next is not None:
-            self.head = self.head.next
-        else:
-            raise StopIteration
-        return node
-
-
 def build_cache(substitutions, depth):
     cache = dict()
     for pair in substitutions:
@@ -220,9 +173,20 @@ def solver(polymer, substitutions, depth, cache_depth):
     return polymer
 
 
+
 def count(polymer):
     return {char: polymer.count(char) for char in set(polymer)}
 
+def recursive(polymer, cache, depth):
+    # base case
+    if depth == 0:
+        return count(polymer)
+    # recursive case
+    else:
+        counts = ...
+        for pair in polymer:
+            counts.update(recursive(polymer, cache, depth-1))
+    return counts
 
 def part1(n=10):
     polymer, substitutions = init()
@@ -235,23 +199,28 @@ def part1(n=10):
     max_count = max(counts.values())
     return max_count - min_count
 
+
 def part2():
-    return part1(20)
-    polymer, substitutions = init()
-    print(f"before anything: {polymer=}")
-    polymer = solver(polymer, substitutions, depth=5, cache_depth=4)
+    t1 = time.time()
+    result = part1(20)
 
-    counts = count(polymer)
-    min_count = min(counts.values())
-    max_count = max(counts.values())
-    return max_count - min_count
-
+    # polymer, substitutions = init()
+    # print(f"before anything: {polymer=}")
+    # polymer = solver(polymer, substitutions, depth=2, cache_depth=10)
+    #
+    # counts = count(polymer)
+    # min_count = min(counts.values())
+    # max_count = max(counts.values())
+    t2 = time.time()
+    print(f"time: {t2-t1}")
+    return result
+    # return max_count - min_count
 
 
 if __name__ == "__main__":
     p1 = part1()
     print(f"part1: {p1}")
     assert p1 == 1588
-    p2 = part2()
-    assert p2 == 1961318
-    print(f"part2: {p2}")
+    # p2 = part2()
+    # assert p2 == 1961318
+    # print(f"part2: {p2}")
