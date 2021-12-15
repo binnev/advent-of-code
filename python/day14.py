@@ -132,7 +132,7 @@ def init():
     return polymer, substitutions
 
 
-_, substitutions = init()
+polymer, substitutions = init()
 
 
 def get_pairs(string):
@@ -141,57 +141,33 @@ def get_pairs(string):
 
 def galaxy_brain(polymer, depth):
     """
-    don't worry about the order?
-    polymer = ABC
-    can be represented as
-    pairs = {
-      AB: 1,
-      BC: 1,
-    }
-    initialise counts:
-    totals = Counter(ABC) = {A: 1, B: 1, C: 1}
-    to go down 1 depth, iterate over the pairs:
-        pair = AB
-        expand pair by 1 e.g. AB -> AXB
-        increase the count of X by the number of times the pair is in pairs (1):
-            totals = {A: 1, B: 1, C: 1, X: 1}
-        2. get the counts of the pairs:
-           {AX: 1, XB: 1}
-        3. multiply those counts by the number of times AB occurred
-        4. add the result to the total counts
+    Don't worry about the order! Instead, count the *pairs* of characters, and expand them. For
+    each expansion, add the middle character to the total counts. Don't need to store the whole
+    string, and can do bulk operations for all the occurrances of each pair!
     """
     totals = Counter(polymer)
     pairs = Counter(get_pairs(polymer))
-    new_pairs = Counter()
     for ii in range(depth):
+        new_pairs = Counter()
         for pair, count in pairs.items():
             if middle := substitutions.get(pair, ""):
-                totals[middle] = totals.get(middle, 0) + count
+                totals[middle] += count
             expanded = pair[0] + middle + pair[-1]
             new_pairs += {key: value * count for key, value in Counter(get_pairs(expanded)).items()}
         pairs = new_pairs
-        new_pairs = Counter()
-    return totals
+
+    most_common = totals.most_common()
+    min_count = most_common[-1][1]
+    max_count = most_common[0][1]
+    return max_count - min_count
 
 
 def part1():
-    polymer, substitutions = init()
-    print(f"before anything: {polymer=}")
-    counts = galaxy_brain(polymer, depth=10)
-    most_common = counts.most_common()
-    min_count = most_common[-1][1]
-    max_count = most_common[0][1]
-    return max_count - min_count
+    return galaxy_brain(polymer, depth=10)
 
 
 def part2():
-    polymer, substitutions = init()
-    print(f"before anything: {polymer=}")
-    counts = galaxy_brain(polymer, depth=40)
-    most_common = counts.most_common()
-    min_count = most_common[-1][1]
-    max_count = most_common[0][1]
-    return max_count - min_count
+    return galaxy_brain(polymer, depth=40)
 
 
 if __name__ == "__main__":
