@@ -133,11 +133,11 @@ def init():
 
 
 def get_pairs(string):
-    return [f"{string[ii]}{string[ii + 1]}" for ii in range(len(string) - 1)]
+    return [string[ii : ii + 2] for ii in range(len(string) - 1)]
 
 
 def expand(polymer, substitutions):
-    """This expands the string by depth 1. This is the fastest thing I got right now..."""
+    """This expands the string by depth 1. This is the fastest thing I could find for part 1."""
     right = deque(polymer)
     ll = right.popleft()
     left = deque(ll)
@@ -162,8 +162,11 @@ def galaxy_brain(polymer, substitutions, depth):
         for pair, count in pairs.items():
             if middle := substitutions.get(pair, ""):
                 totals[middle] += count
-            expanded = pair[0] + middle + pair[-1]
-            new_pairs += {key: value * count for key, value in Counter(get_pairs(expanded)).items()}
+                new_pairs += {pair[0] + middle: count, middle + pair[-1]: count}
+            else:
+                # if this pair isn't in substitutions, it didn't increment the counter. And it
+                # won't next time either, so no point including it in new_pairs
+                pass
         pairs = new_pairs
 
     most_common = totals.most_common()
@@ -193,6 +196,9 @@ if __name__ == "__main__":
     p1 = part1()
     print(f"part1: {p1}")
     assert p1 == 2590
+    t1 = time.time()
     p2 = part2()
+    t2 = time.time()
     print(f"part2: {p2}")
+    print(f"time: {t2-t1}s")
     assert p2 == 2875665202438
