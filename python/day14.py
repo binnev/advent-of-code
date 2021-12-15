@@ -132,14 +132,24 @@ def init():
     return polymer, substitutions
 
 
-polymer, substitutions = init()
-
-
 def get_pairs(string):
     return [f"{string[ii]}{string[ii + 1]}" for ii in range(len(string) - 1)]
 
 
-def galaxy_brain(polymer, depth):
+def expand(polymer, substitutions):
+    """This expands the string by depth 1. This is the fastest thing I got right now..."""
+    right = deque(polymer)
+    ll = right.popleft()
+    left = deque(ll)
+    for rr in right:
+        if middle := substitutions.get(ll + rr):
+            left.append(middle)
+        left.append(rr)
+        ll = rr
+    return "".join(left)
+
+
+def galaxy_brain(polymer, substitutions, depth):
     """
     Don't worry about the order! Instead, count the *pairs* of characters, and expand them. For
     each expansion, add the middle character to the total counts. Don't need to store the whole
@@ -163,11 +173,20 @@ def galaxy_brain(polymer, depth):
 
 
 def part1():
-    return galaxy_brain(polymer, depth=10)
+    """Brute force; actually calculating the whole expanded string"""
+    polymer, substitutions = init()
+    for ii in range(10):
+        polymer = expand(polymer, substitutions)
+    totals = Counter(polymer)
+    most_common = totals.most_common()
+    min_count = most_common[-1][1]
+    max_count = most_common[0][1]
+    return max_count - min_count
 
 
 def part2():
-    return galaxy_brain(polymer, depth=40)
+    polymer, substitutions = init()
+    return galaxy_brain(polymer, substitutions, depth=40)
 
 
 if __name__ == "__main__":
