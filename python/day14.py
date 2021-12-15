@@ -143,7 +143,10 @@ def build_cache(substitutions, depth):
     return cache
 
 
-def splice_polymer(polymer, substitutions):
+polymer, substitutions = init()
+
+
+def splice_polymer(polymer):
     right = deque(polymer)
     left = deque(right.popleft())
     for rr in right:
@@ -158,39 +161,10 @@ def get_pairs(string):
     return [f"{string[ii]}{string[ii + 1]}" for ii in range(len(string) - 1)]
 
 
-def expand(polymer, cache):
-    pairs = get_pairs(polymer)
-    expanded_pairs = [cache.get(pair, pair) for pair in pairs]
-
-    def foo(left, right):
-        return left[:-1] + right
-
-    whole = reduce(foo, expanded_pairs)
-    return whole
-
-
-def solver(polymer, substitutions, depth, cache_depth):
-    cache = build_cache(substitutions, depth=cache_depth)
-    for ii in range(depth):
-        polymer = expand(polymer, cache)
-        print(f"{ii=}")
-        # print(f"{polymer=}")
-    return polymer
-
-
-def count(polymer):
-    return {char: polymer.count(char) for char in set(polymer)}
-
-
-_, substitutions = init()
-
-
 def recursive(polymer, depth, cache):
     # base case
     if depth == 0:
         return Counter(polymer)
-    tab = '\t'*(5-depth)
-    print(f"{tab}{depth=}, {len(polymer)=}")
     # recursive case
     counts = Counter()
     for ii, pair in enumerate(get_pairs(polymer)):
@@ -205,17 +179,57 @@ def recursive(polymer, depth, cache):
     return counts
 
 
+def dead_simple(polymer, depth):
+    for ii in range(depth):
+        polymer = splice_polymer(polymer)
+    return Counter(polymer)
+
+def new_way(polymer, depth):
+    return dead_simple(polymer,depth)
+
+
+def tests():
+    solver_functions = [
+        dead_simple,
+        new_way,
+    ]
+    print("tests")
+    for func in solver_functions:
+        print(f"\t{func.__name__}: ", end="")
+        assert func(polymer, depth=0) == Counter("NNCB")
+        assert func(polymer, depth=1) == Counter("NCNBCHB")
+        assert func(polymer, depth=2) == Counter("NBCCNBBBCBHCB")
+        assert func(polymer, depth=3) == Counter("NBBBCNCCNBBNBNBBCHBHHBCHB")
+        assert func(polymer, depth=4) == Counter(
+            "NBBNBNBBCCNBCNCCNBBNBBNBBBNBBNBBCBHCBHHNHCBBCBHCB"
+        )
+        print("passed")
+
+    depth = 10
+    print("")
+    print(f"profiling w. {depth=}")
+    for func in solver_functions:
+        print(f"\t{func.__name__}: ", end="")
+        t1 = time.time()
+        func(polymer, depth=depth)
+        t2 = time.time()
+        print(f"time={t2-t1}")
+
+
 def part1():
     polymer, substitutions = init()
-    cache = build_cache(substitutions, depth=5)
     print(f"before anything: {polymer=}")
-    # cache = build_cache(substitutions, depth=1)
-    # assert recursive(polymer, depth=0, cache=cache) == Counter("NNCB")
-    # assert recursive(polymer, depth=1, cache=cache) == Counter("NCNBCHB")
-    # assert recursive(polymer, depth=2, cache=cache) == Counter("NBCCNBBBCBHCB")
-    # assert recursive(polymer, depth=3, cache=cache) == Counter("NBBBCNCCNBBNBNBBCHBHHBCHB")
-    # assert recursive(polymer, depth=4, cache=cache) == Counter("NBBNBNBBCCNBCNCCNBBNBBNBBBNBBNBBCBHCBHHNHCBBCBHCB")
-    counts = recursive(polymer, depth=2, cache=cache)
+    assert dead_simple(polymer, depth=0) == Counter("NNCB")
+    assert dead_simple(polymer, depth=1) == Counter("NCNBCHB")
+    assert dead_simple(polymer, depth=2) == Counter("NBCCNBBBCBHCB")
+    assert dead_simple(polymer, depth=3) == Counter("NBBBCNCCNBBNBNBBCHBHHBCHB")
+    assert dead_simple(polymer, depth=4) == Counter(
+        "NBBNBNBBCCNBCNCCNBBNBBNBBBNBBNBBCBHCBHHNHCBBCBHCB"
+    )
+    t1 = time.time()
+    counts = dead_simple(polymer, depth=20)
+    t2 = time.time()
+    print(f"{t2-t1=}")
     most_common = counts.most_common()
     min_count = most_common[-1][1]
     max_count = most_common[0][1]
@@ -238,9 +252,10 @@ def part2():
 
 
 if __name__ == "__main__":
+    tests()
     # p1 = part1()
     # print(f"part1: {p1}")
     # assert p1 == 1588
-    p2 = part2()
-    assert p2 == 1961318  # for 20 reps
-    print(f"part2: {p2}")
+    # p2 = part2()
+    # assert p2 == 1961318  # for 20 reps
+    # print(f"part2: {p2}")
