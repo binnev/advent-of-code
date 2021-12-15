@@ -307,18 +307,27 @@ def galaxy_brain(polymer, depth):
         3. multiply those counts by the number of times AB occurred
         4. add the result to the total counts
     """
-    totals = Counter(get_pairs(polymer))
+    totals = Counter(polymer)
+    pairs = Counter(get_pairs(polymer))
+    new_pairs = Counter()
     for ii in range(depth):
-        for pair, count in totals.items():
-            expanded = expand(pair)
-            counts = Counter(get_pairs(expanded))
-            counts *= count
-            totals += counts
+
+        for pair, count in pairs.items():
+            if middle := substitutions.get(pair, ""):
+                totals[middle] = totals.get(middle, 0) + count
+            else:
+                print("halp")
+            expanded = pair[0] + middle + pair[-1]
+            new_pairs += {key: value * count for key, value in Counter(get_pairs(expanded)).items()}
+        pairs = new_pairs
+        new_pairs = Counter()
+        polymer = expand(polymer)  # for sanity check
     return totals
+
 
 def tests():
     solver_functions = [
-        # dead_simple,
+        dead_simple,
         # # recursive_by_pairs,
         # recursive_simple,
         # hungry_caterpillar,
@@ -336,7 +345,7 @@ def tests():
         )
         print("passed")
 
-    depth = 17
+    depth = 22
     print("")
     print(f"profiling w. {depth=}")
     for func in solver_functions:
