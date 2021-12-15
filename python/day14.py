@@ -269,12 +269,60 @@ to go down 1 depth, iterate over the keys
 """
 
 
+def galaxy_brain(polymer, depth):
+    """
+    don't worry about the order?
+    polymer = ABCD
+    can be represented as
+    {
+      AB: 1,
+      BC: 1,
+      CD: 1,
+    }
+    to go down 1 depth, iterate over the keys
+        1. expand each key by 1 e.g. AB -> AXB
+        1.5 increase the count of X by 1
+        2. get the counts of the pairs:
+           {AX: 1, XB: 1}
+        3. multiply those counts by the number of times AB occurred
+        4. add the result to the total counts
+
+
+    don't worry about the order?
+    polymer = ABC
+    can be represented as
+    pairs = {
+      AB: 1,
+      BC: 1,
+    }
+    initialise counts:
+    totals = Counter(ABC) = {A: 1, B: 1, C: 1}
+    to go down 1 depth, iterate over the pairs:
+        pair = AB
+        expand pair by 1 e.g. AB -> AXB
+        increase the count of X by the number of times the pair is in pairs (1):
+            totals = {A: 1, B: 1, C: 1, X: 1}
+        2. get the counts of the pairs:
+           {AX: 1, XB: 1}
+        3. multiply those counts by the number of times AB occurred
+        4. add the result to the total counts
+    """
+    totals = Counter(get_pairs(polymer))
+    for ii in range(depth):
+        for pair, count in totals.items():
+            expanded = expand(pair)
+            counts = Counter(get_pairs(expanded))
+            counts *= count
+            totals += counts
+    return totals
+
 def tests():
     solver_functions = [
-        dead_simple,
-        # recursive_by_pairs,
-        recursive_simple,
-        hungry_caterpillar,
+        # dead_simple,
+        # # recursive_by_pairs,
+        # recursive_simple,
+        # hungry_caterpillar,
+        galaxy_brain,
     ]
     print("tests")
     for func in solver_functions:
@@ -288,7 +336,7 @@ def tests():
         )
         print("passed")
 
-    depth = 22
+    depth = 17
     print("")
     print(f"profiling w. {depth=}")
     for func in solver_functions:
