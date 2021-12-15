@@ -1,3 +1,4 @@
+import functools
 import math
 import time
 from collections import deque, Counter
@@ -138,7 +139,7 @@ def build_cache(substitutions, depth):
     for pair in substitutions:
         polymer = pair
         for ii in range(depth):
-            polymer = splice_polymer(polymer, substitutions)
+            polymer = expand(polymer, substitutions)
         cache[pair] = "".join(polymer)
     return cache
 
@@ -146,7 +147,21 @@ def build_cache(substitutions, depth):
 polymer, substitutions = init()
 
 
-def splice_polymer(polymer):
+def simple_cache(func):
+    cache = dict()
+
+    @functools.wraps(func)
+    def inner(*args):
+        result = func(*args)
+        cache[args] = result
+        return result
+
+    inner.cache = cache
+    return inner
+
+
+def expand(polymer):
+    """This expands the string by depth 1. This is the fastest thing I got right now..."""
     right = deque(polymer)
     left = deque(right.popleft())
     for rr in right:
@@ -154,23 +169,30 @@ def splice_polymer(polymer):
         if middle := substitutions.get(ll + rr):
             left.append(middle)
         left.append(rr)
-    return left
+    return "".join(left)
 
 
 def get_pairs(string):
     return [f"{string[ii]}{string[ii + 1]}" for ii in range(len(string) - 1)]
 
 
-def recursive(polymer, depth, cache):
+def recursive_simple(polymer, depth):
+    # base case
+    if depth == 0:
+        return Counter(polymer)
+    # recursive case
+    return Counter(recursive_simple(expand(polymer), depth - 1))
+
+
+def recursive_by_pairs(polymer, depth):
     # base case
     if depth == 0:
         return Counter(polymer)
     # recursive case
     counts = Counter()
     for ii, pair in enumerate(get_pairs(polymer)):
-        # spliced = splice_polymer(pair, substitutions)
-        spliced = cache[pair]
-        new_counts = recursive(spliced, depth - 1, cache)
+        spliced = expand(pair)
+        new_counts = recursive_by_pairs(spliced, depth - 1)
         # pop leftmost char to avoid fence post errors
         if ii != 0:
             left = pair[0]
@@ -179,19 +201,45 @@ def recursive(polymer, depth, cache):
     return counts
 
 
+def hungry_caterpillar(polymer, depth):
+    totals = Counter()
+    for ii, pair in enumerate(get_pairs(polymer)):
+        counts = Counter(dead_simple(pair, depth))
+        # pop leftmost char to avoid fence post errors
+        if ii != 0:
+            left = pair[0]
+            counts[left] -= 1
+        totals += counts
+    return totals
+
+
 def dead_simple(polymer, depth):
+    """Generate the whole string and then count the elements"""
     for ii in range(depth):
-        polymer = splice_polymer(polymer)
+        polymer = expand(polymer)
     return Counter(polymer)
 
-def new_way(polymer, depth):
-    return dead_simple(polymer,depth)
+
+"""
+ideas: 
+
+feed the whole string left<- into the function and expand it as it comes.
+Have the function "eat" the string pair by pair, and return the 40-deep counts for all the pairs.
+That way we never have to store the whole string. 
+Or keep expanding until the chunk you're working on is a certain length, then recurse with less 
+depth
+
+transform the substitutions dict into a tree. Then just iterate over the tree and add the nodes (
+(e.g. "NB") to the counter, instead of building up the whole string. 
+"""
 
 
 def tests():
     solver_functions = [
         dead_simple,
-        new_way,
+        # recursive_by_pairs,
+        recursive_simple,
+        hungry_caterpillar,
     ]
     print("tests")
     for func in solver_functions:
@@ -205,7 +253,7 @@ def tests():
         )
         print("passed")
 
-    depth = 10
+    depth = 20
     print("")
     print(f"profiling w. {depth=}")
     for func in solver_functions:
@@ -242,7 +290,7 @@ def part2():
     polymer, substitutions = init()
     cache = build_cache(substitutions, depth=10)
     print(f"before anything: {polymer=}")
-    counts = recursive(polymer, depth=4, cache=cache)
+    counts = recursive_simple(polymer, depth=4, cache=cache)
     most_common = counts.most_common()
     min_count = most_common[-1][1]
     max_count = most_common[0][1]
