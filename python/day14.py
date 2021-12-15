@@ -1,8 +1,6 @@
 import functools
-import math
 import time
 from collections import deque, Counter
-from functools import reduce
 
 raw = """OHFNNCKCVOBHSSHONBNF
 
@@ -107,24 +105,24 @@ BP -> O
 KB -> O
 KF -> O"""
 
-raw = """NNCB
-
-CH -> B
-HH -> N
-CB -> H
-NH -> C
-HB -> C
-HC -> B
-HN -> C
-NN -> C
-BH -> H
-NC -> B
-NB -> B
-BN -> B
-BB -> N
-BC -> B
-CC -> N
-CN -> C"""
+# raw = """NNCB
+#
+# CH -> B
+# HH -> N
+# CB -> H
+# NH -> C
+# HB -> C
+# HC -> B
+# HN -> C
+# NN -> C
+# BH -> H
+# NC -> B
+# NB -> B
+# BN -> B
+# BB -> N
+# BC -> B
+# CC -> N
+# CN -> C"""
 
 
 def init():
@@ -361,10 +359,9 @@ def part2():
 
 
 if __name__ == "__main__":
-    # tests()
     p1 = part1()
     print(f"part1: {p1}")
-    assert p1 == 1588
+    assert p1 == 2590
     p2 = part2()
     print(f"part2: {p2}")
-    assert p2 == 2188189693529  # for 20 reps
+    assert p2 == 2875665202438
