@@ -272,23 +272,6 @@ to go down 1 depth, iterate over the keys
 def galaxy_brain(polymer, depth):
     """
     don't worry about the order?
-    polymer = ABCD
-    can be represented as
-    {
-      AB: 1,
-      BC: 1,
-      CD: 1,
-    }
-    to go down 1 depth, iterate over the keys
-        1. expand each key by 1 e.g. AB -> AXB
-        1.5 increase the count of X by 1
-        2. get the counts of the pairs:
-           {AX: 1, XB: 1}
-        3. multiply those counts by the number of times AB occurred
-        4. add the result to the total counts
-
-
-    don't worry about the order?
     polymer = ABC
     can be represented as
     pairs = {
@@ -311,8 +294,10 @@ def galaxy_brain(polymer, depth):
     pairs = Counter(get_pairs(polymer))
     new_pairs = Counter()
     for ii in range(depth):
-
-        for pair, count in pairs.items():
+        print(f"depth {ii}")
+        num_pairs = len(pairs)
+        for jj, (pair, count) in enumerate(pairs.items()):
+            print(f"\tpair {jj} of {num_pairs}")
             if middle := substitutions.get(pair, ""):
                 totals[middle] = totals.get(middle, 0) + count
             else:
@@ -321,7 +306,6 @@ def galaxy_brain(polymer, depth):
             new_pairs += {key: value * count for key, value in Counter(get_pairs(expanded)).items()}
         pairs = new_pairs
         new_pairs = Counter()
-        polymer = expand(polymer)  # for sanity check
     return totals
 
 
@@ -329,8 +313,8 @@ def tests():
     solver_functions = [
         dead_simple,
         # # recursive_by_pairs,
-        # recursive_simple,
-        # hungry_caterpillar,
+        recursive_simple,
+        hungry_caterpillar,
         galaxy_brain,
     ]
     print("tests")
@@ -359,17 +343,7 @@ def tests():
 def part1():
     polymer, substitutions = init()
     print(f"before anything: {polymer=}")
-    assert dead_simple(polymer, depth=0) == Counter("NNCB")
-    assert dead_simple(polymer, depth=1) == Counter("NCNBCHB")
-    assert dead_simple(polymer, depth=2) == Counter("NBCCNBBBCBHCB")
-    assert dead_simple(polymer, depth=3) == Counter("NBBBCNCCNBBNBNBBCHBHHBCHB")
-    assert dead_simple(polymer, depth=4) == Counter(
-        "NBBNBNBBCCNBCNCCNBBNBBNBBBNBBNBBCBHCBHHNHCBBCBHCB"
-    )
-    t1 = time.time()
-    counts = dead_simple(polymer, depth=20)
-    t2 = time.time()
-    print(f"{t2-t1=}")
+    counts = galaxy_brain(polymer, depth=10)
     most_common = counts.most_common()
     min_count = most_common[-1][1]
     max_count = most_common[0][1]
@@ -377,25 +351,20 @@ def part1():
 
 
 def part2():
-    t1 = time.time()
-
     polymer, substitutions = init()
-    cache = build_cache(substitutions, depth=10)
     print(f"before anything: {polymer=}")
-    counts = recursive_simple(polymer, depth=4, cache=cache)
+    counts = galaxy_brain(polymer, depth=40)
     most_common = counts.most_common()
     min_count = most_common[-1][1]
     max_count = most_common[0][1]
-    t2 = time.time()
-    print(f"time: {t2-t1}")
     return max_count - min_count
 
 
 if __name__ == "__main__":
-    tests()
-    # p1 = part1()
-    # print(f"part1: {p1}")
-    # assert p1 == 1588
-    # p2 = part2()
-    # assert p2 == 1961318  # for 20 reps
-    # print(f"part2: {p2}")
+    # tests()
+    p1 = part1()
+    print(f"part1: {p1}")
+    assert p1 == 1588
+    p2 = part2()
+    print(f"part2: {p2}")
+    assert p2 == 2188189693529  # for 20 reps
