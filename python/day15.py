@@ -102,9 +102,16 @@ raw = """11956992691699626181157392791991439681856921722851821835662217958771161
 2824762557912419114811994741439928232182929722212597932922111769122217134615129118682941162335962156
 3156739229892221111493261433466816249792951919531787792919597117721856143161391231113153218196918133"""
 
-raw = """012
-249
-311"""
+raw = """1163751742
+1381373672
+2136511328
+3694931569
+7463417111
+1319128137
+1359912421
+3125421639
+1293138521
+2311944581"""
 
 
 def init():
@@ -125,25 +132,17 @@ def get_neighbours(cave, x, y):
 
 
 def dijkstra(cave):
-    spt = set()  # shortest path tree
-    # distances = {(x, y): math.inf for (x, y) in cave}
+    spt = dict()  # shortest path tree
     distances = {(0, 0): 0}
     max_x = max([x for x, y in cave])
     max_y = max([y for x, y in cave])
     finish = (max_x, max_y)
     while finish not in spt:
-        # choose node from distances with the lowest distance.
-        # exclude those already in spt
-        # outside = set(distances.keys()).difference(spt)
-        outside = {key: value for key, value in distances.items() if key not in spt}
-        node = min(outside, key=lambda key: outside[key])
-        # Add that to spt
-        spt.add(node)  # todo: even better; instead of inf distance, just don't include them in
+        # choose node from distances with the lowest distance. Add that to spt
+        node = min(distances, key=lambda key: distances[key])
+        spt[node] = distances.pop(node)
 
-        # the dict!
-        # todo: and instead of outside, just remove values from distances when they're added to spt
         # update the distances of the nodes adjacent to the new node
-        # get adjacent nodes
         neighbours = get_neighbours(cave, *node)
         for neighbour, risk in neighbours.items():
             # filter out ones that are already in spt
@@ -152,9 +151,9 @@ def dijkstra(cave):
 
             # update distances: distance of current node PLUS the adjacent node's cave value
             # keep whichever one is smaller
-            distances[neighbour] = min(distances.get(neighbour, math.inf), distances[node] + risk)
+            distances[neighbour] = min(distances.get(neighbour, math.inf), spt[node] + risk)
 
-    return distances[finish]
+    return spt[finish]
 
 
 def part1():
