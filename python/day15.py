@@ -129,7 +129,10 @@ def init2():
 
     for (x, y), value in cave.items():
         for ii in range(repeats):  # x
-            new_cave[(x + width * ii, y)] = max((value + ii) % 9, (value + ii) % 10)
+            for jj in range(repeats):  # y
+                new_value = max((value + ii + jj) % 9, (value + ii + jj) % 10)
+                new_coords = (x + width * ii, y + height * jj)
+                new_cave[new_coords] = new_value
     return new_cave
 
 
