@@ -224,11 +224,27 @@ def dead_simple(polymer, depth):
 """
 ideas: 
 
+the problem grows with approx 4 * 1.94**depth
+for depth=40 that's a 1,300,556,393,886 length string.
+I need to be 1) not holding all that in memory, and 
+2) caching function calls to not do all that work 
+
 feed the whole string left<- into the function and expand it as it comes.
 Have the function "eat" the string pair by pair, and return the 40-deep counts for all the pairs.
 That way we never have to store the whole string. 
 Or keep expanding until the chunk you're working on is a certain length, then recurse with less 
 depth
+for depth = 2: 
+queue = ABC
+A-N-BC
+A-M-N-O-BC
+counts += Counter(A-M-N-O-)
+queue = BC
+B-Z-C
+B-X-Z-Y-C
+counts += Counter(B-X-Z-Y-)
+queue = C
+counts += Counter(C)
 
 transform the substitutions dict into a tree. Then just iterate over the tree and add the nodes (
 (e.g. "NB") to the counter, instead of building up the whole string. 
