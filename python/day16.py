@@ -60,14 +60,7 @@ TYPES = {
 }
 
 
-def parse(string, num_packets=None, len_packets=None) -> (list, str):
-    if num_packets and len_packets:
-        raise Exception("pick one")
-
-    if len_packets:
-        string, remainder = split(string, len_packets)
-        return parse(string)[0], remainder
-
+def parse(string, num_packets=None) -> (list, str):
     results = []
     ii = 0
     while "1" in string:
@@ -83,7 +76,7 @@ def parse(string, num_packets=None, len_packets=None) -> (list, str):
             value, string = parse_operator(string, typ)
             results.append(value)
 
-        if num_packets and ii == num_packets:
+        if num_packets and ii == num_packets - 1:
             break
         ii += 1
     return results, string
@@ -106,7 +99,8 @@ def parse_operator(string, typ):
         # 15 bit number representing the number of BITS in the sub-packets to follow
         length_in_bits, string = split(string, 15)
         length = int(length_in_bits, 2)
-        values, string = parse(string, len_packets=length)
+        chunk, string = split(string, length)
+        values, _ = parse(chunk)
 
     elif length_type == "1":
         # 11-bit number representing the number of sub-packets
