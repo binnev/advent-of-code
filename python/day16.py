@@ -33,12 +33,22 @@ def hex_to_bin(hex_string):
 def split(string, index):
     return string[:index], string[index:]
 
+VERSIONS = []
 
-def parse(string):
+def parse(string, num_packets=None, len_packets=None) -> (list, str):
+    if num_packets and len_packets:
+        raise Exception("pick one")
+
+    if len_packets:
+        string, remainder = split(string, len_packets)
+        return parse(string), remainder
+
     results = []
+    ii = 0
     while "1" in string:
         version, string = split(string, 3)
         version = int(version, 2)
+        VERSIONS.append(version)
         typ, string = split(string, 3)
         typ = int(typ, 2)
         if typ == 4:
@@ -47,6 +57,10 @@ def parse(string):
         else:
             values, string = parse_operator(string)
             results.extend(values)
+
+        if num_packets and ii == num_packets:
+            break
+        ii += 1
     return results, string
 
 
@@ -67,20 +81,27 @@ def parse_operator(string):
         # 15 bit number representing the number of BITS in the sub-packets to follow
         length_in_bits, string = split(string, 15)
         length = int(length_in_bits, 2)
-        chunk, string = split(string, length)
-        values, string = parse(chunk)
-        return values, string
+        return parse(string, len_packets=length)
+        # chunk, string = split(string, length)
+        # values, string = parse(chunk)
+        # return values, string
 
     elif length_type == "1":
         # 11-bit number representing the number of sub-packets
         num_sub_packets, string = split(string, 11)
+        num_sub_packets = int(num_sub_packets, 2)
+        return parse(string, num_packets=num_sub_packets)
     return None, string
 
 
 for hex_string in [
-    "D2FE28",
-    "38006F45291200",
-    "EE00D40C823060",
+    # "D2FE28",
+    # "38006F45291200",
+    # "EE00D40C823060",
+    # "A0016C880162017C3686B18A3D4780",
+    raw
 ]:
     print(f"{hex_string}: ", end="")
     print(parse(hex_to_bin(hex_string)))
+    print(VERSIONS)
+    print(sum(VERSIONS))
