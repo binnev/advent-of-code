@@ -130,7 +130,7 @@ for hex_string, expected_value in [
     ("F600BC2D8F", 0),
     ("9C005AC2F8F0", 0),
     ("9C0141080250320F1802104A08", 1),
-    # raw
+    (raw, None),
 ]:
     print(f"{hex_string}: ", end="")
     values, remainder = parse(hex_to_bin(hex_string))
