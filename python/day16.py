@@ -62,7 +62,7 @@ TYPES = {
 
 def parse(string, num_packets=None) -> (list, str):
     results = []
-    ii = 0
+    ii = 1
     while "1" in string:
         version, string = split(string, 3)
         version = int(version, 2)
@@ -76,7 +76,7 @@ def parse(string, num_packets=None) -> (list, str):
             value, string = parse_operator(string, typ)
             results.append(value)
 
-        if num_packets and ii == num_packets - 1:
+        if ii == num_packets:
             break
         ii += 1
     return results, string
@@ -130,7 +130,7 @@ for hex_string, expected_value in [
     ("F600BC2D8F", 0),
     ("9C005AC2F8F0", 0),
     ("9C0141080250320F1802104A08", 1),
-    (raw, None),
+    (raw, 912901337844),
 ]:
     print(f"{hex_string}: ", end="")
     values, remainder = parse(hex_to_bin(hex_string))
