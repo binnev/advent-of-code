@@ -6,7 +6,7 @@ raw = """0054FEC8C54DC02295D5AE9B243D2F4FEA154493A43E0E60084E61CE802419A95E38958
 3. check for number or operation type
 """
 
-hex_to_bin = {
+hex_bin_mapping = {
     "0": "0000",
     "1": "0001",
     "2": "0010",
@@ -26,9 +26,61 @@ hex_to_bin = {
 }
 
 
+def hex_to_bin(hex_string):
+    return "".join(hex_bin_mapping[char] for char in hex_string)
+
+
 def split(string, index):
     return string[:index], string[index:]
 
 
-def init():
-    return "".join(hex_to_bin[char] for char in raw)
+def parse(string):
+    results = []
+    while "1" in string:
+        version, string = split(string, 3)
+        version = int(version, 2)
+        typ, string = split(string, 3)
+        typ = int(typ, 2)
+        if typ == 4:
+            value, string = parse_literal(string)
+            results.append((value, version, typ))
+        else:
+            values, string = parse_operator(string)
+            results.extend(values)
+    return results, string
+
+
+def parse_literal(string):
+    keep_reading = True
+    content = ""
+    while keep_reading:
+        keep_reading, string = split(string, 1)
+        keep_reading = bool(int(keep_reading))
+        chunk, string = split(string, 4)
+        content += chunk
+    return int(content, 2), string
+
+
+def parse_operator(string):
+    length_type, string = split(string, 1)
+    if length_type == "0":
+        # 15 bit number representing the number of BITS in the sub-packets to follow
+        length_in_bits, string = split(string, 15)
+        length = int(length_in_bits, 2)
+        chunk, string = split(string, length)
+        values, string = parse(chunk)
+        return values, string
+
+    elif length_type == "1":
+        # 11-bit number representing the number of sub-packets
+        num_sub_packets, string = split(string, 11)
+    return None, string
+
+
+for hex_string in [
+    "D2FE28",
+    "38006F45291200",
+    "EE00D40C823060",
+]:
+    print(f"{hex_string}: ", end="")
+    print(parse(hex_to_bin(hex_string)))
