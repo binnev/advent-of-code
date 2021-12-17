@@ -102,13 +102,16 @@ def part1():
     #     v0 += 1
 
     trajectories = []
-    for u0 in range(200):
-        for v0 in range(200):
+    for u0 in range(250):
+        for v0 in range(-150, 250):
             positions, hit = calc_traj(u0, v0, things)
             if hit:
                 trajectories.append(positions)
 
-    return max(y for traj in trajectories for x, y in traj)
+    return len(trajectories)
+    # return max(y for traj in trajectories for x, y in traj)
+
+
 """New idea: get all trajectories that _cross_ the target (including diagonally) """
 
 
