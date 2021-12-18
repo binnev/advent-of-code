@@ -212,12 +212,12 @@ def explode(string) -> (str, bool):
     rx = re.compile("\d+")
     d1, d2 = re.findall(rx, group)
 
-    for match in reversed(list(re.finditer("\d+", left))):
+    for match in reversed(list(rx.finditer(left))):
         new = str(int(match.group()) + int(d1))
         left = substitute(left, *match.span(), new)
         break
 
-    for match in re.finditer("\d+", right):
+    for match in rx.finditer(right):
         new = str(int(match.group()) + int(d2))
         right = substitute(right, *match.span(), new)
         break
