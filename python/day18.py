@@ -222,7 +222,8 @@ def explode(string) -> (str, bool):
     if not group:
         return string, False
 
-    d1, d2 = re.findall("\d+", group)
+    rx = re.compile("\d+")
+    d1, d2 = re.findall(rx, group)
 
     aa, bb, left_digit = search_left(left)
     if left_digit:
