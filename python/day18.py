@@ -140,10 +140,8 @@ def reducio(string):
         if changed:
             continue
 
-        (ii, jj), group = scan_for_splits(string)
-        if group:
-            string = split(string, ii, jj, group)  # easiest place to start
-            changed = True
+        string, changed = split(string)  # easiest place to start
+        if changed:
             continue
 
         if not changed:
@@ -183,9 +181,12 @@ def scan_for_splits(string):
     return (0, 0), ""
 
 
-def split(string, ii, jj, group):
+def split(string):
+    (ii, jj), group = scan_for_splits(string)
+    if not group:
+        return string, False
     new_value = f"[{floor(int(group) / 2)},{ceil(int(group) / 2)}]"
-    return substitute(string, ii, jj, new_value)
+    return substitute(string, ii, jj, new_value), True
 
 
 def search_left(string):
@@ -272,8 +273,7 @@ def split_tests():
         ("[[[[0,7],4],[15,[0,13]]],[1,1]]", "[[[[0,7],4],[[7,8],[0,13]]],[1,1]]"),
         ("[[[[0,7],4],[[7,8],[0,13]]],[1,1]]", "[[[[0,7],4],[[7,8],[0,[6,7]]]],[1,1]]"),
     ]:
-        (ii, jj), group = scan_for_splits(string)
-        result = split(string, ii, jj, group)
+        result, changed = split(string)
         assert result == expected
 
 
