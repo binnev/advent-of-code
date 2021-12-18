@@ -165,13 +165,10 @@ def split(string):
 
 
 def search_left(string):
-    rx = re.compile("\d+")
-    if not rx.search(string):
-        return 0, 0, ""
-    for match in rx.finditer(string):
-        ii, jj = match.span()
-        group = match.group()
-    return ii, jj, group
+    stuff = [(match.span(), match.group()) for match in re.finditer("\d+", string)]
+    if not stuff:
+        return (0, 0), ""
+    return stuff[-1]
 
 
 def search_right(string):
@@ -223,7 +220,7 @@ def explode(string) -> (str, bool):
     rx = re.compile("\d+")
     d1, d2 = re.findall(rx, group)
 
-    aa, bb, left_digit = search_left(left)
+    (aa, bb), left_digit = search_left(left)
     if left_digit:
         new = str(int(left_digit) + int(d1))
         left = substitute(left, aa, bb, new)
