@@ -1,3 +1,4 @@
+import re
 from math import floor, ceil
 
 raw = """[[[3,[8,6]],[6,1]],[[[1,1],2],[[1,0],0]]]
@@ -115,7 +116,11 @@ example = """[[[0,[5,8]],[[1,7],[9,6]]],[[4,[1,2]],[[1,4],2]]]
 raw = example
 
 
-def reducio(number):
+def init():
+    return raw.splitlines()
+
+
+def reducio(string):
     """
     To reduce a snailfish number, you must repeatedly do the first action in this list that applies to the snailfish number:
 
@@ -136,18 +141,95 @@ def reducio(number):
             break
 
 
+def scan_for_explosions(string):
+    found = False
+    depth = 0
+    indices = []
+    group = ""
+    for ii, char in enumerate(string):
+        if char == "[":
+            depth += 1
+
+        if depth > 4:
+            found = True
+            group += char
+            indices.append(ii)
+
+        else:
+            if found:  # if we already detected a group
+                break
+
+        if char == "]":
+            depth -= 1
+
+    return (min(indices), max(indices)+1), group  # fixme
+
+
 def split(number: int):
     return [floor(number / 2), ceil(number / 2)]
 
 
+def search_left(string):
+    rx = re.compile("[^\d](\d+)[^\d]")
+    matches = rx.findall(string)
+    if not matches:
+        return False
+    closest = matches[-1]
+    ii = string.rindex(closest)
+    jj = ii + len(closest)
+    number = string[ii:jj]
+    return ii, jj, number
+
+
+def search_right(string):
+    rx = re.compile("[^\d](\d+)[^\d]")
+    matches = rx.findall(string)
+    if not matches:
+        return False
+    closest = matches[0]
+    ii = string.rindex(closest)
+    jj = ii + len(closest)
+    number = string[ii:jj]
+    return ii, jj, number
+
+
+def explode(string, ii, jj, group):
+    left = string[:ii]
+    right = string[jj:]
+
+    # string = substitute(string, ii, jj, "0")
+    d1, d2 = group.split(",")
+    d1 = "".join(filter(str.isdigit, d1))
+    d2 = "".join(filter(str.isdigit, d2))
+    print
+    # scan left for first digit
+    aa, bb, left_digit = search_left(left)
+    if left_digit:
+        new = str(int(left_digit) + int(d1))
+        left = substitute(left, aa, bb, new)
+
+    aa, bb, right_digit = search_right(right)
+    if right_digit:
+        new = str(int(right_digit) + int(d2))
+        right = substitute(right, aa, bb, new)
+
+    return left + "0" + right
+
+
 def substitute(string: str, ii, jj, insertion: str) -> str:
-    left = string[: ii]
+    """Used for split"""
+    left = string[:ii]
     right = string[jj:]
     return left + insertion + right
 
 
-def init():
-    pass
+if __name__ == "__main__":
 
-
-print(substitute("ABCD", 1, 4, "ZZZ"))
+    #                   vvvvv
+    string = "[[3,[2,[1,[7,3]]]],[6,[5,[4,[3,2]]]]]"
+    expected = "[[3,[2,[8,0]]],[9,[5,[4,[3,2]]]]]"
+    print(f"string  ={string}")
+    (ii, jj), group = scan_for_explosions(string)
+    string = explode(string, ii, jj, group)
+    print(f"string  ={string}")
+    print(f"expected={expected}")
