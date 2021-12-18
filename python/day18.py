@@ -102,16 +102,16 @@ raw = """[[[3,[8,6]],[6,1]],[[[1,1],2],[[1,0],0]]]
 [[6,[[3,3],[9,0]]],[1,[[4,5],4]]]
 [[[[3,4],7],[9,0]],[[[4,5],1],[[5,1],[9,3]]]]"""
 
-example = """[[[0,[5,8]],[[1,7],[9,6]]],[[4,[1,2]],[[1,4],2]]]
-[[[5,[2,8]],4],[5,[[9,9],0]]]
-[6,[[[6,2],[5,6]],[[7,6],[4,7]]]]
-[[[6,[0,7]],[0,9]],[4,[9,[9,0]]]]
-[[[7,[6,4]],[3,[1,3]]],[[[5,5],1],9]]
-[[6,[[7,3],[3,2]]],[[[3,8],[5,7]],4]]
-[[[[5,4],[7,7]],8],[[8,3],8]]
-[[9,3],[[9,9],[6,[4,9]]]]
-[[2,[[7,7],7]],[[5,8],[[9,3],[0,2]]]]
-[[[[5,2],5],[8,[3,7]]],[[5,[7,5]],[4,4]]]"""
+example = """[[[0,[4,5]],[0,0]],[[[4,5],[2,6]],[9,5]]]
+[7,[[[3,7],[4,3]],[[6,3],[8,8]]]]
+[[2,[[0,8],[3,4]]],[[[6,7],1],[7,[1,6]]]]
+[[[[2,4],7],[6,[0,5]]],[[[6,8],[2,8]],[[2,1],[4,5]]]]
+[7,[5,[[3,8],[1,4]]]]
+[[2,[2,2]],[8,[8,1]]]
+[2,9]
+[1,[[[9,3],9],[[9,0],[0,7]]]]
+[[[5,[7,4]],7],1]
+[[[[4,2],2],6],[8,7]]"""
 
 raw = example
 
@@ -122,7 +122,7 @@ def init():
 
 def add(left, right):
     string = f"[{left},{right}]"
-    print(f"after addition: {string}")
+    # print(f"after addition: {string}")
     return reducio(string)
 
 
@@ -140,14 +140,14 @@ def reducio(string):
         if group:
             string = explode(string, ii, jj, group)
             operations_done = True
-            print(f"after explode:  {string}")
+            # print(f"after explode:  {string}")
             continue
 
         (ii, jj), group = scan_for_splits(string)
         if group:
             string = split(string, ii, jj, group)  # easiest place to start
             operations_done = True
-            print(f"after split:    {string}")
+            # print(f"after split:    {string}")
             continue
 
         if not operations_done:
@@ -187,7 +187,7 @@ def scan_for_splits(string):
     if not matches:
         return (0, 0), False
     closest = matches[0]
-    ii = string.rindex(closest)
+    ii = string.index(closest)
     jj = ii + len(closest)
     number = string[ii:jj]
     return (ii, jj), number
@@ -199,7 +199,7 @@ def split(string, ii, jj, group):
 
 
 def search_left(string):
-    rx = re.compile("[^\d](\d+)[^\d]")
+    rx = re.compile("(\d+)")
     matches = rx.findall(string)
     if not matches:
         return 0, 0, False
@@ -211,7 +211,7 @@ def search_left(string):
 
 
 def search_right(string):
-    rx = re.compile("[^\d](\d+)[^\d]")
+    rx = re.compile("(\d+)")
     matches = rx.findall(string)
     if not matches:
         return 0, 0, False
@@ -276,16 +276,33 @@ def split_tests():
 
 
 def add_tests():
-    left = "[[[[4,3],4],4],[7,[[8,4],9]]]"
-    right = "[1,1]"
-    expected = "[[[[0,7],4],[[7,8],[6,0]]],[8,1]]"
-    result = add(left, right)
-    assert result == expected
+    for left, right, expected in [
+        # ("[[[[4,3],4],4],[7,[[8,4],9]]]", "[1,1]", "[[[[0,7],4],[[7,8],[6,0]]],[8,1]]"),
+        (
+            "[[[0,[4,5]],[0,0]],[[[4,5],[2,6]],[9,5]]]",
+            "[7,[[[3,7],[4,3]],[[6,3],[8,8]]]]",
+            "[[[[4,0],[5,4]],[[7,7],[6,0]]],[[8,[7,7]],[[7,9],[5,0]]]]",
+        ),
+    ]:
+        result = add(left, right)
+        assert result == expected
+
+
+def part1():
+    lines = init()
+    string = lines.pop(0)
+    for line in lines:
+        print("")
+        print(f"  {string}")
+        print(f"+ {line}")
+        string = add(string, line)
+        print(f"= {string}")
+    return string
 
 
 if __name__ == "__main__":
-    explode_tests()
-    split_tests()
-    add_tests()
-
-
+    # explode_tests()
+    # split_tests()
+    # add_tests()
+    p1 = part1()
+    assert p1 == "[[[[8,7],[7,7]],[[8,6],[7,7]]],[[[0,7],[6,6]],[8,7]]]"
