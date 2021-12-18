@@ -136,18 +136,16 @@ def reducio(string):
     """
     while True:
         operations_done = False
-        (ii, jj), group = scan_for_explosions(string)
+        ii, jj, group = scan_for_explosions(string)
         if group:
             string = explode(string, ii, jj, group)
             operations_done = True
-            # print(f"after explode:  {string}")
             continue
 
-        (ii, jj), group = scan_for_splits(string)
+        ii, jj, group = scan_for_splits(string)
         if group:
             string = split(string, ii, jj, group)  # easiest place to start
             operations_done = True
-            # print(f"after split:    {string}")
             continue
 
         if not operations_done:
@@ -177,20 +175,20 @@ def scan_for_explosions(string):
             depth -= 1
 
     if not found:
-        return (0, 0), False
-    return (min(indices), max(indices) + 1), group  # fixme
+        return 0, 0, False
+    return min(indices), max(indices) + 1, group
 
 
 def scan_for_splits(string):
     rx = re.compile("\d{2,}")
     matches = rx.findall(string)
     if not matches:
-        return (0, 0), False
+        return 0, 0, False
     closest = matches[0]
     ii = string.index(closest)
     jj = ii + len(closest)
     number = string[ii:jj]
-    return (ii, jj), number
+    return ii, jj, number
 
 
 def split(string, ii, jj, group):
@@ -269,7 +267,7 @@ def explode_tests():
         ("[[[[[4,3],4],4],[7,[[8,4],9]]],[1,1]]", "[[[[0,7],4],[7,[[8,4],9]]],[1,1]]"),
         ("[[[[0,7],4],[7,[[8,4],9]]],[1,1]]", "[[[[0,7],4],[15,[0,13]]],[1,1]]"),
     ]:
-        (ii, jj), group = scan_for_explosions(string)
+        ii, jj, group = scan_for_explosions(string)
         result = explode(string, ii, jj, group)
         assert result == expected
 
@@ -279,14 +277,14 @@ def split_tests():
         ("[[[[0,7],4],[15,[0,13]]],[1,1]]", "[[[[0,7],4],[[7,8],[0,13]]],[1,1]]"),
         ("[[[[0,7],4],[[7,8],[0,13]]],[1,1]]", "[[[[0,7],4],[[7,8],[0,[6,7]]]],[1,1]]"),
     ]:
-        (ii, jj), group = scan_for_splits(string)
+        ii, jj, group = scan_for_splits(string)
         result = split(string, ii, jj, group)
         assert result == expected
 
 
 def add_tests():
     for left, right, expected in [
-        # ("[[[[4,3],4],4],[7,[[8,4],9]]]", "[1,1]", "[[[[0,7],4],[[7,8],[6,0]]],[8,1]]"),
+        ("[[[[4,3],4],4],[7,[[8,4],9]]]", "[1,1]", "[[[[0,7],4],[[7,8],[6,0]]],[8,1]]"),
         (
             "[[[0,[4,5]],[0,0]],[[[4,5],[2,6]],[9,5]]]",
             "[7,[[[3,7],[4,3]],[[6,3],[8,8]]]]",
@@ -336,7 +334,7 @@ if __name__ == "__main__":
     split_tests()
     add_tests()
     magnitude_tests()
-    p1 = part1()
-    print(f"{p1=}")
-    p2 = part2()
-    print(f"{p2=}")
+    # p1 = part1()
+    # print(f"{p1=}")
+    # p2 = part2()
+    # print(f"{p2=}")
