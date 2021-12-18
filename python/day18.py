@@ -149,7 +149,7 @@ def reducio(string):
     return string
 
 
-def scan_for_explosions(string):
+def find_explosions(string):
     found = False
     depth = 0
     indices = []
@@ -175,14 +175,14 @@ def scan_for_explosions(string):
     return (min(indices), max(indices) + 1), group
 
 
-def scan_for_splits(string):
+def find_splits(string):
     for match in re.finditer("\d{2,}", string):
         return match.span(), match.group()
     return (0, 0), ""
 
 
 def split(string):
-    (ii, jj), group = scan_for_splits(string)
+    (ii, jj), group = find_splits(string)
     if not group:
         return string, False
     new_value = f"[{floor(int(group) / 2)},{ceil(int(group) / 2)}]"
@@ -214,7 +214,7 @@ def search_right(string):
 
 
 def explode(string) -> (str, bool):
-    (ii, jj), group = scan_for_explosions(string)
+    (ii, jj), group = find_explosions(string)
     if not group:
         return string, False
 
