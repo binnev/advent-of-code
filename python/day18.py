@@ -120,6 +120,12 @@ def init():
     return raw.splitlines()
 
 
+def add(left, right):
+    string = f"[{left},{right}]"
+    print(f"after addition: {string}")
+    return reducio(string)
+
+
 def reducio(string):
     """
     To reduce a snailfish number, you must repeatedly do the first action in this list that applies to the snailfish number:
@@ -129,15 +135,22 @@ def reducio(string):
     If any regular number is 10 or greater, the leftmost such regular number splits.
     """
     while True:
-        if depth > 4:
-            explode(pair)  # need to traverse the structure "sideways"
-            finished = False
+        operations_done = False
+        (ii, jj), group = scan_for_explosions(string)
+        if group:
+            string = explode(string, ii, jj, group)
+            operations_done = True
+            print(f"after explode:  {string}")
+            continue
 
-        if number > 9:
-            split(number)  # easiest place to start
-            finished = False
+        (ii, jj), group = scan_for_splits(string)
+        if group:
+            string = split(string, ii, jj, group)  # easiest place to start
+            operations_done = True
+            print(f"after split:    {string}")
+            continue
 
-        if finished:
+        if not operations_done:
             break
 
 
@@ -162,6 +175,8 @@ def scan_for_explosions(string):
         if char == "]":
             depth -= 1
 
+    if not found:
+        return (0, 0), False
     return (min(indices), max(indices) + 1), group  # fixme
 
 
@@ -200,7 +215,7 @@ def search_right(string):
     if not matches:
         return 0, 0, False
     closest = matches[0]
-    ii = string.rindex(closest)
+    ii = string.index(closest)
     jj = ii + len(closest)
     number = string[ii:jj]
     return ii, jj, number
@@ -242,6 +257,8 @@ def explode_tests():
         ("[[6,[5,[4,[3,2]]]],1]", "[[6,[5,[7,0]]],3]"),
         ("[[3,[2,[1,[7,3]]]],[6,[5,[4,[3,2]]]]]", "[[3,[2,[8,0]]],[9,[5,[4,[3,2]]]]]"),
         ("[[3,[2,[8,0]]],[9,[5,[4,[3,2]]]]]", "[[3,[2,[8,0]]],[9,[5,[7,0]]]]"),
+        ("[[[[[4,3],4],4],[7,[[8,4],9]]],[1,1]]", "[[[[0,7],4],[7,[[8,4],9]]],[1,1]]"),
+        ("[[[[0,7],4],[7,[[8,4],9]]],[1,1]]", "[[[[0,7],4],[15,[0,13]]],[1,1]]"),
     ]:
         (ii, jj), group = scan_for_explosions(string)
         result = explode(string, ii, jj, group)
@@ -258,6 +275,15 @@ def split_tests():
         assert result == expected
 
 
+def add_tests():
+    left = "[[[[4,3],4],4],[7,[[8,4],9]]]"
+    right = "[1,1]"
+    expected = "[[[[0,7],4],[[7,8],[6,0]]],[8,1]]"
+    result = add(left, right)
+    assert result == expected
+
+
 if __name__ == "__main__":
-    explode_tests()
-    split_tests()
+    # explode_tests()
+    # split_tests()
+    add_tests()
