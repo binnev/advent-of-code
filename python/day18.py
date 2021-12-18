@@ -140,8 +140,14 @@ def split(number: int):
     return [floor(number / 2), ceil(number / 2)]
 
 
+def substitute(string: str, ii, jj, insertion: str) -> str:
+    left = string[: ii]
+    right = string[jj:]
+    return left + insertion + right
+
+
 def init():
     pass
 
 
-print(split(11))
+print(substitute("ABCD", 1, 4, "ZZZ"))
