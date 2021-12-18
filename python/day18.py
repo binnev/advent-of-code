@@ -226,10 +226,7 @@ def explode(string) -> (str, bool):
 
 
 def substitute(string: str, ii, jj, insertion: str) -> str:
-    """Used for split"""
-    left = string[:ii]
-    right = string[jj:]
-    return left + insertion + right
+    return string[:ii] + insertion + string[jj:]
 
 
 def magnitude(number):
