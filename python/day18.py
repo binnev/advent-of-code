@@ -148,18 +148,13 @@ def reducio(string):
     return string
 
 
-def find_splits(string):
-    for match in re.finditer("\d{2,}", string):
-        return match.span(), match.group()
-    return (0, 0), ""
-
-
 def split(string):
-    (ii, jj), group = find_splits(string)
-    if not group:
-        return string, False
-    new_value = f"[{floor(int(group) / 2)},{ceil(int(group) / 2)}]"
-    return substitute(string, ii, jj, new_value), True
+    for match in re.finditer("\d{2,}", string):
+        ii, jj = match.span()
+        group = match.group()
+        new_value = f"[{floor(int(group) / 2)},{ceil(int(group) / 2)}]"
+        return substitute(string, ii, jj, new_value), True
+    return string, False
 
 
 def find_explosions(string):
