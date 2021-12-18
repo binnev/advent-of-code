@@ -164,13 +164,6 @@ def split(string):
     return substitute(string, ii, jj, new_value), True
 
 
-def search_left(string):
-    try:
-        return [(match.span(), match.group()) for match in re.finditer("\d+", string)][-1]
-    except IndexError:
-        return (0, 0), ""
-
-
 def find_explosions(string):
     found = False
     depth = 0
