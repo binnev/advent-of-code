@@ -158,32 +158,27 @@ def split(string):
 
 
 def find_explosions(string):
-    found = False
     depth = 0
-    indices = []
+    right = string
+    left = ""
     group = ""
-    for ii, char in enumerate(string):
+    while True:
+        char = right[:1]
+        right = right[1:]
+
         if char == "[":
             depth += 1
 
         if depth > 4:
-            found = True
             group += char
-            indices.append(ii)
-
+            if char == "]":
+                return left, group, right
         else:
-            if found:  # if we already detected a group
-                break
-
-        if char == "]":
-            depth -= 1
-
-    if not found:
-        return string, "", ""
-    left = string[: indices[0]]
-    right = string[indices[-1] + 1 :]
-
-    return left, group, right
+            if char == "]":
+                depth -= 1
+            left += char
+        if left == string:
+            return string, "", ""
 
 
 def explode(string) -> (str, bool):
