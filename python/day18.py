@@ -171,11 +171,8 @@ def search_left(string):
         return (0, 0), ""
 
 
-def search_right(string):
-    try:
-        return [(match.span(), match.group()) for match in re.finditer("\d+", string)][0]
-    except IndexError:
-        return (0, 0), ""
+def get_digits(string):
+    return [(match.span(), match.group()) for match in re.finditer("\d+", string)]
 
 
 def find_explosions(string):
@@ -215,15 +212,15 @@ def explode(string) -> (str, bool):
     rx = re.compile("\d+")
     d1, d2 = re.findall(rx, group)
 
-    (aa, bb), left_digit = search_left(left)
-    if left_digit:
-        new = str(int(left_digit) + int(d1))
-        left = substitute(left, aa, bb, new)
+    for match in reversed(list(re.finditer("\d+", left))):
+        new = str(int(match.group()) + int(d1))
+        left = substitute(left, *match.span(), new)
+        break
 
-    (aa, bb), right_digit = search_right(right)
-    if right_digit:
-        new = str(int(right_digit) + int(d2))
-        right = substitute(right, aa, bb, new)
+    for match in re.finditer("\d+", right):
+        new = str(int(match.group()) + int(d2))
+        right = substitute(right, *match.span(), new)
+        break
 
     return left + "0" + right, True
 
