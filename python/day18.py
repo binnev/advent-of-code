@@ -334,7 +334,9 @@ if __name__ == "__main__":
     split_tests()
     add_tests()
     magnitude_tests()
-    # p1 = part1()
-    # print(f"{p1=}")
-    # p2 = part2()
-    # print(f"{p2=}")
+    p1 = part1()
+    print(f"{p1=}")
+    assert p1 == 4243
+    p2 = part2()
+    print(f"{p2=}")
+    assert p2 == 4701
