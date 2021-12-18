@@ -142,7 +142,7 @@ def reducio(string):
             operations_done = True
             continue
 
-        ii, jj, group = scan_for_splits(string)
+        (ii, jj), group = scan_for_splits(string)
         if group:
             string = split(string, ii, jj, group)  # easiest place to start
             operations_done = True
@@ -180,15 +180,9 @@ def scan_for_explosions(string):
 
 
 def scan_for_splits(string):
-    rx = re.compile("\d{2,}")
-    matches = rx.findall(string)
-    if not matches:
-        return 0, 0, False
-    closest = matches[0]
-    ii = string.index(closest)
-    jj = ii + len(closest)
-    number = string[ii:jj]
-    return ii, jj, number
+    for match in re.finditer("\d{2,}", string):
+        return match.span(), match.group()
+    return (0, 0), ""
 
 
 def split(string, ii, jj, group):
@@ -277,7 +271,7 @@ def split_tests():
         ("[[[[0,7],4],[15,[0,13]]],[1,1]]", "[[[[0,7],4],[[7,8],[0,13]]],[1,1]]"),
         ("[[[[0,7],4],[[7,8],[0,13]]],[1,1]]", "[[[[0,7],4],[[7,8],[0,[6,7]]]],[1,1]]"),
     ]:
-        ii, jj, group = scan_for_splits(string)
+        (ii, jj), group = scan_for_splits(string)
         result = split(string, ii, jj, group)
         assert result == expected
 
