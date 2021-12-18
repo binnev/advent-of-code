@@ -165,15 +165,13 @@ def split(string):
 
 
 def search_left(string):
-    rx = re.compile("(\d+)")
-    matches = rx.findall(string)
-    if not matches:
-        return 0, 0, False
-    closest = matches[-1]
-    ii = string.rindex(closest)
-    jj = ii + len(closest)
-    number = string[ii:jj]
-    return ii, jj, number
+    rx = re.compile("\d+")
+    if not rx.search(string):
+        return 0, 0, ""
+    for match in rx.finditer(string):
+        ii, jj = match.span()
+        group = match.group()
+    return ii, jj, group
 
 
 def search_right(string):
