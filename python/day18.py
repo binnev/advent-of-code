@@ -171,10 +171,6 @@ def search_left(string):
         return (0, 0), ""
 
 
-def get_digits(string):
-    return [(match.span(), match.group()) for match in re.finditer("\d+", string)]
-
-
 def find_explosions(string):
     found = False
     depth = 0
