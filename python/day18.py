@@ -165,22 +165,17 @@ def split(string):
 
 
 def search_left(string):
-    stuff = [(match.span(), match.group()) for match in re.finditer("\d+", string)]
-    if not stuff:
+    try:
+        return [(match.span(), match.group()) for match in re.finditer("\d+", string)][-1]
+    except IndexError:
         return (0, 0), ""
-    return stuff[-1]
 
 
 def search_right(string):
-    rx = re.compile("(\d+)")
-    matches = rx.findall(string)
-    if not matches:
-        return 0, 0, False
-    closest = matches[0]
-    ii = string.index(closest)
-    jj = ii + len(closest)
-    number = string[ii:jj]
-    return ii, jj, number
+    try:
+        return [(match.span(), match.group()) for match in re.finditer("\d+", string)][0]
+    except IndexError:
+        return (0, 0), ""
 
 
 def find_explosions(string):
@@ -225,7 +220,7 @@ def explode(string) -> (str, bool):
         new = str(int(left_digit) + int(d1))
         left = substitute(left, aa, bb, new)
 
-    aa, bb, right_digit = search_right(right)
+    (aa, bb), right_digit = search_right(right)
     if right_digit:
         new = str(int(right_digit) + int(d2))
         right = substitute(right, aa, bb, new)
