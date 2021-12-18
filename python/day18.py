@@ -1,4 +1,5 @@
 import re
+from itertools import combinations
 from math import floor, ceil
 
 raw = """[[[3,[8,6]],[6,1]],[[[1,1],2],[[1,0],0]]]
@@ -122,7 +123,6 @@ def init():
 
 def add(left, right):
     string = f"[{left},{right}]"
-    # print(f"after addition: {string}")
     return reducio(string)
 
 
@@ -314,13 +314,21 @@ def part1():
     lines = init()
     string = lines.pop(0)
     for line in lines:
-        print("")
-        print(f"  {string}")
-        print(f"+ {line}")
         string = add(string, line)
-        print(f"= {string}")
     result = magnitude(string)
     return result
+
+
+def part2():
+    numbers = init()
+    combos = list(combinations(numbers, 2))
+    highest = 0
+    for a, b in combos:
+        mag = magnitude(add(a, b))
+        highest = max(highest, mag)
+        mag = magnitude(add(b, a))
+        highest = max(highest, mag)
+    return highest
 
 
 if __name__ == "__main__":
@@ -329,5 +337,6 @@ if __name__ == "__main__":
     add_tests()
     magnitude_tests()
     p1 = part1()
-    print(f"part1: {p1}")
-    # assert p1 == 4140
+    print(f"{p1=}")
+    p2 = part2()
+    print(f"{p2=}")
