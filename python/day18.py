@@ -162,18 +162,31 @@ def scan_for_explosions(string):
         if char == "]":
             depth -= 1
 
-    return (min(indices), max(indices)+1), group  # fixme
+    return (min(indices), max(indices) + 1), group  # fixme
 
 
-def split(number: int):
-    return [floor(number / 2), ceil(number / 2)]
+def scan_for_splits(string):
+    rx = re.compile("\d{2,}")
+    matches = rx.findall(string)
+    if not matches:
+        return (0, 0), False
+    closest = matches[0]
+    ii = string.rindex(closest)
+    jj = ii + len(closest)
+    number = string[ii:jj]
+    return (ii, jj), number
+
+
+def split(string, ii, jj, group):
+    new_value = f"[{floor(int(group) / 2)},{ceil(int(group) / 2)}]"
+    return substitute(string, ii, jj, new_value)
 
 
 def search_left(string):
     rx = re.compile("[^\d](\d+)[^\d]")
     matches = rx.findall(string)
     if not matches:
-        return False
+        return 0, 0, False
     closest = matches[-1]
     ii = string.rindex(closest)
     jj = ii + len(closest)
@@ -185,7 +198,7 @@ def search_right(string):
     rx = re.compile("[^\d](\d+)[^\d]")
     matches = rx.findall(string)
     if not matches:
-        return False
+        return 0, 0, False
     closest = matches[0]
     ii = string.rindex(closest)
     jj = ii + len(closest)
@@ -201,8 +214,7 @@ def explode(string, ii, jj, group):
     d1, d2 = group.split(",")
     d1 = "".join(filter(str.isdigit, d1))
     d2 = "".join(filter(str.isdigit, d2))
-    print
-    # scan left for first digit
+
     aa, bb, left_digit = search_left(left)
     if left_digit:
         new = str(int(left_digit) + int(d1))
@@ -223,13 +235,29 @@ def substitute(string: str, ii, jj, insertion: str) -> str:
     return left + insertion + right
 
 
-if __name__ == "__main__":
+def explode_tests():
+    for string, expected in [
+        ("[[[[[9,8],1],2],3],4]", "[[[[0,9],2],3],4]"),
+        ("[7,[6,[5,[4,[3,2]]]]]", "[7,[6,[5,[7,0]]]]"),
+        ("[[6,[5,[4,[3,2]]]],1]", "[[6,[5,[7,0]]],3]"),
+        ("[[3,[2,[1,[7,3]]]],[6,[5,[4,[3,2]]]]]", "[[3,[2,[8,0]]],[9,[5,[4,[3,2]]]]]"),
+        ("[[3,[2,[8,0]]],[9,[5,[4,[3,2]]]]]", "[[3,[2,[8,0]]],[9,[5,[7,0]]]]"),
+    ]:
+        (ii, jj), group = scan_for_explosions(string)
+        result = explode(string, ii, jj, group)
+        assert result == expected
 
-    #                   vvvvv
-    string = "[[3,[2,[1,[7,3]]]],[6,[5,[4,[3,2]]]]]"
-    expected = "[[3,[2,[8,0]]],[9,[5,[4,[3,2]]]]]"
-    print(f"string  ={string}")
-    (ii, jj), group = scan_for_explosions(string)
-    string = explode(string, ii, jj, group)
-    print(f"string  ={string}")
-    print(f"expected={expected}")
+
+def split_tests():
+    for string, expected in [
+        ("[[[[0,7],4],[15,[0,13]]],[1,1]]", "[[[[0,7],4],[[7,8],[0,13]]],[1,1]]"),
+        ("[[[[0,7],4],[[7,8],[0,13]]],[1,1]]", "[[[[0,7],4],[[7,8],[0,[6,7]]]],[1,1]]"),
+    ]:
+        (ii, jj), group = scan_for_splits(string)
+        result = split(string, ii, jj, group)
+        assert result == expected
+
+
+if __name__ == "__main__":
+    explode_tests()
+    split_tests()
