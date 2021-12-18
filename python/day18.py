@@ -135,20 +135,18 @@ def reducio(string):
     If any regular number is 10 or greater, the leftmost such regular number splits.
     """
     while True:
-        operations_done = False
-        ii, jj, group = scan_for_explosions(string)
-        if group:
-            string = explode(string, ii, jj, group)
-            operations_done = True
+        changed = False
+        string, changed = explode(string)
+        if changed:
             continue
 
         (ii, jj), group = scan_for_splits(string)
         if group:
             string = split(string, ii, jj, group)  # easiest place to start
-            operations_done = True
+            changed = True
             continue
 
-        if not operations_done:
+        if not changed:
             break
     return string
 
@@ -175,8 +173,8 @@ def scan_for_explosions(string):
             depth -= 1
 
     if not found:
-        return 0, 0, False
-    return min(indices), max(indices) + 1, group
+        return (0, 0), False
+    return (min(indices), max(indices) + 1), group
 
 
 def scan_for_splits(string):
@@ -214,7 +212,11 @@ def search_right(string):
     return ii, jj, number
 
 
-def explode(string, ii, jj, group):
+def explode(string) -> (str, bool):
+    (ii, jj), group = scan_for_explosions(string)
+    if not group:
+        return string, False
+
     left = string[:ii]
     right = string[jj:]
 
@@ -232,7 +234,7 @@ def explode(string, ii, jj, group):
         new = str(int(right_digit) + int(d2))
         right = substitute(right, aa, bb, new)
 
-    return left + "0" + right
+    return left + "0" + right, True
 
 
 def substitute(string: str, ii, jj, insertion: str) -> str:
@@ -261,8 +263,7 @@ def explode_tests():
         ("[[[[[4,3],4],4],[7,[[8,4],9]]],[1,1]]", "[[[[0,7],4],[7,[[8,4],9]]],[1,1]]"),
         ("[[[[0,7],4],[7,[[8,4],9]]],[1,1]]", "[[[[0,7],4],[15,[0,13]]],[1,1]]"),
     ]:
-        ii, jj, group = scan_for_explosions(string)
-        result = explode(string, ii, jj, group)
+        result, changed = explode(string)
         assert result == expected
 
 
