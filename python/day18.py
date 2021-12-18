@@ -152,6 +152,7 @@ def reducio(string):
 
         if not operations_done:
             break
+    return string
 
 
 def scan_for_explosions(string):
@@ -225,7 +226,6 @@ def explode(string, ii, jj, group):
     left = string[:ii]
     right = string[jj:]
 
-    # string = substitute(string, ii, jj, "0")
     d1, d2 = group.split(",")
     d1 = "".join(filter(str.isdigit, d1))
     d2 = "".join(filter(str.isdigit, d2))
@@ -284,6 +284,8 @@ def add_tests():
 
 
 if __name__ == "__main__":
-    # explode_tests()
-    # split_tests()
+    explode_tests()
+    split_tests()
     add_tests()
+
+
