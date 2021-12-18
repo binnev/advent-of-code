@@ -165,18 +165,16 @@ def find_explosions(string):
     while True:
         char = right[:1]
         right = right[1:]
-
         if char == "[":
             depth += 1
-
         if depth > 4:
             group += char
             if char == "]":
                 return left, group, right
         else:
-            if char == "]":
-                depth -= 1
             left += char
+        if char == "]":
+            depth -= 1
         if left == string:
             return string, "", ""
 
