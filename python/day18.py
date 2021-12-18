@@ -136,17 +136,15 @@ def reducio(string):
     If any regular number is 10 or greater, the leftmost such regular number splits.
     """
     while True:
-        changed = False
         string, changed = explode(string)
         if changed:
             continue
 
-        string, changed = split(string)  # easiest place to start
+        string, changed = split(string)
         if changed:
             continue
 
-        if not changed:
-            break
+        break
     return string
 
 
