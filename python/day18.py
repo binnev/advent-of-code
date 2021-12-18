@@ -1,4 +1,5 @@
 import re
+from collections import deque
 from itertools import combinations
 from math import floor, ceil
 
@@ -149,32 +150,6 @@ def reducio(string):
     return string
 
 
-def find_explosions(string):
-    found = False
-    depth = 0
-    indices = []
-    group = ""
-    for ii, char in enumerate(string):
-        if char == "[":
-            depth += 1
-
-        if depth > 4:
-            found = True
-            group += char
-            indices.append(ii)
-
-        else:
-            if found:  # if we already detected a group
-                break
-
-        if char == "]":
-            depth -= 1
-
-    if not found:
-        return (0, 0), False
-    return (min(indices), max(indices) + 1), group
-
-
 def find_splits(string):
     for match in re.finditer("\d{2,}", string):
         return match.span(), match.group()
@@ -213,13 +188,39 @@ def search_right(string):
     return ii, jj, number
 
 
+def find_explosions(string):
+    found = False
+    depth = 0
+    indices = []
+    group = ""
+    for ii, char in enumerate(string):
+        if char == "[":
+            depth += 1
+
+        if depth > 4:
+            found = True
+            group += char
+            indices.append(ii)
+
+        else:
+            if found:  # if we already detected a group
+                break
+
+        if char == "]":
+            depth -= 1
+
+    if not found:
+        return string, "", ""
+    left = string[: min(indices)]
+    right = string[max(indices) + 1 :]
+
+    return left, group, right
+
+
 def explode(string) -> (str, bool):
-    (ii, jj), group = find_explosions(string)
+    left, group, right = find_explosions(string)
     if not group:
         return string, False
-
-    left = string[:ii]
-    right = string[jj:]
 
     d1, d2 = group.split(",")
     d1 = "".join(filter(str.isdigit, d1))
