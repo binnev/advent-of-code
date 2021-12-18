@@ -180,8 +180,8 @@ def find_explosions(string):
 
     if not found:
         return string, "", ""
-    left = string[: min(indices)]
-    right = string[max(indices) + 1 :]
+    left = string[: indices[0]]
+    right = string[indices[-1] + 1 :]
 
     return left, group, right
 
