@@ -1282,7 +1282,7 @@ def smart_stuff(scanner0, scanner1):
     return False, False
 
 
-if __name__ == "__main__":
+def part1():
     scanners = init()
     master = {**scanners.pop(0)}
     scanners = deque([(key, value) for key, value in scanners.items()])
@@ -1297,4 +1297,185 @@ if __name__ == "__main__":
             print(f"no match for scanner {key} yet")
             scanners.append((key, scanner))
 
-    print(len(master))
+    return len(master)
+
+
+raw = """comparing scanner 1
+no match for scanner 1 yet
+comparing scanner 2
+no match for scanner 2 yet
+comparing scanner 3
+dxdydz=18,-1194,-140
+comparing scanner 4
+no match for scanner 4 yet
+comparing scanner 5
+no match for scanner 5 yet
+comparing scanner 6
+no match for scanner 6 yet
+comparing scanner 7
+dxdydz=-1178,-55,-52
+comparing scanner 8
+no match for scanner 8 yet
+comparing scanner 9
+no match for scanner 9 yet
+comparing scanner 10
+no match for scanner 10 yet
+comparing scanner 11
+no match for scanner 11 yet
+comparing scanner 12
+no match for scanner 12 yet
+comparing scanner 13
+no match for scanner 13 yet
+comparing scanner 14
+no match for scanner 14 yet
+comparing scanner 15
+no match for scanner 15 yet
+comparing scanner 16
+no match for scanner 16 yet
+comparing scanner 17
+no match for scanner 17 yet
+comparing scanner 18
+no match for scanner 18 yet
+comparing scanner 19
+no match for scanner 19 yet
+comparing scanner 20
+no match for scanner 20 yet
+comparing scanner 21
+no match for scanner 21 yet
+comparing scanner 22
+no match for scanner 22 yet
+comparing scanner 23
+dxdydz=-1188,-1232,-6
+comparing scanner 24
+no match for scanner 24 yet
+comparing scanner 25
+no match for scanner 25 yet
+comparing scanner 26
+no match for scanner 26 yet
+comparing scanner 27
+no match for scanner 27 yet
+comparing scanner 28
+no match for scanner 28 yet
+comparing scanner 29
+no match for scanner 29 yet
+comparing scanner 30
+no match for scanner 30 yet
+comparing scanner 31
+no match for scanner 31 yet
+comparing scanner 32
+dxdydz=101,130,-1325
+comparing scanner 33
+no match for scanner 33 yet
+comparing scanner 34
+no match for scanner 34 yet
+comparing scanner 35
+dxdydz=-19,1314,-81
+comparing scanner 36
+dxdydz=-2433,-2,-110
+comparing scanner 37
+dxdydz=-2410,1218,-10
+comparing scanner 1
+dxdydz=1272,1242,-22
+comparing scanner 2
+dxdydz=-3633,105,3
+comparing scanner 4
+dxdydz=-1223,44,-1273
+comparing scanner 5
+dxdydz=-1158,2462,-100
+comparing scanner 6
+dxdydz=-1124,1192,7
+comparing scanner 8
+no match for scanner 8 yet
+comparing scanner 9
+no match for scanner 9 yet
+comparing scanner 10
+no match for scanner 10 yet
+comparing scanner 11
+dxdydz=-44,2438,-165
+comparing scanner 12
+dxdydz=-1196,1305,1128
+comparing scanner 13
+no match for scanner 13 yet
+comparing scanner 14
+dxdydz=108,1274,1071
+comparing scanner 15
+dxdydz=-1103,1323,2263
+comparing scanner 16
+no match for scanner 16 yet
+comparing scanner 17
+dxdydz=63,-12,-2405
+comparing scanner 18
+dxdydz=-1102,2391,-1185
+comparing scanner 19
+dxdydz=133,1264,-1169
+comparing scanner 20
+no match for scanner 20 yet
+comparing scanner 21
+no match for scanner 21 yet
+comparing scanner 22
+dxdydz=1239,1259,-1314
+comparing scanner 24
+dxdydz=-2326,1285,-1347
+comparing scanner 25
+dxdydz=-47,2439,-1205
+comparing scanner 26
+no match for scanner 26 yet
+comparing scanner 27
+dxdydz=2379,1264,-66
+comparing scanner 28
+dxdydz=1257,102,-1219
+comparing scanner 29
+dxdydz=-2283,40,1145
+comparing scanner 30
+dxdydz=1329,-1221,-1292
+comparing scanner 31
+dxdydz=-2444,-11,2377
+comparing scanner 33
+no match for scanner 33 yet
+comparing scanner 34
+dxdydz=1226,71,-2488
+comparing scanner 8
+dxdydz=62,1297,-2441
+comparing scanner 9
+dxdydz=1259,-2443,-1243
+comparing scanner 10
+dxdydz=1305,-3576,-1209
+comparing scanner 13
+no match for scanner 13 yet
+comparing scanner 16
+dxdydz=1263,-2318,-2489
+comparing scanner 20
+no match for scanner 20 yet
+comparing scanner 21
+dxdydz=-37,2495,-2536
+comparing scanner 26
+dxdydz=1225,-1243,-2412
+comparing scanner 33
+no match for scanner 33 yet
+comparing scanner 13
+dxdydz=2528,-1193,-2405
+comparing scanner 20
+dxdydz=-6,2479,-3733
+comparing scanner 33
+dxdydz=1155,2421,-3732
+428
+
+Process finished with exit code 0
+"""
+
+
+def part2():
+    input = raw.splitlines()
+    scanner_positions = {0: (0, 0, 0)}
+    for ii, row in enumerate(input):
+        if "dxdydz" in row:
+            previous = input[ii - 1]
+            scanner_number = re.findall("\d+", previous)[-1]
+            dxdydz = row.split("=")[-1]
+            dxdydz = tuple(map(int, dxdydz.split(",")))
+            scanner_positions[scanner_number] = dxdydz
+    pprint(scanner_positions)
+
+
+if __name__ == "__main__":
+    part2()
