@@ -1,4 +1,5 @@
 import re
+from pprint import pprint
 
 raw = """--- scanner 0 ---
 -254,619,-733
@@ -1061,14 +1062,12 @@ raw = """--- scanner 0 ---
 
 
 example = """--- scanner 0 ---
-0,2
-4,1
-3,3
-
---- scanner 1 ---
--1,-1
--5,0
--2,1"""
+-1,-1,1
+-2,-2,2
+-3,-3,3
+-2,-3,1
+5,6,-4
+8,0,7"""
 
 raw = example
 
@@ -1093,10 +1092,10 @@ def init():
         lines = text.splitlines()
         scanner = int(re.findall("\d+", lines.pop(0))[0])
         scanners[scanner] = d = dict()
-        d[(0, 0)] = "S"
+        d[(0, 0, 0)] = "S"
         for line in lines:
-            x, y = list(map(int, line.split(",")))
-            d[(x, y)] = "B"
+            x, y, z = list(map(int, line.split(",")))
+            d[(x, y, z)] = "B"
 
     return scanners
 
@@ -1118,8 +1117,34 @@ def match_scanners(scanner0, scanner1):
                 return dx, dy
 
 
+def rotate_scanner(
+    scanner,
+    x=0,
+    y=1,
+    z=2,
+    flip_x=False,
+    flip_y=False,
+    flip_z=False,
+):
+    print(
+        f"x={'-' if flip_x else ''}{x},"
+        f"y={'-' if flip_y else ''}{y},"
+        f"z={'-' if flip_z else ''}{z},"
+    )
+    rotated = {
+        (
+            coords[x] * (-1 if flip_x else 1),
+            coords[y] * (-1 if flip_y else 1),
+            coords[z] * (-1 if flip_z else 1),
+        ): value
+        for coords, value in scanner.items()
+    }
+    return rotated
+
+
 if __name__ == "__main__":
     scanners = init()
     scanner0 = scanners[0]
-    scanner1 = scanners[1]
-    print(match_scanners(scanner0, scanner1))
+    rotated = rotate_scanner(scanner0, x=0, y=2, z=1, flip_x=True, flip_y=True, flip_z=True)
+    for (x, y, z), value in rotated.items():
+        print(f"{x},{y},{z}")
