@@ -1231,35 +1231,23 @@ def init():
 
 def match_scanners(scanner0, scanner1):
     # loop: try matching every beacon on scanner1 to every beacon in scanner0
-    for (x0, y0) in scanner0:
-        for (x1, y1) in scanner1:
+    for (x0, y0, z0) in scanner0:
+        for (x1, y1, z1) in scanner1:
             # will need to shift the x,y of all scanner2 to achieve this.
             dx = x0 - x1
             dy = y0 - y1
-            shifted1 = {(x + dx, y + dy): value for (x, y), value in scanner1.items()}
+            dz = z0 - z1
+            shifted1 = {(x + dx, y + dy, z + dz): value for (x, y, z), value in scanner1.items()}
 
             # if, after the shift, 3 beacons overlap, it's a match
             hits = set(shifted1).intersection(scanner0)
-            if len(hits) > 2:
+            if len(hits) > 11:
                 print("hooray")
-                print_stuff({**scanner0, **shifted1})
-                return dx, dy
+                return dx, dy, dz
+    return False
 
 
-def rotate_scanner(
-    scanner,
-    x=0,
-    y=1,
-    z=2,
-    flip_x=False,
-    flip_y=False,
-    flip_z=False,
-):
-    print(
-        f"x={'-' if flip_x else ''}{x},"
-        f"y={'-' if flip_y else ''}{y},"
-        f"z={'-' if flip_z else ''}{z},"
-    )
+def rotate_scanner(scanner, x=0, y=1, z=2, flip_x=False, flip_y=False, flip_z=False):
     rotated = {
         (
             coords[x] * (-1 if flip_x else 1),
@@ -1285,10 +1273,17 @@ def get_orientations():
     return orientations
 
 
+def smart_stuff(scanner0, scanner1):
+    for (x, y, z, flip_x, flip_y, flip_z) in get_orientations():
+        rotated1 = rotate_scanner(scanner1, x, y, z, flip_x, flip_y, flip_z)
+        match = match_scanners(scanner0, rotated1)
+        if match:
+            return match
+    return "womp womp"
+
+
 if __name__ == "__main__":
-    pprint(get_orientations())
-    # scanners = init()
-    # scanner0 = scanners[0]
-    # rotated = rotate_scanner(scanner0, x=0, y=2, z=1, flip_x=True, flip_y=True, flip_z=True)
-    # for (x, y, z), value in rotated.items():
-    #     print(f"{x},{y},{z}")
+    scanners = init()
+    scanner0 = scanners[0]
+    scanner1 = scanners[1]
+    print(smart_stuff(scanner0, scanner1))
