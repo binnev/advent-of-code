@@ -1,5 +1,6 @@
 import re
 from collections import deque
+from itertools import combinations
 from pprint import pprint
 
 raw = """--- scanner 0 ---
@@ -1464,6 +1465,12 @@ Process finished with exit code 0
 """
 
 
+def manhattan_distance(xyz1, xyz2):
+    x1, y1, z1 = xyz1
+    x2, y2, z2 = xyz2
+    return abs(x1 - x2) + abs(y1 - y2) + abs(z1 - z2)
+
+
 def part2():
     input = raw.splitlines()
     scanner_positions = {0: (0, 0, 0)}
@@ -1473,9 +1480,17 @@ def part2():
             scanner_number = re.findall("\d+", previous)[-1]
             dxdydz = row.split("=")[-1]
             dxdydz = tuple(map(int, dxdydz.split(",")))
-            scanner_positions[scanner_number] = dxdydz
+            scanner_positions[int(scanner_number)] = dxdydz
     pprint(scanner_positions)
+
+    max_distance = 0
+    for key1, key2 in combinations(scanner_positions, r=2):
+        pos1 = scanner_positions[key1]
+        pos2 = scanner_positions[key2]
+        distance = manhattan_distance(pos1, pos2)
+        max_distance = max(max_distance, distance)
+    return max_distance
 
 
 if __name__ == "__main__":
-    part2()
+    print(part2())
