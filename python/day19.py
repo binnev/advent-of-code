@@ -1,4 +1,5 @@
 import re
+from collections import deque
 from pprint import pprint
 
 raw = """--- scanner 0 ---
@@ -1221,7 +1222,7 @@ def init():
         lines = text.splitlines()
         scanner = int(re.findall("\d+", lines.pop(0))[0])
         scanners[scanner] = d = dict()
-        d[(0, 0, 0)] = "S"
+        # d[(0, 0, 0)] = "S"
         for line in lines:
             x, y, z = list(map(int, line.split(",")))
             d[(x, y, z)] = "B"
@@ -1242,9 +1243,8 @@ def match_scanners(scanner0, scanner1):
             # if, after the shift, 3 beacons overlap, it's a match
             hits = set(shifted1).intersection(scanner0)
             if len(hits) > 11:
-                print("hooray")
-                return dx, dy, dz
-    return False
+                return (dx, dy, dz), shifted1
+    return False, None
 
 
 def rotate_scanner(scanner, x=0, y=1, z=2, flip_x=False, flip_y=False, flip_z=False):
@@ -1276,14 +1276,25 @@ def get_orientations():
 def smart_stuff(scanner0, scanner1):
     for (x, y, z, flip_x, flip_y, flip_z) in get_orientations():
         rotated1 = rotate_scanner(scanner1, x, y, z, flip_x, flip_y, flip_z)
-        match = match_scanners(scanner0, rotated1)
-        if match:
-            return match
-    return "womp womp"
+        dxdydz, shifted1 = match_scanners(scanner0, rotated1)
+        if dxdydz:
+            return dxdydz, shifted1
+    return False, False
 
 
 if __name__ == "__main__":
     scanners = init()
-    scanner0 = scanners[0]
-    scanner1 = scanners[1]
-    print(smart_stuff(scanner0, scanner1))
+    master = {**scanners.pop(0)}
+    scanners = deque([(key, value) for key, value in scanners.items()])
+    while scanners:
+        key, scanner = scanners.popleft()
+        print(f"comparing scanner {key}")
+        dxdydz, shifted = smart_stuff(master, scanner)
+        if dxdydz:
+            print(f"dxdydz={','.join(map(str, dxdydz))}")
+            master.update(shifted)
+        else:
+            print(f"no match for scanner {key} yet")
+            scanners.append((key, scanner))
+
+    print(len(master))
