@@ -1199,7 +1199,7 @@ example = """--- scanner 0 ---
 -652,-548,-490
 30,-46,-14"""
 
-raw = example
+# raw = example
 
 
 def print_stuff(things):
