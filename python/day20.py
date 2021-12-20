@@ -184,11 +184,10 @@ def enhance(image, algorithm, default):
 if __name__ == "__main__":
     algorithm, image = init()
     default = 0
-    print_image(image)
-    for _ in range(2):
+    for _ in range(50):
         print("")
         image, default = enhance(image, algorithm, default)
-        print_image(image)
+    print_image(image)
 
     lit_pixels = list(image.values()).count(1)
     print(lit_pixels)
