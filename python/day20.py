@@ -1,4 +1,4 @@
-import math
+from math import inf
 
 raw = """#.#.##.#.#....#.#.#......###.#....####.#...###..#...#.#.###.#...#.#...##..#.#.#.##..#......#..#...#..#.###...####....#.#....#...#.##.#####.##..#####..###..###.#.##.#####..#..#..######..######.####.####....#.#..####..#...##..#..#.#.##.##.##.##.#.##..##..###....###.###.##..#...#.##..#.#..####.......#...###..#....##..#..##.#..##..#..##.###..##.#.##...#..###.###...###...#.#######.....#.##..#......#....#.#..##..##..#..####.#.#.##..##.##.#..#.##..#.......#.####.#.##..#..........#.#.#..##.##......##..#.##..#.####.
 
@@ -144,22 +144,6 @@ def print_image(image):
         print("")
 
 
-def get_neighbours(image, coords, default):
-    x, y = coords
-    directions = [
-        (x - 1, y - 1),
-        (x, y - 1),
-        (x + 1, y - 1),
-        (x - 1, y),
-        (x, y),
-        (x + 1, y),
-        (x - 1, y + 1),
-        (x, y + 1),
-        (x + 1, y + 1),
-    ]
-    return [image.get(coords, default) for coords in directions]
-
-
 class Image:
     def __init__(self, contents, algorithm):
         self.contents = contents
@@ -167,22 +151,18 @@ class Image:
         self.algorithm = algorithm
 
     def enhance(self):
-        new_image = dict()
         (min_x, max_x), (min_y, max_y) = self.size
-        for x in range(min_x - 1, max_x + 2):
-            for y in range(min_y - 1, max_y + 2):
-                coords = (x, y)
-                index = self.get_algo_index(coords)
-                new_image[coords] = 1 if self.algorithm[index] == "#" else 0
+        self.contents = {
+            (x, y): self.get_new_pixel((x, y))
+            for x in range(min_x - 1, max_x + 2)
+            for y in range(min_y - 1, max_y + 2)
+        }
+        self.default = self.get_new_pixel((inf, inf))
 
-        default_algo_index = str(self.default) * 9
-        default_algo_index = int(default_algo_index, 2)
-        self.default = 1 if self.algorithm[default_algo_index] == "#" else 0
-        self.contents = new_image
-
-    def get_algo_index(self, coords):
-        neighbours = get_neighbours(self.contents, coords, self.default)
-        return int("".join(map(str, neighbours)), 2)
+    def get_new_pixel(self, coords):
+        neighbours = self.get_neighbours(coords)
+        index = int("".join(map(str, neighbours)), 2)
+        return 1 if self.algorithm[index] == "#" else 0
 
     @property
     def size(self):
@@ -191,6 +171,21 @@ class Image:
     @property
     def lit_pixels(self):
         return list(self.contents.values()).count(1)
+
+    def get_neighbours(self, coords):
+        x, y = coords
+        directions = [
+            (x - 1, y - 1),
+            (x, y - 1),
+            (x + 1, y - 1),
+            (x - 1, y),
+            (x, y),
+            (x + 1, y),
+            (x - 1, y + 1),
+            (x, y + 1),
+            (x + 1, y + 1),
+        ]
+        return [self.contents.get(coords, self.default) for coords in directions]
 
 
 def part1():
