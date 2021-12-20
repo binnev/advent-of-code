@@ -181,13 +181,30 @@ def enhance(image, algorithm, default):
     return new_image, default
 
 
-if __name__ == "__main__":
+def part1():
+    algorithm, image = init()
+    default = 0
+    for _ in range(2):
+        image, default = enhance(image, algorithm, default)
+
+    lit_pixels = list(image.values()).count(1)
+    return lit_pixels
+
+
+def part2():
     algorithm, image = init()
     default = 0
     for _ in range(50):
-        print("")
         image, default = enhance(image, algorithm, default)
-    print_image(image)
 
     lit_pixels = list(image.values()).count(1)
-    print(lit_pixels)
+    return lit_pixels
+
+
+if __name__ == "__main__":
+    p1 = part1()
+    print(f"{p1=}")
+    assert p1 == 5225
+    p2 = part2()
+    print(f"{p2=}")
+    assert p2 == 18131
