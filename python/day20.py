@@ -123,16 +123,23 @@ def init():
     return algorithm, image
 
 
-def print_image(image):
+def get_image_size(image):
     xs = [x for x, y in image]
     ys = [y for x, y in image]
     min_x = min(xs)
     max_x = max(xs)
     min_y = min(ys)
     max_y = max(ys)
-    for y in range(min_y, max_y + 1):
-        for x in range(min_x, max_x + 1):
-            print(image.get((x, y), "."), end="")
+    return (min_x, max_x), (min_y, max_y)
+
+
+def print_image(image):
+    (min_x, max_x), (min_y, max_y) = get_image_size(image)
+    for y in range(min_y-4, max_y + 5):
+        for x in range(min_x-4, max_x + 5):
+            pixel = image.get((x, y))
+            pixel = "#" if pixel else "."
+            print(pixel, end="")
         print("")
 
 
@@ -157,8 +164,26 @@ def get_algo_index(image, coords):
     return int("".join(map(str, neighbours)), 2)
 
 
+def enhance(image, algorithm):
+    """1 step"""
+    new_image = dict()
+    (min_x, max_x), (min_y, max_y) = get_image_size(image)
+    for x in range(min_x - 4, max_x + 5):
+        for y in range(min_y - 4, max_y + 5):
+            coords = (x, y)
+            index = get_algo_index(image, coords)
+            if algorithm[index] == "#":
+                new_image[coords] = 1
+    return new_image
+
+
 if __name__ == "__main__":
     algorithm, image = init()
     print_image(image)
-    print(get_neighbours(image, (2, 2)))
-    print(get_algo_index(image, (2, 2)))
+    print("")
+    image = enhance(image, algorithm)
+    print_image(image)
+    print("")
+    image = enhance(image, algorithm)
+    print_image(image)
+    print(len(image))
