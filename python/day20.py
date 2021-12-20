@@ -1,3 +1,5 @@
+import math
+
 raw = """#.#.##.#.#....#.#.#......###.#....####.#...###..#...#.#.###.#...#.#...##..#.#.#.##..#......#..#...#..#.###...####....#.#....#...#.##.#####.##..#####..###..###.#.##.#####..#..#..######..######.####.####....#.#..####..#...##..#..#.#.##.##.##.##.#.##..##..###....###.###.##..#...#.##..#.#..####.......#...###..#....##..#..##.#..##..#..##.###..##.#.##...#..###.###...###...#.#######.....#.##..#......#....#.#..##..##..#..####.#.#.##..##.##.#..#.##..#.......#.####.#.##..#..........#.#.#..##.##......##..#.##..#.####.
 
 .#..####..#.####.####...#.##..##.##....#..#####..#.#......##....#.#.#..####...###..#..#.#.##.##...##
@@ -110,7 +112,7 @@ example = """..#.#..#####.#.#.#.###.##.....###.##.#..###.####..#####..#....#..#.
 ..###"""
 
 
-raw = example
+# raw = example
 
 
 def init():
@@ -118,8 +120,7 @@ def init():
     image = dict()
     for y, row in enumerate(raw_image.splitlines()):
         for x, pixel in enumerate(row):
-            if pixel == "#":
-                image[(x, y)] = 1
+            image[(x, y)] = 1 if pixel == "#" else 0
     return algorithm, image
 
 
@@ -135,15 +136,15 @@ def get_image_size(image):
 
 def print_image(image):
     (min_x, max_x), (min_y, max_y) = get_image_size(image)
-    for y in range(min_y-4, max_y + 5):
-        for x in range(min_x-4, max_x + 5):
+    for y in range(min_y, max_y + 1):
+        for x in range(min_x, max_x + 1):
             pixel = image.get((x, y))
             pixel = "#" if pixel else "."
             print(pixel, end="")
         print("")
 
 
-def get_neighbours(image, coords):
+def get_neighbours(image, coords, default):
     x, y = coords
     directions = [
         (x - 1, y - 1),
@@ -156,34 +157,38 @@ def get_neighbours(image, coords):
         (x, y + 1),
         (x + 1, y + 1),
     ]
-    return [image.get(coords, 0) for coords in directions]
+    return [image.get(coords, default) for coords in directions]
 
 
-def get_algo_index(image, coords):
-    neighbours = get_neighbours(image, coords)
+def get_algo_index(image, coords, default):
+    neighbours = get_neighbours(image, coords, default)
     return int("".join(map(str, neighbours)), 2)
 
 
-def enhance(image, algorithm):
+def enhance(image, algorithm, default):
     """1 step"""
     new_image = dict()
     (min_x, max_x), (min_y, max_y) = get_image_size(image)
-    for x in range(min_x - 4, max_x + 5):
-        for y in range(min_y - 4, max_y + 5):
+    for x in range(min_x - 1, max_x + 2):
+        for y in range(min_y - 1, max_y + 2):
             coords = (x, y)
-            index = get_algo_index(image, coords)
-            if algorithm[index] == "#":
-                new_image[coords] = 1
-    return new_image
+            index = get_algo_index(image, coords, default)
+            new_image[coords] = 1 if algorithm[index] == "#" else 0
+
+    default_algo_index = str(default) * 9
+    default_algo_index = int(default_algo_index, 2)
+    default = 1 if algorithm[default_algo_index] == "#" else 0
+    return new_image, default
 
 
 if __name__ == "__main__":
     algorithm, image = init()
+    default = 0
     print_image(image)
-    print("")
-    image = enhance(image, algorithm)
-    print_image(image)
-    print("")
-    image = enhance(image, algorithm)
-    print_image(image)
-    print(len(image))
+    for _ in range(2):
+        print("")
+        image, default = enhance(image, algorithm, default)
+        print_image(image)
+
+    lit_pixels = list(image.values()).count(1)
+    print(lit_pixels)
