@@ -160,45 +160,53 @@ def get_neighbours(image, coords, default):
     return [image.get(coords, default) for coords in directions]
 
 
-def get_algo_index(image, coords, default):
-    neighbours = get_neighbours(image, coords, default)
-    return int("".join(map(str, neighbours)), 2)
+class Image:
+    def __init__(self, contents, algorithm):
+        self.contents = contents
+        self.default = 0
+        self.algorithm = algorithm
 
+    def enhance(self):
+        new_image = dict()
+        (min_x, max_x), (min_y, max_y) = self.size
+        for x in range(min_x - 1, max_x + 2):
+            for y in range(min_y - 1, max_y + 2):
+                coords = (x, y)
+                index = self.get_algo_index(coords)
+                new_image[coords] = 1 if self.algorithm[index] == "#" else 0
 
-def enhance(image, algorithm, default):
-    """1 step"""
-    new_image = dict()
-    (min_x, max_x), (min_y, max_y) = get_image_size(image)
-    for x in range(min_x - 1, max_x + 2):
-        for y in range(min_y - 1, max_y + 2):
-            coords = (x, y)
-            index = get_algo_index(image, coords, default)
-            new_image[coords] = 1 if algorithm[index] == "#" else 0
+        default_algo_index = str(self.default) * 9
+        default_algo_index = int(default_algo_index, 2)
+        self.default = 1 if self.algorithm[default_algo_index] == "#" else 0
+        self.contents = new_image
 
-    default_algo_index = str(default) * 9
-    default_algo_index = int(default_algo_index, 2)
-    default = 1 if algorithm[default_algo_index] == "#" else 0
-    return new_image, default
+    def get_algo_index(self, coords):
+        neighbours = get_neighbours(self.contents, coords, self.default)
+        return int("".join(map(str, neighbours)), 2)
+
+    @property
+    def size(self):
+        return get_image_size(self.contents)
+
+    @property
+    def lit_pixels(self):
+        return list(self.contents.values()).count(1)
 
 
 def part1():
     algorithm, image = init()
-    default = 0
+    image = Image(image, algorithm)
     for _ in range(2):
-        image, default = enhance(image, algorithm, default)
-
-    lit_pixels = list(image.values()).count(1)
-    return lit_pixels
+        image.enhance()
+    return image.lit_pixels
 
 
 def part2():
     algorithm, image = init()
-    default = 0
+    image = Image(image, algorithm)
     for _ in range(50):
-        image, default = enhance(image, algorithm, default)
-
-    lit_pixels = list(image.values()).count(1)
-    return lit_pixels
+        image.enhance()
+    return image.lit_pixels
 
 
 if __name__ == "__main__":
