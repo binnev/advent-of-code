@@ -1,5 +1,6 @@
 import re
 from itertools import combinations, product
+from typing import Iterable, Any
 
 raw = """on x=-31..17,y=-17..30,z=-43..8
 on x=-6..44,y=-24..30,z=-8..39
@@ -445,19 +446,46 @@ on x=-41..9,y=-7..43,z=-33..15
 on x=-54112..-39298,y=-85059..-49293,z=-27449..7877
 on x=967..23432,y=45373..81175,z=27513..53682"""
 
-example = """on x=10..12,y=10..12,z=10..12
-on x=11..13,y=11..13,z=11..13
-off x=9..11,y=9..11,z=9..11
-on x=10..10,y=10..10,z=10..10"""
+example = """on x=-20..26,y=-36..17,z=-47..7
+on x=-20..33,y=-21..23,z=-26..28
+on x=-22..28,y=-29..23,z=-38..16
+on x=-46..7,y=-6..46,z=-50..-1
+on x=-49..1,y=-3..46,z=-24..28
+on x=2..47,y=-22..22,z=-23..27
+on x=-27..23,y=-28..26,z=-21..29
+on x=-39..5,y=-6..47,z=-3..44
+on x=-30..21,y=-8..43,z=-13..34
+on x=-22..26,y=-27..20,z=-29..19
+off x=-48..-32,y=26..41,z=-47..-37
+on x=-12..35,y=6..50,z=-50..-2
+off x=-48..-32,y=-32..-16,z=-15..-5
+on x=-18..26,y=-33..15,z=-7..46
+off x=-40..-22,y=-38..-28,z=23..41
+on x=-16..35,y=-41..10,z=-47..6
+off x=-32..-23,y=11..30,z=-14..3
+on x=-49..-5,y=-3..45,z=-29..18
+off x=18..30,y=-20..-8,z=-3..13
+on x=-41..9,y=-7..43,z=-33..15
+on x=-54112..-39298,y=-85059..-49293,z=-27449..7877
+on x=967..23432,y=45373..81175,z=27513..53682"""
 
-raw = example
+
+# raw = example
 
 
 def init():
     instructions = [
         [
             line.split(" ")[0],
-            [list(map(int, re.findall("[-\d]+", ran))) for ran in line.split(" ")[1].split(",")],
+            Shape(
+                *[
+                    Range(
+                        int(re.findall("[-\d]+", ran)[0]),
+                        int(re.findall("[-\d]+", ran)[1]) + 1,
+                    )
+                    for ran in line.split(" ")[1].split(",")
+                ]
+            ),
         ]
         for line in raw.splitlines()
     ]
@@ -470,25 +498,12 @@ def pm50(bound):
 
 def galaxy_brain(instructions):
     reactor = set()
-    for onoff, cubes in instructions:
-        (x0, x1), (y0, y1), (z0, z1) = cubes
-        if (
-            ((x0 > 50 and x1 > 50) or (x0 < -50 and x1 < -50))
-            or ((y0 > 50 and y1 > 50) or (y0 < -50 and y1 < -50))
-            or ((z0 > 50 and z1 > 50) or (z0 < -50 and z1 < -50))
-        ):
-            continue
-        x_range = pm50(x0), pm50(x1)
-        y_range = pm50(y0), pm50(y1)
-        z_range = pm50(z0), pm50(z1)
-        new_shape = Shape(Range(*x_range), Range(*y_range), Range(*z_range))
+    for onoff, new_shape in instructions:
         overlappers = {shape for shape in reactor if shape.overlaps(new_shape)}
         reactor = reactor.difference(overlappers)
         for shape in overlappers:
-            shattered_shape, _ = shape.shatter(new_shape)
-            for fragment in shattered_shape:
-                if not fragment.overlaps(new_shape):
-                    reactor.add(fragment)
+            shattered_shape = shape.difference(new_shape)
+            reactor = reactor.union(shattered_shape)
 
         if onoff == "on":
             reactor.add(new_shape)
@@ -497,22 +512,35 @@ def galaxy_brain(instructions):
 
 
 def part1():
-    instructions = init()
-    print(instructions)
+    instructions = [
+        (onoff, shape)
+        for onoff, shape in init()
+        if all(axis.overlaps(Range(-50, 50)) for axis in shape.axes)
+    ]
     return galaxy_brain(instructions)
 
 
-class Range:
+class RangeError(Exception):
+    pass
+
+
+class ShapeError(Exception):
+    pass
+
+
+class Range(tuple):
+    def __new__(cls, start, stop):
+        return super().__new__(cls, [start, stop])
+
     def __init__(self, start, stop):
         if stop < start:
-            raise Exception("stop must > start!")
-        self._range = range(start, stop)
+            raise RangeError(f"stop must > start! {stop=}, {start=}")
 
     def __repr__(self) -> str:
         return f"Range({self.start}..{self.stop})"
 
     def __contains__(self, o: object) -> bool:
-        return self._range.__contains__(o)
+        return o in range(self.start, self.stop)
 
     def contains(self, o: "Range"):
         return (self.start < o.start < self.stop, self.start < o.stop < self.stop)
@@ -532,7 +560,7 @@ class Range:
             if bp in (self.start, self.stop):
                 continue
             if bp not in self:
-                raise Exception(f"breakpoint {bp} not in {self}")
+                raise RangeError(f"breakpoint {bp} not in {self}")
             new_range = Range(current.start, bp)
             if new_range.start != new_range.stop:
                 new.append(new_range)
@@ -542,19 +570,20 @@ class Range:
 
     @property
     def start(self):
-        return self._range.start
+        return self[0]
 
     @property
     def stop(self):
-        return self._range.stop
-
-    @property
-    def step(self):
-        return self._range.step
+        return self[1]
 
 
-class Shape:
+class Shape(tuple):
+    def __new__(cls, *axes: Range):
+        return super().__new__(cls, axes)
+
     def __init__(self, *axes: Range):
+        if len(axes) < 2:
+            raise ShapeError("You need to specify at least 2 axes")
         self.axes = axes
 
     def __repr__(self) -> str:
@@ -572,17 +601,25 @@ class Shape:
         new_other = shape.split(*overlaps)
         return new_me, new_other
 
+    def union(self, shape):
+        my_pieces, other_pieces = self.shatter(shape)
+        return set(my_pieces).union(set(other_pieces))
+
+    def difference(self, shape):
+        my_pieces, other_pieces = self.shatter(shape)
+        return set(my_pieces).difference(set(other_pieces))
+
     def split(self, x_breaks, y_breaks=None, z_breaks=None):
         y_breaks = y_breaks or []
         z_breaks = z_breaks or []
         breakpoints = [x_breaks, y_breaks, z_breaks]
         new_axes = [axis.split(*breaks) for axis, breaks in zip(self.axes, breakpoints)]
-        return [Shape(*axes) for axes in product(*new_axes)]
+        return {Shape(*axes) for axes in product(*new_axes)}
 
     def count(self):
         prod = 1
         for axis in self.axes:
-            length = abs(axis.stop - axis.start) + 1
+            length = abs(axis.stop - axis.start)
             prod *= length
         return prod
 
@@ -595,27 +632,12 @@ class Shape:
 
 def part2():
     instructions = init()
-    reactor = dict()
-    for onoff, cubes in instructions:
-        (x0, x1), (y0, y1), (z0, z1) = cubes
-        shape = Shape(Range(x0, x1), Range(y0, y1), Range(z0, z1))
-        x_range = x0, x1 + 1
-        y_range = y0, y1 + 1
-        z_range = z0, z1 + 1
-        for x in range(*x_range):
-            for y in range(*y_range):
-                for z in range(*z_range):
-                    if onoff == "on":
-                        reactor[(x, y, z)] = 1
-                    elif (x, y, z) in reactor:
-                        del reactor[(x, y, z)]
-
-    return len({k: v for k, v in reactor.items()})
+    print(instructions)
+    return galaxy_brain(instructions)
 
 
 if __name__ == "__main__":
     p1 = part1()
     print(f"{p1=}")
-    assert p1 == 474140
-    # p2 = part2()
-    # print(f"{p2=}")
+    p2 = part2()
+    print(f"{p2=}")
