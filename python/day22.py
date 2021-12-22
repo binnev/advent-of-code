@@ -535,26 +535,17 @@ on x=967..23432,y=45373..81175,z=27513..53682"""
 
 
 def init(raw_string):
-    instructions = [
-        [
-            line.split(" ")[0],
-            Shape(
-                *[
-                    Range(
-                        int(re.findall("[-\d]+", ran)[0]),
-                        int(re.findall("[-\d]+", ran)[1]) + 1,
-                    )
-                    for ran in line.split(" ")[1].split(",")
-                ]
-            ),
-        ]
-        for line in raw_string.splitlines()
-    ]
+    instructions = []
+    for line in raw_string.splitlines():
+        onoff, range_strings = line.split(" ")
+        range_strings = range_strings.split(",")
+        ranges = []
+        for string in range_strings:
+            start, stop = list(map(int, re.findall("[-\d]+", string)))
+            ranges.append(Range(start, stop + 1))
+        shape = Shape(*ranges)
+        instructions.append([onoff, shape])
     return instructions
-
-
-def pm50(bound):
-    return min(max(bound, -50), 50)
 
 
 def galaxy_brain(instructions):
@@ -699,5 +690,7 @@ def part2():
 if __name__ == "__main__":
     p1 = part1()
     print(f"{p1=}")
+    assert p1 == 533863
     p2 = part2()
     print(f"{p2=}")
+    assert p2 == 1261885414840992
