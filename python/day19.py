@@ -1200,7 +1200,7 @@ example = """--- scanner 0 ---
 -652,-548,-490
 30,-46,-14"""
 
-# raw = example
+raw = example
 
 
 def print_stuff(things):
@@ -1248,6 +1248,22 @@ def match_scanners(scanner0, scanner1):
     return False, None
 
 
+def match_axis(scanner0, scanner1):
+    xs0 = [x for (x, y, z) in scanner0]
+    xs1 = [x for (x, y, z) in scanner1]
+    for p1, x0 in enumerate(xs0):
+        for p2, x1 in enumerate(xs1):
+            # will need to shift the x,y of all scanner2 to achieve this.
+            dx = x0 - x1
+            shifted1 = [(x + dx) for x in xs1]
+
+            # if, after the shift, 3 beacons overlap, it's a match
+            hits = set(shifted1).intersection(xs0)
+            if len(hits) > 11:
+                return dx, p1, p2
+    return None, None, None
+
+
 def rotate_scanner(scanner, x=0, y=1, z=2, flip_x=False, flip_y=False, flip_z=False):
     rotated = {
         (
@@ -1274,12 +1290,30 @@ def get_orientations():
     return orientations
 
 
+def find_matching_points(scanner0, scanner1):
+    xs = (0, 1, 2)
+    for x_axis in xs:
+        for flip_x in (True, False):
+            rotated1 = rotate_scanner(scanner1, x=x_axis, flip_x=flip_x)
+            # todo: not match_axis; that is trying all the points again.
+            #  We just need to check if the orientation matches for the *given* points
+            dx, p1, p2 = match_axis(scanner0, rotated1)
+            if dx:
+                return x_axis, flip_x, dx, p1, p2
+
+
 def smart_stuff(scanner0, scanner1):
-    for (x, y, z, flip_x, flip_y, flip_z) in get_orientations():
-        rotated1 = rotate_scanner(scanner1, x, y, z, flip_x, flip_y, flip_z)
-        dxdydz, shifted1 = match_scanners(scanner0, rotated1)
-        if dxdydz:
-            return dxdydz, shifted1
+    x_axis, flip_x, dx, p1, p2 = find_matching_points(scanner0, scanner1)
+    ys = {0, 1, 2}.difference({x_axis})
+    for y in ys:
+        z = set(ys).difference({y}).pop()
+        for flip_y in (True, False):
+            for flip_z in (True, False):
+                rotated1 = rotate_scanner(scanner1, x, y, z, flip_x, flip_y, flip_z)
+                dxdydz, shifted1 = match_scanners(scanner0, rotated1)
+                if dxdydz:
+                    return dxdydz, shifted1
+
     return False, False
 
 
@@ -1329,9 +1363,12 @@ def part2():
 
 
 if __name__ == "__main__":
-    p1 = part1()
-    print(f"{p1=}")
-    assert p1 == 428
-    p2 = part2()
-    print(f"{p2=}")
-    assert p2 == 12140
+    # p1 = part1()
+    # print(f"{p1=}")
+    # assert p1 == 428
+    # p2 = part2()
+    # print(f"{p2=}")
+    # assert p2 == 12140
+    scanners = init()
+    result = smart_stuff(scanners[0], scanners[1])
+    print(result)
