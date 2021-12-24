@@ -272,6 +272,9 @@ class Alu:
     y: int = 0
     z: int = 0
 
+    def __init__(self):
+        self.instructions = init(raw)
+
     def parse(self, b):
         matches = re.findall("[-\d]+", b)
         return int(matches[0]) if matches else getattr(self, b)
@@ -319,16 +322,21 @@ class Alu:
         z = self.z
         return f"ALU({w=}, {x=}, {y=}, {z=})"
 
+    def validate_model_number(self, model_number):
+        digits = list(str(model_number))
+        for operation, terms in self.instructions:
+            if operation == "inp":
+                terms += [digits.pop(0)]
+            method = getattr(self, operation)
+            method(*terms)
+        return "0" not in str(self.z)
+
 
 def part1():
-    instructions = init(raw)
-    guess = list("13579246899999")
     alu = Alu()
-    for operation, terms in instructions:
-        if operation == "inp":
-            terms += [guess.pop(0)]
-        method = getattr(alu, operation)
-        method(*terms)
+    guess = 13579246899999
+    success = alu.validate_model_number(guess)
+    print(success)
     print(alu)
 
 
