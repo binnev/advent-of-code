@@ -1,4 +1,5 @@
 import re
+from itertools import combinations_with_replacement
 
 raw = """inp w
 mul x 0
@@ -258,7 +259,7 @@ def init(raw_string):
     instructions = []
     for line in raw_string.splitlines():
         operation, *terms = line.split(" ")
-        instructions.append((operation, terms))
+        instructions.append((operation, tuple(terms)))
     return instructions
 
 
@@ -325,6 +326,7 @@ class Alu:
     def validate_model_number(self, model_number):
         digits = list(str(model_number))
         for operation, terms in self.instructions:
+            terms = list(terms)
             if operation == "inp":
                 terms += [digits.pop(0)]
             method = getattr(self, operation)
@@ -334,10 +336,11 @@ class Alu:
 
 def part1():
     alu = Alu()
-    guess = 13579246899999
-    success = alu.validate_model_number(guess)
-    print(success)
-    print(alu)
+    for ii, guess in enumerate(combinations_with_replacement(list(range(1, 10)), r=14)):
+        guess = int("".join(map(str, guess)))
+        success = alu.validate_model_number(guess)
+        if ii % 100 == 0:
+            print(f"guessing {guess}... {success}")
 
 
 if __name__ == "__main__":
