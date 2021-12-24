@@ -1,5 +1,6 @@
 import re
-from itertools import cycle
+from copy import deepcopy
+from itertools import cycle, combinations, combinations_with_replacement
 
 raw = """Player 1 starting position: 9
 Player 2 starting position: 3"""
@@ -36,11 +37,14 @@ class Player:
 
     def move(self, spaces):
         self.index = (self.index + spaces) % 10
-        self.score += self.space
+        self.score += self.position
 
     @property
-    def space(self):
+    def position(self):
         return self.board[self.index]
+
+    def __repr__(self):
+        return f"Player {self.player_number}: position={self.position}, score={self.score}"
 
 
 def part1():
@@ -56,12 +60,43 @@ def part1():
     return min_score * DeterministicDie.times_rolled
 
 
+def we_must_go_deeper(players, active_player: int, spaces_to_move: int):
+    print(f"{active_player=}, {spaces_to_move=}")
+    players = deepcopy(players)
+    player = players[active_player]
+    player.move(spaces_to_move)
+    if player.score >= 13:
+        return {active_player: 1}
+    else:
+        tree = dict()
+        combos = list(combinations_with_replacement([1, 2, 3], r=3))
+        for rolls in combos:
+            spaces = sum(rolls)
+            deeper_branches = we_must_go_deeper(
+                players,
+                active_player=int(not active_player),
+                spaces_to_move=spaces,
+            )
+            for player, wins in deeper_branches.items():
+                tree[player] = tree.get(player, 0) + 1
+        return tree
+
+
 def part2():
-    pass
+    player1, player2 = init(raw)
+    player1 = Player(1, player1)
+    player2 = Player(2, player2)
+    results = we_must_go_deeper(
+        [player1, player2],
+        active_player=1,
+        spaces_to_move=0,
+    )
+    return results
+
 
 if __name__ == "__main__":
-    p1 = part1()
-    print(f"{p1=}")
-    assert p1 == 1073709
+    # p1 = part1()
+    # print(f"{p1=}")
+    # assert p1 == 1073709
     p2 = part2()
     print(f"{p2=}")
