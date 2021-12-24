@@ -1,3 +1,5 @@
+import re
+
 raw = """inp w
 mul x 0
 add x z
@@ -260,6 +262,10 @@ def init(raw_string):
     return instructions
 
 
+class AluError(Exception):
+    pass
+
+
 class Alu:
     w: int = 0
     x: int = 0
@@ -267,7 +273,8 @@ class Alu:
     z: int = 0
 
     def parse(self, b):
-        return int(b) if b.isdigit() else getattr(self, b)
+        matches = re.findall("[-\d]+", b)
+        return int(matches[0]) if matches else getattr(self, b)
 
     def inp(self, a: str, b: str):
         b = self.parse(b)
@@ -294,6 +301,8 @@ class Alu:
     def mod(self, a, b):
         b = self.parse(b)
         a_value = getattr(self, a)
+        if a_value < 0 or b <= 0:
+            raise AluError("mod can't handle that")
         result = a_value % b
         setattr(self, a, result)
 
@@ -312,21 +321,14 @@ class Alu:
 
 
 def part1():
+    instructions = init(raw)
+    guess = list("13579246899999")
     alu = Alu()
-    alu.inp("w", "4")
-    alu.add("w", "3")
-    alu.mul("w", "3")
-    alu.div("w", "2")
-    alu.mod("w", "3")
-    alu.eql("w", "1")
-    # alu.div("w", "2")
-    # alu.add("y", "w")
-    # alu.mod("y", "2")
-    # alu.div("w", "2")
-    # alu.add("x", "w")
-    # alu.mod("x", "2")
-    # alu.div("w", "2")
-    # alu.mod("w", "2")
+    for operation, terms in instructions:
+        if operation == "inp":
+            terms += [guess.pop(0)]
+        method = getattr(alu, operation)
+        method(*terms)
     print(alu)
 
 
