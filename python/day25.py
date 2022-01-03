@@ -149,11 +149,17 @@ v.v..>>v.v
 ....v..v.>"""
 
 
+class CucumberField(dict):
+    def calculate_size(self):
+        self.width, self.height = size(self)
+
+
 def init(raw_string):
-    cucumbers = dict()
+    cucumbers = CucumberField()
     for y, line in enumerate(raw_string.splitlines()):
         for x, char in enumerate(line):
             cucumbers[(x, y)] = char
+    cucumbers.calculate_size()
     return cucumbers
 
 
@@ -181,41 +187,41 @@ def size(cucumbers):
 
 
 def can_move(coords, cucumbers):
-    width, height = size(cucumbers)
     x, y = coords
     cucumber = cucumbers[coords]
     if cucumber == ">":
-        next_coords = ((x + 1) % width), y
+        next_coords = ((x + 1) % cucumbers.width), y
     if cucumber == "v":
-        next_coords = x, ((y + 1) % height)
-    return False if cucumbers[next_coords] != "." else next_coords
+        next_coords = x, ((y + 1) % cucumbers.height)
+    return next_coords if cucumbers[next_coords] == "." else False
 
 
-def move(coords, cucumbers):
-    next_coords = can_move(coords, cucumbers)
-    if next_coords:
-        cucumbers[next_coords] = cucumbers.pop(coords)
+def move(coords, new_coords, cucumbers):
+    if new_coords:
+        cucumbers[new_coords] = cucumbers.pop(coords)
         cucumbers[coords] = "."
 
 
 def iterate(cucumbers):
-    east_movers = []
-    for coords, cucumber in cucumbers.items():
-        if cucumber == ">" and can_move(coords, cucumbers):
-            east_movers.append(coords)
-    for coords in east_movers:
-        move(coords, cucumbers)
+    east_movers = [
+        (coords, new_coords)
+        for coords, cucumber in cucumbers.items()
+        if cucumber == ">" and (new_coords := can_move(coords, cucumbers))
+    ]
+    for coords, new_coords in east_movers:
+        move(coords, new_coords, cucumbers)
 
-    south_movers = []
-    for coords, cucumber in cucumbers.items():
-        if cucumber == "v" and can_move(coords, cucumbers):
-            south_movers.append(coords)
-    for coords in south_movers:
-        move(coords, cucumbers)
+    south_movers = [
+        (coords, new_coords)
+        for coords, cucumber in cucumbers.items()
+        if cucumber == "v" and (new_coords := can_move(coords, cucumbers))
+    ]
+    for coords, new_coords in south_movers:
+        move(coords, new_coords, cucumbers)
 
 
 def part1():
-    cucumbers = init(example)
+    cucumbers = init(raw)
     ii = 1
     while True:
         copycumbers = copy(cucumbers)
@@ -229,4 +235,4 @@ def part1():
 if __name__ == "__main__":
     p1 = part1()
     print(f"{p1=}")
-    assert p1 == 58
+    assert p1 == 295
