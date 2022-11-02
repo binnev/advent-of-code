@@ -1,13 +1,4 @@
-import itertools
-
-example = """1721
-979
-366
-299
-675
-1456"""
-
-raw = """1889
+1889
 1974
 1983
 1590
@@ -206,22 +197,4 @@ raw = """1889
 1892
 1839
 1771
-1624"""
-
-
-def part1(input):
-    report = list(map(int, input.split("\n")))
-    for a, b in itertools.combinations(report, 2):
-        if a + b == 2020:
-            return a * b
-
-
-def part2(input):
-    report = list(map(int, input.split("\n")))
-    for a, b, c in itertools.combinations(report, 3):
-        if a + b + c == 2020:
-            return a * b * c
-
-
-if __name__ == "__main__":
-    print(part2(raw))
+1624

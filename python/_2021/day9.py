@@ -212,6 +212,7 @@ raw = yangs_raw = """21278976789986768943139876431347898765434349876789323459654
 
 raw = """9876543212345432123456789"""
 
+
 def init():
     return [list(map(int, row)) for row in raw.splitlines()]
 

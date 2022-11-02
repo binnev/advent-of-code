@@ -1,0 +1,4 @@
+day1, part1, 145875
+day1, part2, 69596112
+day2, part1, 628
+day2, part2, 705

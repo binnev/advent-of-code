@@ -1,4 +1,4 @@
-raw="""forward 9
+raw = """forward 9
 down 3
 down 8
 forward 2
@@ -1001,6 +1001,7 @@ forward 7"""
 
 instructions = list(map(str.strip, raw.strip().split("\n")))
 
+
 def part1():
     depth = 0
     horizontal = 0
@@ -1017,6 +1018,7 @@ def part1():
         else:
             raise Exception(f"unknown direction {direction}")
     return depth * horizontal
+
 
 def part2():
     depth = 0
