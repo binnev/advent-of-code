@@ -201,7 +201,6 @@ def part2():
         if not remaining_chars:
             continue
         s = calculate_score(remaining_chars)
-        print(line, s)
         scores.append(s)
     return int(numpy.median(scores))
 

@@ -1,6 +1,6 @@
-from python.day22 import Range, Shape, RangeError
-
 import pytest
+
+from .day22 import Range, RangeError, Shape
 
 
 def test_range():
