@@ -30,3 +30,7 @@ func Profile(f func() string) {
 	)
 	fmt.Println(message)
 }
+
+func SpecialPrint(text string) {
+	fmt.Println(text)
+}

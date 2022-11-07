@@ -1,10 +1,11 @@
-package main
+package days
 
 import (
 	"fmt"
 	"strconv"
 	"strings"
-	"utils"
+
+	"github.com/binnev/advent/utils"
 )
 
 func parseInput() []int {
@@ -18,7 +19,7 @@ func parseInput() []int {
 	return integers
 }
 
-func day1part1() string {
+func Day1Part1() string {
 	integers := parseInput()
 	value := 0
 	for _, a := range integers {
@@ -32,7 +33,7 @@ func day1part1() string {
 	return fmt.Sprintf("%v", value)
 }
 
-func day1part2() string {
+func Day1Part2() string {
 	integers := parseInput()
 	value := 0
 	for _, a := range integers {
@@ -48,7 +49,7 @@ func day1part2() string {
 	return fmt.Sprintf("%v", value)
 }
 
-func day1main() {
-	utils.Profile(day1part1)
-	utils.Profile(day1part2)
+func Day1() {
+	utils.Profile(Day1Part1)
+	utils.Profile(Day1Part2)
 }

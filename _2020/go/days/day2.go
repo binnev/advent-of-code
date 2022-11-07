@@ -1,11 +1,12 @@
-package main
+package days
 
 import (
 	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
-	"utils"
+
+	"github.com/binnev/advent/utils"
 )
 
 func parseLine(line string) (string, string, string, string) {
@@ -18,7 +19,7 @@ func parseLine(line string) (string, string, string, string) {
 	return a, b, char, pwd
 }
 
-func day2part1() string {
+func Day2Part1() string {
 	data := utils.LoadPuzzleInput("day2")
 	lines := strings.Split(data, "\n")
 	num_valid := 0
@@ -34,7 +35,7 @@ func day2part1() string {
 	return fmt.Sprintf("%v", num_valid)
 }
 
-func day2part2() string {
+func Day2Part2() string {
 	data := utils.LoadPuzzleInput("day2")
 	lines := strings.Split(data, "\n")
 	num_valid := 0
@@ -49,7 +50,7 @@ func day2part2() string {
 	return fmt.Sprintf("%v", num_valid)
 }
 
-func day2main() {
-	utils.Profile(day2part1)
-	utils.Profile(day2part2)
+func Day2() {
+	utils.Profile(Day2Part1)
+	utils.Profile(Day2Part2)
 }
