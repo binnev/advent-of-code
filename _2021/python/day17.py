@@ -59,6 +59,44 @@ def part1():
     things, target_x, target_y = init()
     things[(0, 0)] = "S"
 
+    def calc_traj(u, v, things):
+        x = 0
+        y = 0
+        positions = []
+        min_y = min(y for (x, y), code in things.items() if code == "T")
+        while True:
+            x += u
+            y += v
+            positions.append((x, y))
+            if u != 0:
+                u += -1 if u > 0 else 1
+            v -= 1
+            if things.get((x, y)) == "T":
+                return positions, True
+            if y < min_y:
+                return positions, False
+
+    trajectories = []
+    for u0 in range(200):
+        for v0 in range(200):
+            positions, hit = calc_traj(u0, v0, things)
+            if hit:
+                trajectories.append(positions)
+
+    return max(y for traj in trajectories for x, y in traj)
+
+
+def part2():
+    """
+    x and y are totally independent!
+    find the u range that ends in the target x
+    ditto for v
+    then search that space
+        :return:
+    """
+    things, target_x, target_y = init()
+    things[(0, 0)] = "S"
+
     trajectories = []
     for u0 in range(250):
         for v0 in range(-150, 250):
@@ -67,7 +105,6 @@ def part1():
                 trajectories.append(positions)
 
     return len(trajectories)
-    # return max(y for traj in trajectories for x, y in traj)
 
 
 """New idea: get all trajectories that _cross_ the target (including diagonally) """
@@ -76,3 +113,5 @@ def part1():
 if __name__ == "__main__":
     p1 = part1()
     print(f"{p1=}")
+    p2 = part2()
+    print(f"{p2=}")
