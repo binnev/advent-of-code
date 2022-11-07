@@ -18,7 +18,7 @@ func parseLine(line string) (string, string, string, string) {
 	return a, b, char, pwd
 }
 
-func part1() string {
+func day2part1() string {
 	data := utils.LoadPuzzleInput("day2")
 	lines := strings.Split(data, "\n")
 	num_valid := 0
@@ -34,7 +34,7 @@ func part1() string {
 	return fmt.Sprintf("%v", num_valid)
 }
 
-func part2() string {
+func day2part2() string {
 	data := utils.LoadPuzzleInput("day2")
 	lines := strings.Split(data, "\n")
 	num_valid := 0
@@ -49,7 +49,7 @@ func part2() string {
 	return fmt.Sprintf("%v", num_valid)
 }
 
-func main() {
-	utils.Profile(part1)
-	utils.Profile(part2)
+func day2main() {
+	utils.Profile(day2part1)
+	utils.Profile(day2part2)
 }

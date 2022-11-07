@@ -18,7 +18,7 @@ func parseInput() []int {
 	return integers
 }
 
-func part1() string {
+func day1part1() string {
 	integers := parseInput()
 	value := 0
 	for _, a := range integers {
@@ -32,7 +32,7 @@ func part1() string {
 	return fmt.Sprintf("%v", value)
 }
 
-func part2() string {
+func day1part2() string {
 	integers := parseInput()
 	value := 0
 	for _, a := range integers {
@@ -48,7 +48,7 @@ func part2() string {
 	return fmt.Sprintf("%v", value)
 }
 
-func main() {
-	utils.Profile(part1)
-	utils.Profile(part2)
+func day1main() {
+	utils.Profile(day1part1)
+	utils.Profile(day1part2)
 }

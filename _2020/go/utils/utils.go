@@ -8,17 +8,13 @@ import (
 	"time"
 )
 
-func check(e error) {
-	if e != nil {
-		panic(e)
-	}
-}
-
 func LoadPuzzleInput(filename string) string {
 	path := fmt.Sprintf("../puzzle_inputs/%v.txt", filename)
-	dat, err := os.ReadFile(path)
-	check(err)
-	return string(dat)
+	data, err := os.ReadFile(path)
+	if err != nil {
+		panic(err)
+	}
+	return string(data)
 }
 
 func Profile(f func() string) {
