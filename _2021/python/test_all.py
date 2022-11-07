@@ -71,7 +71,7 @@ from _2021.python import (
         (day20, "part1", 5225),
         (day20, "part2", 18131),
         (day21, "part1", 1073709),
-        (day21, "part2", None),
+        # (day21, "part2", None),
         (day22, "part1", 533863),
         (day22, "part2", 1261885414840992),
         # (day23, "part1", None),

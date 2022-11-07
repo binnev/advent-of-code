@@ -137,3 +137,16 @@ for hex_string, expected_value in [
     print(values[0], end="")
     assert values[0] == expected_value
     print(" passed")
+
+
+def part1():
+    ...
+
+def part2():
+    values, remainder = parse(hex_to_bin(hex_string))
+    return values[0]
+
+
+if __name__ == '__main__':
+    print(f"{part1()=}")
+    print(f"{part2()=}")
