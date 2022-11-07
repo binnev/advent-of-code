@@ -1,4 +1,4 @@
-package days
+package day2
 
 import (
 	"fmt"
@@ -19,7 +19,7 @@ func parseLine(line string) (string, string, string, string) {
 	return a, b, char, pwd
 }
 
-func Day2Part1() string {
+func Part1() string {
 	data := utils.LoadPuzzleInput("day2")
 	lines := strings.Split(data, "\n")
 	num_valid := 0
@@ -35,7 +35,7 @@ func Day2Part1() string {
 	return fmt.Sprintf("%v", num_valid)
 }
 
-func Day2Part2() string {
+func Part2() string {
 	data := utils.LoadPuzzleInput("day2")
 	lines := strings.Split(data, "\n")
 	num_valid := 0
@@ -50,7 +50,7 @@ func Day2Part2() string {
 	return fmt.Sprintf("%v", num_valid)
 }
 
-func Day2() {
-	utils.Profile(Day2Part1)
-	utils.Profile(Day2Part2)
+func All() {
+	utils.Profile(Part1)
+	utils.Profile(Part2)
 }

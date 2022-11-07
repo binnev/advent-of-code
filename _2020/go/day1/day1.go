@@ -1,4 +1,4 @@
-package days
+package day1
 
 import (
 	"fmt"
@@ -19,7 +19,7 @@ func parseInput() []int {
 	return integers
 }
 
-func Day1Part1() string {
+func Part1() string {
 	integers := parseInput()
 	value := 0
 	for _, a := range integers {
@@ -33,7 +33,7 @@ func Day1Part1() string {
 	return fmt.Sprintf("%v", value)
 }
 
-func Day1Part2() string {
+func Part2() string {
 	integers := parseInput()
 	value := 0
 	for _, a := range integers {
@@ -49,7 +49,7 @@ func Day1Part2() string {
 	return fmt.Sprintf("%v", value)
 }
 
-func Day1() {
-	utils.Profile(Day1Part1)
-	utils.Profile(Day1Part2)
+func All() {
+	utils.Profile(Part1)
+	utils.Profile(Part2)
 }

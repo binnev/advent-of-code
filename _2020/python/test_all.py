@@ -1,25 +1,17 @@
-from importlib import import_module
-from pathlib import Path
-
 import pytest
 
-solutions_file = Path(__file__).parent.parent / "solutions.txt"
-assert solutions_file.exists()
-with open(solutions_file) as file:
-    lines = file.read().strip().split("\n")
-
-parameters = []
-for day, string in enumerate(lines, start=1):
-    part1_answer, part2_answer = string.split(", ")
-    module = import_module(f"_2020.python.day{day}")
-    part1_func = getattr(module, "part1")
-    part2_func = getattr(module, "part2")
-    part1_answer = int(part1_answer)
-    part2_answer = int(part2_answer)
-    parameters.append((f"day{day}", part1_func, part1_answer))
-    parameters.append((f"day{day}", part2_func, part2_answer))
+from _2020.python import day1, day2
 
 
-@pytest.mark.parametrize("day, func, expected_output", parameters)
-def test(day, func, expected_output):
+@pytest.mark.parametrize(
+    "module, func, expected_output",
+    [
+        (day1, "part1", 145875),
+        (day1, "part2", 69596112),
+        (day2, "part1", 628),
+        (day2, "part2", 705),
+    ],
+)
+def test(module, func, expected_output):
+    func = getattr(module, func)
     assert func() == expected_output

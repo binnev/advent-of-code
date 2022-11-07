@@ -17,14 +17,17 @@ func LoadPuzzleInput(filename string) string {
 	return string(data)
 }
 
+func GetFuncName(f func() string) string {
+	return runtime.FuncForPC(reflect.ValueOf(f).Pointer()).Name()
+}
+
 func Profile(f func() string) {
 	t1 := time.Now()
 	result := f()
 	t2 := time.Now()
 	dt := float32(t2.UnixMicro()-t1.UnixMicro()) / 1000000
-	funcName := runtime.FuncForPC(reflect.ValueOf(f).Pointer()).Name()
 	message := fmt.Sprintf("%v: %v (%.5f seconds)",
-		funcName,
+		GetFuncName(f),
 		result,
 		dt,
 	)
