@@ -140,13 +140,107 @@ for hex_string, expected_value in [
 
 
 def part1():
-    ...
+    hex_bin_mapping = {
+        "0": "0000",
+        "1": "0001",
+        "2": "0010",
+        "3": "0011",
+        "4": "0100",
+        "5": "0101",
+        "6": "0110",
+        "7": "0111",
+        "8": "1000",
+        "9": "1001",
+        "A": "1010",
+        "B": "1011",
+        "C": "1100",
+        "D": "1101",
+        "E": "1110",
+        "F": "1111",
+    }
+
+    def hex_to_bin(hex_string):
+        return "".join(hex_bin_mapping[char] for char in hex_string)
+
+    def split(string, index):
+        return string[:index], string[index:]
+
+    VERSIONS = []
+
+    def parse(string, num_packets=None, len_packets=None) -> (list, str):
+        if num_packets and len_packets:
+            raise Exception("pick one")
+
+        if len_packets:
+            string, remainder = split(string, len_packets)
+            return parse(string), remainder
+
+        results = []
+        ii = 0
+        while "1" in string:
+            version, string = split(string, 3)
+            version = int(version, 2)
+            VERSIONS.append(version)
+            typ, string = split(string, 3)
+            typ = int(typ, 2)
+            if typ == 4:
+                value, string = parse_literal(string)
+                results.append((value, version, typ))
+            else:
+                values, string = parse_operator(string)
+                results.extend(values)
+
+            if num_packets and ii == num_packets:
+                break
+            ii += 1
+        return results, string
+
+    def parse_literal(string):
+        keep_reading = True
+        content = ""
+        while keep_reading:
+            keep_reading, string = split(string, 1)
+            keep_reading = bool(int(keep_reading))
+            chunk, string = split(string, 4)
+            content += chunk
+        return int(content, 2), string
+
+    def parse_operator(string):
+        length_type, string = split(string, 1)
+        if length_type == "0":
+            # 15 bit number representing the number of BITS in the sub-packets to follow
+            length_in_bits, string = split(string, 15)
+            length = int(length_in_bits, 2)
+            return parse(string, len_packets=length)
+            # chunk, string = split(string, length)
+            # values, string = parse(chunk)
+            # return values, string
+
+        elif length_type == "1":
+            # 11-bit number representing the number of sub-packets
+            num_sub_packets, string = split(string, 11)
+            num_sub_packets = int(num_sub_packets, 2)
+            return parse(string, num_packets=num_sub_packets)
+        return None, string
+
+    for hex_string in [
+        # "D2FE28",
+        # "38006F45291200",
+        # "EE00D40C823060",
+        # "A0016C880162017C3686B18A3D4780",
+        raw
+    ]:
+        print(f"{hex_string}: ", end="")
+        print(parse(hex_to_bin(hex_string)))
+        print(VERSIONS)
+        return sum(VERSIONS)
+
 
 def part2():
     values, remainder = parse(hex_to_bin(hex_string))
     return values[0]
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     print(f"{part1()=}")
     print(f"{part2()=}")
