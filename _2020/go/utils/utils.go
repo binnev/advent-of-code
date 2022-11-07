@@ -21,7 +21,7 @@ func GetFuncName(f func() string) string {
 	return runtime.FuncForPC(reflect.ValueOf(f).Pointer()).Name()
 }
 
-func Profile(f func() string) {
+func Profile(f func() string) string {
 	t1 := time.Now()
 	result := f()
 	t2 := time.Now()
@@ -32,6 +32,7 @@ func Profile(f func() string) {
 		dt,
 	)
 	fmt.Println(message)
+	return result
 }
 
 func SpecialPrint(text string) {
