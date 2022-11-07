@@ -1,7 +1,7 @@
 package dummy
 
 import (
-	"github.com/binnev/advent/utils"
+	"advent/utils"
 )
 
 func Dummy2() {

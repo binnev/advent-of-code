@@ -1,3 +1,3 @@
-module github.com/binnev/advent
+module advent
 
 go 1.19

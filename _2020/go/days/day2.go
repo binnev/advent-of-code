@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/binnev/advent/utils"
+	"advent/utils"
 )
 
 func parseLine(line string) (string, string, string, string) {

@@ -1,21 +1,20 @@
 package main
 
 import (
+	"advent/days"
 	"fmt"
-	"main"
 	"os"
 	"testing"
 )
 
 func TestAllDays(t *testing.T) {
-	// data, err := os.ReadFile("../solutions.txt")
-	data, err := os.ReadFile("/home/binnev/code/advent-of-code/_2020/solutions.txt")
+	data, err := os.ReadFile("../solutions.txt")
 	if err != nil {
 		panic(err)
 	}
 	fmt.Println(data)
 	fmt.Println(string(data))
-	result := main.day1part1()
+	result := days.Day1Part1()
 	fmt.Println(result)
-	t.Fatalf("boo!")
+	t.Fatalf("at least the tests are running!!")
 }

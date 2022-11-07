@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/binnev/advent/utils"
+	"advent/utils"
 )
 
 func parseInput() []int {

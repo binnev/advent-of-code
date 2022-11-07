@@ -3,9 +3,9 @@ package main
 import (
 	"fmt"
 
-	"github.com/binnev/advent/days"
-	"github.com/binnev/advent/dummy"
-	"github.com/binnev/advent/utils"
+	"advent/days"
+	"advent/dummy"
+	"advent/utils"
 )
 
 func main() {
@@ -15,5 +15,4 @@ func main() {
 	dummy.Dummy2()
 	days.Day1()
 	days.Day2()
-
 }
