@@ -1,8 +1,6 @@
-raw = "target area: x=143..177, y=-106..-71"
-dummy = "target area: x=20..30, y=-10..-5"
+from _2021.python import utils
 
-
-# raw = dummy
+raw = utils.load_puzzle_input("day17")
 
 
 def init():
@@ -47,7 +45,7 @@ def calc_traj(u, v, target_x, target_y):
         if y < target_y.start:
             return positions, False
 
-
+@utils.profile
 def part1():
     """
     x and y are totally independent!
@@ -85,7 +83,7 @@ def part1():
 
     return max(y for traj in trajectories for x, y in traj)
 
-
+@utils.profile
 def part2():
     """
     x and y are totally independent!
@@ -111,7 +109,5 @@ def part2():
 
 
 if __name__ == "__main__":
-    p1 = part1()
-    print(f"{p1=}")
-    p2 = part2()
-    print(f"{p2=}")
+    assert part1() == 5565
+    assert part2() == 2118

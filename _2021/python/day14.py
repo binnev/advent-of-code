@@ -1,128 +1,9 @@
-import functools
 import time
 from collections import deque, Counter
 
-raw = """OHFNNCKCVOBHSSHONBNF
+from _2021.python import utils
 
-SV -> O
-KP -> H
-FP -> B
-VP -> V
-KN -> S
-KS -> O
-SB -> K
-BS -> K
-OF -> O
-ON -> S
-VS -> F
-CK -> C
-FB -> K
-CH -> K
-HS -> H
-PO -> F
-NP -> N
-FH -> C
-FO -> O
-FF -> C
-CO -> K
-NB -> V
-PP -> S
-BB -> N
-HH -> B
-KK -> H
-OP -> K
-OS -> V
-KV -> F
-VH -> F
-OB -> S
-CN -> H
-SF -> K
-SN -> P
-NF -> H
-HB -> V
-VC -> S
-PS -> P
-NK -> B
-CV -> P
-BC -> S
-NH -> K
-FN -> P
-SH -> F
-FK -> P
-CS -> O
-VV -> H
-OC -> F
-CC -> N
-HK -> N
-FS -> P
-VF -> B
-SS -> V
-PV -> V
-BF -> V
-OV -> C
-HO -> F
-NC -> F
-BN -> F
-HC -> N
-KO -> P
-KH -> F
-BV -> S
-SK -> F
-SC -> F
-VN -> V
-VB -> V
-BH -> O
-CP -> K
-PK -> K
-PB -> K
-FV -> S
-HN -> K
-PH -> B
-VK -> B
-PC -> H
-BO -> H
-SP -> V
-NS -> B
-OH -> N
-KC -> H
-HV -> F
-HF -> B
-HP -> S
-CB -> P
-PN -> S
-BK -> K
-PF -> N
-SO -> P
-CF -> B
-VO -> C
-OO -> K
-FC -> F
-NV -> F
-OK -> K
-NN -> O
-NO -> O
-BP -> O
-KB -> O
-KF -> O"""
-
-# raw = """NNCB
-#
-# CH -> B
-# HH -> N
-# CB -> H
-# NH -> C
-# HB -> C
-# HC -> B
-# HN -> C
-# NN -> C
-# BH -> H
-# NC -> B
-# NB -> B
-# BN -> B
-# BB -> N
-# BC -> B
-# CC -> N
-# CN -> C"""
+raw = utils.load_puzzle_input("day14")
 
 
 def init():
@@ -175,6 +56,7 @@ def galaxy_brain(polymer, substitutions, depth):
     return max_count - min_count
 
 
+@utils.profile
 def part1():
     """Brute force; actually calculating the whole expanded string"""
     polymer, substitutions = init()
@@ -187,18 +69,12 @@ def part1():
     return max_count - min_count
 
 
+@utils.profile
 def part2():
     polymer, substitutions = init()
     return galaxy_brain(polymer, substitutions, depth=40)
 
 
 if __name__ == "__main__":
-    p1 = part1()
-    print(f"part1: {p1}")
-    assert p1 == 2590
-    t1 = time.time()
-    p2 = part2()
-    t2 = time.time()
-    print(f"part2: {p2}")
-    print(f"time: {t2-t1}s")
-    assert p2 == 2875665202438
+    assert part1() == 2590
+    assert part2() == 2875665202438

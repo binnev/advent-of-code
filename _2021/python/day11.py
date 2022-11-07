@@ -1,24 +1,6 @@
-raw = """5483143223
-2745854711
-5264556173
-6141336146
-6357385478
-4167524645
-2176841721
-6882881134
-4846848554
-5283751526"""
+from _2021.python import utils
 
-raw = """7777838353
-2217272478
-3355318645
-2242618113
-7182468666
-5441641111
-4773862364
-5717125521
-7542127721
-4576678341"""
+raw = utils.load_puzzle_input("day11")
 
 
 class Octopus:
@@ -89,6 +71,7 @@ def init():
     return [list(map(int, row)) for row in raw.splitlines()]
 
 
+@utils.profile
 def part1():
     board = Board()
     num_flashes = 0
@@ -98,6 +81,7 @@ def part1():
     return num_flashes
 
 
+@utils.profile
 def part2():
     board = Board()
     ii = 0
@@ -110,7 +94,5 @@ def part2():
 
 
 if __name__ == "__main__":
-    print(f"part1: {part1()}")
-    print(f"part2: {part2()}")
     assert part1() == 1721
     assert part2() == 298

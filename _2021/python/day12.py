@@ -1,36 +1,6 @@
-raw = """YW-end
-DK-la
-la-XG
-end-gy
-zq-ci
-XG-gz
-TF-la
-xm-la
-gy-gz
-ci-start
-YW-ci
-TF-zq
-ci-DK
-la-TS
-zq-YW
-gz-YW
-zq-gz
-end-gz
-ci-TF
-DK-zq
-gy-YW
-start-DK
-gz-DK
-zq-la
-start-TF"""
+from _2021.python import utils
 
-# raw = """start-A
-# start-b
-# A-c
-# A-b
-# b-d
-# A-end
-# b-end"""
+raw = utils.load_puzzle_input("day12")
 
 links = dict()
 for node1, node2 in [row.split("-") for row in raw.splitlines()]:
@@ -78,6 +48,7 @@ def dfs2(path):
     return new_paths
 
 
+@utils.profile
 def part1():
     paths = dfs(["start"])
     return len(paths)
@@ -90,15 +61,12 @@ def small_cave_visited_twice(path):
     return False
 
 
+@utils.profile
 def part2():
     paths = dfs2(["start"])
     return len(paths)
 
 
 if __name__ == "__main__":
-    p1 = part1()
-    print(f"part1: {p1}")
-    p2 = part2()
-    print(f"part2: {p2}")
-    assert p1 == 4912
-    assert p2 == 150004
+    assert part1() == 4912
+    assert part2() == 150004

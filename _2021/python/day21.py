@@ -1,14 +1,9 @@
 import re
 from copy import deepcopy
 from itertools import cycle, combinations, combinations_with_replacement
+from _2021.python import utils
 
-raw = """Player 1 starting position: 9
-Player 2 starting position: 3"""
-
-example = """Player 1 starting position: 4
-Player 2 starting position: 8"""
-
-# raw = example
+raw = utils.load_puzzle_input("day21")
 
 
 def init(raw_string):
@@ -47,6 +42,7 @@ class Player:
         return f"Player {self.player_number}: position={self.position}, score={self.score}"
 
 
+@utils.profile
 def part1():
     player1, player2 = init(raw)
     player1 = Player(1, player1)
@@ -61,7 +57,6 @@ def part1():
 
 
 def we_must_go_deeper(players, active_player: int, spaces_to_move: int):
-    print(f"{active_player=}, {spaces_to_move=}")
     players = deepcopy(players)
     player = players[active_player]
     player.move(spaces_to_move)
@@ -82,6 +77,7 @@ def we_must_go_deeper(players, active_player: int, spaces_to_move: int):
         return tree
 
 
+@utils.profile
 def part2():
     player1, player2 = init(raw)
     player1 = Player(1, player1)
@@ -95,8 +91,4 @@ def part2():
 
 
 if __name__ == "__main__":
-    # p1 = part1()
-    # print(f"{p1=}")
-    # assert p1 == 1073709
-    p2 = part2()
-    print(f"{p2=}")
+    assert part1() == 1073709
