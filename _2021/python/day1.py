@@ -8,14 +8,11 @@ input = list(map(int, map(str.strip, raw.strip().split("\n"))))
 @utils.profile
 def part1():
     increases = 0
-    for ii, depth in enumerate(input):
-        try:
-            next_depth = input[ii + 1]
-        except IndexError:
-            pass  # reached end of list
-        if next_depth > depth:
+    previous_depth = 0
+    for ii, depth in enumerate(input[1:]):
+        if depth > previous_depth:
             increases += 1
-
+        previous_depth = depth
     return increases
 
 
