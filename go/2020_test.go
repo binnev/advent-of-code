@@ -32,29 +32,3 @@ func Test2020(t *testing.T) {
 
 	}
 }
-
-// func Test2021(t *testing.T) {
-// 	cases := []struct {
-// 		f        func() string
-// 		expected string
-// 	}{
-// 		{_2021.day1.Part1, "1482"},
-// 		{_2021.day1.Part2, "1518"},
-// 		{_2021.day2.Part1, "1451208"},
-// 		{_2021.day2.Part2, "1620141160"},
-// 	}
-
-// 	for _, tc := range cases {
-// 		t.Run(utils.GetFuncName(tc.f), func(t *testing.T) {
-// 			result := tc.f()
-// 			if result != tc.expected {
-// 				t.Fatalf("%v failed; got %v; expected %v",
-// 					utils.GetFuncName(tc.f),
-// 					result,
-// 					tc.expected,
-// 				)
-// 			}
-// 		})
-
-// 	}
-// }
