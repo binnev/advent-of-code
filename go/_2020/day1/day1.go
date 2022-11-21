@@ -9,7 +9,7 @@ import (
 )
 
 func parseInput() []int {
-	data := utils.LoadPuzzleInput("day1")
+	data := utils.LoadPuzzleInput("2020/day1")
 	input_strings := strings.Fields(data)
 	integers := make([]int, len(input_strings))
 	for ind, str := range input_strings {

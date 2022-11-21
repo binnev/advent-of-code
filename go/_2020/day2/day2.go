@@ -20,7 +20,7 @@ func parseLine(line string) (string, string, string, string) {
 }
 
 func Part1() string {
-	data := utils.LoadPuzzleInput("day2")
+	data := utils.LoadPuzzleInput("2020/day2")
 	lines := strings.Split(data, "\n")
 	num_valid := 0
 	for _, line := range lines {
@@ -36,7 +36,7 @@ func Part1() string {
 }
 
 func Part2() string {
-	data := utils.LoadPuzzleInput("day2")
+	data := utils.LoadPuzzleInput("2020/day2")
 	lines := strings.Split(data, "\n")
 	num_valid := 0
 	for _, line := range lines {

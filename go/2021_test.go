@@ -1,21 +1,18 @@
 package main
 
 import (
-	"advent/day1"
-	"advent/day2"
+	"advent/_2021/day1"
 	"advent/utils"
 	"testing"
 )
 
-func TestAllDays(t *testing.T) {
+func Test2021(t *testing.T) {
 	cases := []struct {
 		f        func() string
 		expected string
 	}{
-		{day1.Part1, "145875"},
-		{day1.Part2, "69596112"},
-		{day2.Part1, "628"},
-		{day2.Part2, "705"},
+		{day1.Part1, "1482"},
+		{day1.Part2, "1518"},
 	}
 
 	for _, tc := range cases {
