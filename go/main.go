@@ -1,13 +1,9 @@
 package main
 
 import (
-	"advent/_2021/day1"
-	"advent/utils"
-	"fmt"
+	"advent/_2021"
 )
 
 func main() {
-	fmt.Println("Hello, world!")
-	utils.SpecialPrint("using utils package")
-	day1.All()
+	_2021.Day1()
 }

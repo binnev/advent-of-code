@@ -1,8 +1,7 @@
 package main
 
 import (
-	"advent/_2020/day1"
-	"advent/_2020/day2"
+	"advent/_2020"
 	"advent/utils"
 	"testing"
 )
@@ -12,10 +11,10 @@ func Test2020(t *testing.T) {
 		f        func() string
 		expected string
 	}{
-		{day1.Part1, "145875"},
-		{day1.Part2, "69596112"},
-		{day2.Part1, "628"},
-		{day2.Part2, "705"},
+		{_2020.Day1Part1, "145875"},
+		{_2020.Day1Part2, "69596112"},
+		{_2020.Day2Part1, "628"},
+		{_2020.Day2Part2, "705"},
 	}
 
 	for _, tc := range cases {
