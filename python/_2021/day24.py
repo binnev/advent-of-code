@@ -84,6 +84,7 @@ class Alu:
             method(*terms)
         return "0" not in str(self.z)
 
+
 @utils.profile
 def part1():
     alu = Alu()

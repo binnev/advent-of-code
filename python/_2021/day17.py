@@ -45,6 +45,7 @@ def calc_traj(u, v, target_x, target_y):
         if y < target_y.start:
             return positions, False
 
+
 @utils.profile
 def part1():
     """
@@ -82,6 +83,7 @@ def part1():
                 trajectories.append(positions)
 
     return max(y for traj in trajectories for x, y in traj)
+
 
 @utils.profile
 def part2():
