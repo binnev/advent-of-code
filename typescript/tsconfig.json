@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+  },
+  "include": [
+    "_2020/",
+    "_2021/",
+    "_2022/",
+    "tests/"
+  ],
+  "exclude": [
+    "node_modules"
+  ],
+  "compileOnSave": false
+}
