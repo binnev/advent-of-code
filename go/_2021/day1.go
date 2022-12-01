@@ -38,13 +38,9 @@ func Day1Part1() string {
 func Day1Part2() string {
 	integers := parseInput()
 	increases := 0
-	windowWidth := 3
 	previous := integers[0] + integers[1] + integers[2]
-	for ii := windowWidth + 1; ii < len(integers)+1; ii++ {
-		sum := 0
-		for _, value := range integers[ii-windowWidth : ii] {
-			sum += value
-		}
+	for ii := 3; ii < len(integers); ii++ {
+		sum := integers[ii-2] + integers[ii-1] + integers[ii]
 		if sum > previous {
 			increases++
 		}
