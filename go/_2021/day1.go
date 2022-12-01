@@ -41,9 +41,8 @@ func Day1Part2() string {
 	windowWidth := 3
 	previous := integers[0] + integers[1] + integers[2]
 	for ii := windowWidth + 1; ii < len(integers)+1; ii++ {
-		newWindow := integers[ii-windowWidth : ii]
 		sum := 0
-		for _, value := range newWindow {
+		for _, value := range integers[ii-windowWidth : ii] {
 			sum += value
 		}
 		if sum > previous {
