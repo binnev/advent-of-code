@@ -4,7 +4,7 @@ var path = require("path")
 const {performance} = require("perf_hooks")
 
 
-export function loadPuzzleInput(filename: string) {
+export function loadPuzzleInput(filename: string): string {
     const p = path.join(__dirname, `../puzzle_inputs/${filename}.txt`)
     return fs.readFileSync(p, "utf8")
 }
