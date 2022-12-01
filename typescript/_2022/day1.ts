@@ -12,7 +12,8 @@ function getCalories(): number[] {
 }
 
 export function day1Part1(): number {
-    return Math.max(...getCalories())
+    return getCalories()
+        .reduce((a, b) => a > b ? a : b)
 }
 
 export function day1Part2(): number {
