@@ -1,9 +1,8 @@
 from python import utils
 
-raw = utils.load_puzzle_input("2022/day1")
-
 
 def get_calories():
+    raw = utils.load_puzzle_input("2022/day1")
     elves = raw.split("\n\n")
     return [sum(map(int, elf.split("\n"))) for elf in elves]
 
