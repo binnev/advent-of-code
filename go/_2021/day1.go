@@ -38,20 +38,18 @@ func Day1Part1() string {
 func Day1Part2() string {
 	integers := parseInput()
 	increases := 0
-	for ii := 0; ii < len(integers)-4; ii++ {
-		currentWindow := integers[ii : ii+3]
-		nextWindow := integers[ii+1 : ii+4]
-		sumNext := 0
-		for _, value := range nextWindow {
-			sumNext += value
+	windowWidth := 3
+	previous := integers[0] + integers[1] + integers[2]
+	for ii := windowWidth + 1; ii < len(integers)+1; ii++ {
+		newWindow := integers[ii-windowWidth : ii]
+		sum := 0
+		for _, value := range newWindow {
+			sum += value
 		}
-		sumCurrent := 0
-		for _, value := range currentWindow {
-			sumCurrent += value
-		}
-		if sumNext > sumCurrent {
+		if sum > previous {
 			increases++
 		}
+		previous = sum
 	}
 	return fmt.Sprint(increases)
 }

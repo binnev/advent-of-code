@@ -1,9 +1,9 @@
 package main
 
 import (
-	"advent/_2022"
+	"advent/_2021"
 )
 
 func main() {
-	_2022.Day1()
+	_2021.Day1()
 }
