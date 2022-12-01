@@ -1,4 +1,4 @@
-import {loadPuzzleInput} from "../utils";
+import {loadPuzzleInput, profile} from "../utils";
 
 function parseInput(): number[] {
     const input = loadPuzzleInput("2020/day1")
@@ -30,6 +30,6 @@ export function day1Part2(): number {
 }
 
 if (require.main === module) {
-    console.log(day1Part1())
-    console.log(day1Part2())
+    profile(day1Part1)
+    profile(day1Part2)
 }
