@@ -15,6 +15,7 @@ from python import _2020, _2021, _2022
 def test_2020(func, expected_output):
     assert func() == expected_output
 
+
 @pytest.mark.parametrize(
     "func, expected_output",
     [
