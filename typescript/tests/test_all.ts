@@ -17,6 +17,8 @@ describe("2022", () => {
     [
         [_2022.day1Part1, 66186],
         [_2022.day1Part2, 196804],
+        [_2022.day2Part1, 14264],
+        [_2022.day2Part2, 12382],
     ].forEach(([f, expected]: [() => number, number]) => {
         it(`${f.name}`, () => {
             assert.equal(f(), expected)
