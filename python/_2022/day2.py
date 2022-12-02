@@ -4,9 +4,9 @@ raw = """A Y
 B X
 C Z"""
 
-ROCK = 1
-PAPER = 2
-SCISSORS = 3
+ROCK = LOSE = 1
+PAPER = DRAW = 2
+SCISSORS = WIN = 3
 mapping = dict(
     A=ROCK,
     B=PAPER,
@@ -75,19 +75,46 @@ def part1():
     The winner of the whole tournament is the player with the highest score. Your total score is
     the sum of your scores for each round.
     """
-    moves = parse_input()
+    rounds = parse_input()
     score = 0
-    for round in moves:
+    for round in rounds:
         opponent, you = round
         score += score_round(opponent=opponent, you=you)
     return score
 
 
-# @utils.profile
-# def part2():
-#     return sum(sorted(get_calories(), reverse=True)[:3])
+def select_move(opponent, objective):
+    if objective == DRAW:
+        return opponent  # do same move
+    elif objective == WIN:
+        if opponent == ROCK:
+            return PAPER
+        if opponent == PAPER:
+            return SCISSORS
+        if opponent == SCISSORS:
+            return ROCK
+    elif objective == LOSE:
+        if opponent == ROCK:
+            return SCISSORS
+        if opponent == PAPER:
+            return ROCK
+        if opponent == SCISSORS:
+            return PAPER
+    else:
+        raise Exception("Panic!")
+
+
+@utils.profile
+def part2():
+    rounds = parse_input()
+    score = 0
+    for round in rounds:
+        opponent, objective = round
+        you = select_move(opponent=opponent, objective=objective)
+        score += score_round(opponent, you)
+    return score
 
 
 if __name__ == "__main__":
-    part1()
-    # assert part2()
+    # assert part1() == 14264
+    part2()
