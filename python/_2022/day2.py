@@ -1,6 +1,5 @@
 from python import utils
 
-
 ROCK = LOSE = 1
 PAPER = DRAW = 2
 SCISSORS = WIN = 3
@@ -14,7 +13,7 @@ mapping = dict(
 )
 
 
-def parse_input():
+def parse_input() -> list[list[int, int]]:
     input = utils.load_puzzle_input("2022/day2")
     lines = input.split("\n")
     moves = [[mapping[l] for l in line.split()] for line in lines]
@@ -35,7 +34,7 @@ def left_wins(a: int, b: int) -> bool | None:
     ]
 
 
-def score_round(opponent, you):
+def score_round(opponent, you) -> int:
     """
     The score for a single round is the score for the shape you selected (1 for Rock,
     2 for Paper, and 3 for Scissors) plus the score for the outcome of the round (0 if you lost,
@@ -55,20 +54,19 @@ def score_round(opponent, you):
 
 
 @utils.profile
-def part1():
+def part1() -> int:
     """
     The winner of the whole tournament is the player with the highest score. Your total score is
     the sum of your scores for each round.
     """
     rounds = parse_input()
     score = 0
-    for round in rounds:
-        opponent, you = round
+    for opponent, you in rounds:
         score += score_round(opponent=opponent, you=you)
     return score
 
 
-def select_move(opponent, objective):
+def select_move(opponent, objective) -> int:
     if objective == DRAW:
         return opponent  # do same move
     elif objective == WIN:
@@ -80,11 +78,10 @@ def select_move(opponent, objective):
 
 
 @utils.profile
-def part2():
+def part2() -> int:
     rounds = parse_input()
     score = 0
-    for round in rounds:
-        opponent, objective = round
+    for opponent, objective in rounds:
         you = select_move(opponent=opponent, objective=objective)
         score += score_round(opponent, you)
     return score

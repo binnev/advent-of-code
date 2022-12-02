@@ -68,8 +68,7 @@ function selectMove(opponent: number, objective: number): number {
 export function day2Part1(): number {
     const rounds = parseInput()
     let score = 0
-    for (let round of rounds) {
-        let [opponent, you] = round
+    for (let [opponent, you] of rounds) {
         score += scoreRound(opponent, you)
     }
     return score
@@ -78,8 +77,7 @@ export function day2Part1(): number {
 export function day2Part2(): number {
     const rounds = parseInput()
     let score = 0
-    for (let round of rounds) {
-        let [opponent, objective] = round
+    for (let [opponent, objective] of rounds) {
         let you = selectMove(opponent, objective)
         score += scoreRound(opponent, you)
     }
