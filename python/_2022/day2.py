@@ -1,8 +1,5 @@
 from python import utils
 
-raw = """A Y
-B X
-C Z"""
 
 ROCK = LOSE = 1
 PAPER = DRAW = 2
@@ -24,30 +21,18 @@ def parse_input():
     return moves
 
 
-def left_wins(a: int, b: int) -> int:
+def left_wins(a: int, b: int) -> bool | None:
     """
     return True if left wins; False if right wins; None if draw
     """
     if a == b:
         return None  # draw
 
-    # paper beats rock
-    if (a, b) == (ROCK, PAPER):
-        return False
-    if (a, b) == (PAPER, ROCK):
-        return True
-
-    # rock beats scissors
-    if (a, b) == (ROCK, SCISSORS):
-        return True
-    if (a, b) == (SCISSORS, ROCK):
-        return False
-
-    # scissors beats paper
-    if (a, b) == (PAPER, SCISSORS):
-        return False
-    if (a, b) == (SCISSORS, PAPER):
-        return True
+    return (a, b) in [
+        (PAPER, ROCK),  # paper beats rock
+        (SCISSORS, PAPER),  # rock beats scissors
+        (ROCK, SCISSORS),  # scissors beats paper
+    ]
 
 
 def score_round(opponent, you):
@@ -87,19 +72,9 @@ def select_move(opponent, objective):
     if objective == DRAW:
         return opponent  # do same move
     elif objective == WIN:
-        if opponent == ROCK:
-            return PAPER
-        if opponent == PAPER:
-            return SCISSORS
-        if opponent == SCISSORS:
-            return ROCK
+        return {ROCK: PAPER, PAPER: SCISSORS, SCISSORS: ROCK}[opponent]
     elif objective == LOSE:
-        if opponent == ROCK:
-            return SCISSORS
-        if opponent == PAPER:
-            return ROCK
-        if opponent == SCISSORS:
-            return PAPER
+        return {ROCK: SCISSORS, PAPER: ROCK, SCISSORS: PAPER}[opponent]
     else:
         raise Exception("Panic!")
 
@@ -116,5 +91,5 @@ def part2():
 
 
 if __name__ == "__main__":
-    # assert part1() == 14264
-    part2()
+    assert part1() == 14264
+    assert part2() == 12382
