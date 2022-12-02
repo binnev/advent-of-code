@@ -58,57 +58,29 @@ func scoreRound(opponent, you int) int {
 }
 
 func selectMove(opponent, objective int) int {
-	// switch objective {
-	// case DRAW:
-	// 	return opponent
-	// case WIN:
-	// 	if opponent == ROCK {
-	// 		return PAPER
-	// 	}
-	// 	if opponent == PAPER {
-	// 		return SCISSORS
-	// 	}
-	// 	if opponent == SCISSORS {
-	// 		return ROCK
-	// 	}
-	// case LOSE:
-	// 	if opponent == ROCK {
-	// 		return SCISSORS
-	// 	}
-	// 	if opponent == PAPER {
-	// 		return ROCK
-	// 	}
-	// 	if opponent == SCISSORS {
-	// 		return PAPER
-	// 	}
-	// default:
-	// 	return -1
-	// }
-	output := -1
-	if objective == DRAW {
-		output = opponent
-	} else if objective == WIN {
-		if opponent == ROCK {
-			output = PAPER
+	switch objective {
+	case DRAW:
+		return opponent
+	case WIN:
+		switch opponent {
+		case ROCK:
+			return PAPER
+		case PAPER:
+			return SCISSORS
+		case SCISSORS:
+			return ROCK
 		}
-		if opponent == PAPER {
-			output = SCISSORS
-		}
-		if opponent == SCISSORS {
-			output = ROCK
-		}
-	} else if objective == LOSE {
-		if opponent == ROCK {
-			output = SCISSORS
-		}
-		if opponent == PAPER {
-			output = ROCK
-		}
-		if opponent == SCISSORS {
-			output = PAPER
+	case LOSE:
+		switch opponent {
+		case ROCK:
+			return SCISSORS
+		case PAPER:
+			return ROCK
+		case SCISSORS:
+			return PAPER
 		}
 	}
-	return output
+	return -1
 }
 
 func Day2Part1() string {
