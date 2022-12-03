@@ -1,31 +1,32 @@
 import string
 from python import utils
 
-raw = """vJrwpWtwJgWrhcsFMMfFFhFp
-jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL
-PmmdzqPrVvPwwTWBwg
-wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn
-ttgJtRGJQctTZtZT
-CrZsJsPPZsGzwwsLwLmpwMDw"""
 
-PRIORITIES = {}
-for ii, letter in enumerate(string.ascii_lowercase, start=1):
-    PRIORITIES[letter] = ii
-for ii, letter in enumerate(string.ascii_uppercase, start=27):
-    PRIORITIES[letter] = ii
+def get_priority(letter: str) -> int:
+    if letter.islower():
+        return string.ascii_lowercase.index(letter) + 1
+    else:
+        return string.ascii_uppercase.index(letter) + 27
+
+
+def get_common_letter(*strings: str) -> str | None:
+    first, *rest = strings
+    for letter in first:
+        if all(letter in other for other in rest):
+            return letter
 
 
 @utils.profile
 def part1():
     input = utils.load_puzzle_input("2022/day3")
-    rucksacks = input.split("\n")
-    priorities = 0
-    for rucksack in rucksacks:
-        left = set(rucksack[: len(rucksack) // 2])
-        right = set(rucksack[len(rucksack) // 2 :])
-        shared = left.intersection(right)
-        priorities += PRIORITIES[shared.pop()]
-    return priorities
+    elves = input.split("\n")
+    score = 0
+    for elf in elves:
+        middle = len(elf) // 2
+        left, right = elf[:middle], elf[middle:]
+        shared = get_common_letter(left, right)
+        score += get_priority(shared)
+    return score
 
 
 @utils.profile
@@ -34,19 +35,12 @@ def part2():
     elves = input.split("\n")
     score = 0
     for ii in range(0, len(elves), 3):
-        try:
-            elf, second, third = elves[ii], elves[ii + 1], elves[ii + 2]
-        except IndexError:
-            pass  # end of list
-        letters = set(elf + second + third)
-        shared = next(
-            letter for letter in letters if letter in elf and letter in second and letter in third
-        )
-        score += PRIORITIES[shared]
-        ii += 3
+        elf, second, third = elves[ii : ii + 3]
+        shared = get_common_letter(elf, second, third)
+        score += get_priority(shared)
     return score
 
 
 if __name__ == "__main__":
-    part1()
-    part2()
+    assert part1() == 8233
+    assert part2() == 2821
