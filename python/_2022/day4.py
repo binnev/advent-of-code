@@ -1,14 +1,9 @@
 from python import utils
 
-raw = """2-4,6-8
-2-3,4-5
-5-7,7-9
-2-8,3-7
-6-6,4-6
-2-6,4-8"""
+ElfRange = (int, int)
 
 
-def parse_input() -> [[(int, int), (int, int)]]:
+def parse_input() -> list[list[ElfRange, ElfRange]]:
     input = utils.load_puzzle_input("2022/day4")
     rows = input.split("\n")
     elves = []
@@ -20,22 +15,26 @@ def parse_input() -> [[(int, int), (int, int)]]:
     return elves
 
 
-def contains(s1, e1, s2, e2) -> bool:
+def contains(range1: ElfRange, range2: ElfRange) -> bool:
+    (s1, e1), (s2, e2) = range1, range2
     return (s2 >= s1 and e2 <= e1) or (s1 >= s2 and e1 <= e2)
 
 
-def overlaps(s1, e1, s2, e2) -> bool:
+def overlaps(range1: ElfRange, range2: ElfRange) -> bool:
+    (s1, e1), (s2, e2) = range1, range2
     return (e1 >= s2 and e2 >= s1) or (e2 >= s1 and e1 >= s2)
 
 
 @utils.profile
 def part1():
-    return sum(1 for elf1, elf2 in parse_input() if contains(*elf1, *elf2))
+    # abusing the fact that True == 1 and False == 0 for style points (or maybe negative style
+    # points; you decide...)
+    return sum(contains(elf1, elf2) for elf1, elf2 in parse_input())
 
 
 @utils.profile
 def part2():
-    return sum(1 for elf1, elf2 in parse_input() if overlaps(*elf1, *elf2))
+    return sum(overlaps(elf1, elf2) for elf1, elf2 in parse_input())
 
 
 if __name__ == "__main__":
