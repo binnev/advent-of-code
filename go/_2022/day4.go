@@ -38,9 +38,8 @@ func rangeOverlaps(range1, range2 ElfRange) bool {
 
 func Day4Part1() string {
 	score := 0
-	for _, foo := range parseElfRanges() {
-		range1, range2 := foo[0], foo[1]
-		if rangeContains(range1, range2) {
+	for _, ranges := range parseElfRanges() {
+		if rangeContains(ranges[0], ranges[1]) {
 			score += 1
 		}
 	}
@@ -49,9 +48,8 @@ func Day4Part1() string {
 
 func Day4Part2() string {
 	score := 0
-	for _, foo := range parseElfRanges() {
-		range1, range2 := foo[0], foo[1]
-		if rangeOverlaps(range1, range2) {
+	for _, ranges := range parseElfRanges() {
+		if rangeOverlaps(ranges[0], ranges[1]) {
 			score += 1
 		}
 	}
