@@ -84,6 +84,8 @@ def test_2021(func, expected_output):
         (_2022.day2.part2, 12382),
         (_2022.day3.part1, 8233),
         (_2022.day3.part2, 2821),
+        (_2022.day4.part1, 567),
+        (_2022.day4.part2, 907),
     ],
 )
 def test_2022(func, expected_output):
