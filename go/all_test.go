@@ -69,6 +69,8 @@ func Test2022(t *testing.T) {
 		{_2022.Day2Part2, "12382"},
 		{_2022.Day3Part1, "8233"},
 		{_2022.Day3Part2, "2821"},
+		{_2022.Day4Part1, "567"},
+		{_2022.Day4Part2, "907"},
 	}
 
 	for _, tc := range cases {
