@@ -39,5 +39,5 @@ def part2():
 
 
 if __name__ == "__main__":
-    part1()
-    part2()
+    assert part1() == 567
+    assert part2() == 907
