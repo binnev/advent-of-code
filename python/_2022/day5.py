@@ -16,18 +16,14 @@ def parse_input():
     input = utils.load_puzzle_input("2022/day5")
     state_str, instructions_str = input.split("\n\n")
 
-    # parse state
-    state_lines = state_str.split("\n")
-    num_cols = len(state_lines[-1].split())
-    state = {n + 1: [] for n in range(num_cols)}
-    for row in state_lines[-2::-1]:
-        for col in range(num_cols):
-            x = 1 + col * 4
-            try:
-                if row[x].strip():
-                    state[col + 1].append(row[x])
-            except IndexError:  # final column doesn't reach this high
-                pass
+    # parse state: flip columns to rows and grab the rows that contain the actual data; ignore
+    # rows containing brackets etc.
+    state_lines = [line.ljust(40) for line in state_str.split("\n")]
+    state = {
+        int(chars[-1]): "".join(reversed(chars[:-1])).strip()
+        for chars in zip(*state_lines)
+        if chars[-1].isnumeric()  # the columns end with the column number
+    }
 
     # parse instructions
     rx = re.compile("move (\d+) from (\d+) to (\d+)")
@@ -37,7 +33,7 @@ def parse_input():
 
 def move(origin: int, destination: int, state: dict, amount: int = 1):
     state[origin], crates = state[origin][:-amount], state[origin][-amount:]
-    state[destination].extend(crates)
+    state[destination] += crates
 
 
 @utils.profile
