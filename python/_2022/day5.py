@@ -1,6 +1,7 @@
 from python import utils
+import re
 
-raw = """    [D]    
+example = """    [D]    
 [N] [C]    
 [Z] [M] [P]
  1   2   3 
@@ -13,37 +14,28 @@ move 1 from 1 to 2"""
 
 def parse_input():
     input = utils.load_puzzle_input("2022/day5")
-    # parse state
     state_str, instructions_str = input.split("\n\n")
+
+    # parse state
     state_lines = state_str.split("\n")
-    number_row = state_lines[-1]
-    num_cols = len(number_row.split())
-    state_lines = [l.ljust(len(number_row)) for l in state_lines]
+    num_cols = len(state_lines[-1].split())
     state = {n + 1: [] for n in range(num_cols)}
     for row in state_lines[-2::-1]:
         for col in range(num_cols):
             x = 1 + col * 4
-            if row[x].strip():
-                state[col + 1].append(row[x])
+            try:
+                if row[x].strip():
+                    state[col + 1].append(row[x])
+            except IndexError:  # final column doesn't reach this high
+                pass
 
     # parse instructions
-    instructions = [
-        list(
-            map(
-                int,
-                line.replace("move ", "").replace(" from", "").replace(" to", "").strip().split(),
-            )
-        )
-        for line in instructions_str.split("\n")
-    ]
+    rx = re.compile("move (\d+) from (\d+) to (\d+)")
+    instructions = [list(map(int, rx.search(l).groups())) for l in instructions_str.split("\n")]
     return state, instructions
 
 
-def move(origin: int, destination: int, state: dict):
-    state[destination].append(state[origin].pop())
-
-
-def move9001(amount: int, origin: int, destination: int, state: dict):
+def move(origin: int, destination: int, state: dict, amount: int = 1):
     state[origin], crates = state[origin][:-amount], state[origin][-amount:]
     state[destination].extend(crates)
 
@@ -61,7 +53,7 @@ def part1() -> str:
 def part2() -> str:
     state, instructions = parse_input()
     for amount, origin, destination in instructions:
-        move9001(amount, origin, destination, state)
+        move(origin, destination, state, amount=amount)
     return "".join(state[key][-1] for key in sorted(state.keys()))
 
 
