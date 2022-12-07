@@ -11,13 +11,22 @@ def load_file() -> dict:
     with open(json_file) as file:
         data = json.load(file)
 
-    for member_id, member_data in data["members"].items():
-        member_data["name"] = member_data["name"] or f"Anonymous user {member_data['id']}"
+    for member_data in data["members"].values():
+        if member_data["name"] is None:
+            member_data["name"] = f"Anonymous user {member_data['id']}"
 
     return data
 
 
 def day_part_score(data: dict, day: int, part: int) -> dict[str:int]:
+    """
+    [Local Score], which awards users on this leaderboard points much like the global
+    leaderboard. If you add or remove users, the points will be recalculated, and the order can
+    change.
+
+    For N users, the first user to get each star gets N points, the second gets N-1, and the last
+    gets 1. This is the default.
+    """
     day = str(day)
     part = str(part)
     solution_times = dict()
@@ -61,8 +70,9 @@ def plot_results(data: dict):
     fig, ax = plt.subplots()
     ax: Axes
     ax.ticklabel_format(useOffset=False, style="plain")
-    days = [datetime.datetime(2022, 12, x, 6, 0, 0) for x in range(1, 16)]
-    ax.set_xticks(days)
+    days = [datetime.datetime(2022, 12, x, 6, 0, 0) for x in range(1, 26)]
+    timestamps = [d.timestamp() for d in days]
+    ax.set_xticks(timestamps)
     ax.set_xticklabels(x.day for x in days)
     ax.set_xlabel("Day")
     ax.grid(which="major", axis="x")
@@ -80,6 +90,7 @@ def plot_results(data: dict):
             member_score,
             label=name,
             where="post",
+            lw=3,
         )
         member["handle"] = handles[0]
         member["label"] = f"{name} ({score})"
@@ -94,7 +105,12 @@ def plot_results(data: dict):
     leaderboard = sorted(members, key=lambda m: -m["score"])
     handles = [member["handle"] for member in leaderboard]
     labels = [member["label"] for member in leaderboard]
-    ax.legend(handles, labels, loc="lower right", fontsize="x-small")
+    ax.legend(
+        handles,
+        labels,
+        loc="best",  # "lower right",
+        fontsize="x-small",
+    )
     plt.show()
 
 
