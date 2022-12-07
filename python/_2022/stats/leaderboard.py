@@ -4,6 +4,7 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
+from numpy import cumsum
 
 
 def load_file() -> dict:
@@ -11,11 +12,19 @@ def load_file() -> dict:
     with open(json_file) as file:
         data = json.load(file)
 
-    for member_data in data["members"].values():
-        if member_data["name"] is None:
-            member_data["name"] = f"Anonymous user {member_data['id']}"
+    output = dict()
+    for id, member in data["members"].items():
+        if member["name"] is None:
+            member["name"] = f"Anonymous user {member['id']}"
 
-    return data
+        # flatten and reformat completion details
+        member["completion"] = {
+            (int(dd), int(pp)): part
+            for dd, day in member.pop("completion_day_level").items()
+            for pp, part in day.items()
+        }
+        output[id] = member
+    return output
 
 
 def day_part_score(data: dict, day: int, part: int) -> dict[str:int]:
@@ -27,43 +36,35 @@ def day_part_score(data: dict, day: int, part: int) -> dict[str:int]:
     For N users, the first user to get each star gets N points, the second gets N-1, and the last
     gets 1. This is the default.
     """
-    day = str(day)
-    part = str(part)
     solution_times = dict()
     scores = dict()
-    for member_id, member_data in data["members"].items():
-        time = member_data["completion_day_level"].get(day, {}).get(part, {}).get("get_star_ts")
-        key = member_data["name"]
+    for id, member in data.items():
+        time = member["completion"].get((day, part), {}).get("get_star_ts")
+        key = id
         if time is None:
             scores[key] = {"score": 0, "timestamp": None}
         else:
             solution_times[key] = time
 
-    stars = len(data["members"])
+    stars = len(data)
     for member, time in sorted(solution_times.items(), key=lambda kv: kv[1]):
         scores[member] = {"score": stars, "timestamp": time}
         stars -= 1
     return scores
 
 
-def calc_scores(data: dict) -> dict[str:int]:
-    scores = dict()
+def calc_scores(data: dict) -> dict:
+    # we have to loop over the days and the parts, because for each day/part, we need to check
+    # who has finished it and who hasn't.
     for day in range(1, 26):
         for part in range(1, 3):
-            scores[f"{day}.{part}"] = day_part_score(data, day=day, part=part)
-    return scores
-
-
-def get_score_member(scores: dict, name: str) -> tuple[list[int], list[int]]:
-    xs, ys = [], []
-    total_score = 0
-    for day in range(1, 26):
-        for part in range(1, 3):
-            s = scores[f"{day}.{part}"][name]
-            total_score += s["score"]
-            xs.append(s["timestamp"])
-            ys.append(total_score)
-    return xs, ys
+            # label = f"{day}.{part}"
+            scores = day_part_score(data, day=day, part=part)
+            for id, score_data in scores.items():
+                member = data[id]
+                if daypart := member["completion"].get((day, part)):
+                    daypart["score"] = score_data["score"]
+    return data
 
 
 def plot_results(data: dict):
@@ -77,43 +78,29 @@ def plot_results(data: dict):
     ax.set_xlabel("Day")
     ax.grid(which="major", axis="x")
 
-    scores = calc_scores(data)
-    members = []
-    for member_data in data["members"].values():
-        name = member_data["name"]
-        member = {}
-        timestamps, member_score = get_score_member(scores, name=name)
-        score = member_score[-1]
-        member["score"] = score
-        handles = ax.step(
+    leaderboard = sorted(data.values(), key=lambda x: -x["local_score"])
+    for member in leaderboard:
+        name = member["name"]
+        stars = sorted(member["completion"].values(), key=lambda x: x["get_star_ts"])
+        timestamps = [s["get_star_ts"] for s in stars]
+        scores = list(cumsum([s["score"] for s in stars]))
+        final_score = member["local_score"]
+        handle, *_ = ax.step(
             timestamps,
-            member_score,
-            label=name,
+            scores,
+            label=f"{name} ({final_score})",
             where="post",
             lw=3,
         )
-        member["handle"] = handles[0]
-        member["label"] = f"{name} ({score})"
-        members.append(member)
-        try:
-            timestamp = next(ts for ts in reversed(timestamps) if ts is not None)
-            ax.plot(timestamp, score, ".k")
-            ax.text(x=timestamp, y=score, s=str(score))
-        except StopIteration:
-            pass  # no points at all yet so don't print score
-
-    leaderboard = sorted(members, key=lambda m: -m["score"])
-    handles = [member["handle"] for member in leaderboard]
-    labels = [member["label"] for member in leaderboard]
-    ax.legend(
-        handles,
-        labels,
-        loc="best",  # "lower right",
-        fontsize="x-small",
-    )
+        if any(timestamps):
+            last = timestamps[-1]
+            ax.plot(last, final_score, ".k")
+            ax.text(x=last, y=final_score, s=str(final_score))
+    ax.legend(loc="best", fontsize="x-small")
     plt.show()
 
 
 if __name__ == "__main__":
     data = load_file()
+    calc_scores(data)
     plot_results(data)
