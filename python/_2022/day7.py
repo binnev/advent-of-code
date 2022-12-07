@@ -1,5 +1,3 @@
-from pprint import pprint
-
 from python import utils
 
 example = """$ cd /
@@ -34,13 +32,7 @@ class Folder(dict):
         self.parent = parent
 
     def get_size(self) -> int:
-        size = 0
-        for name, value in self.items():
-            if isinstance(value, Folder):
-                size += value.get_size()
-            else:
-                size += value
-        return size
+        return sum(item.get_size() if isinstance(item, Folder) else item for item in self.values())
 
 
 def explore_folders(input: str) -> Folder:
@@ -52,20 +44,17 @@ def explore_folders(input: str) -> Folder:
         if line.startswith("$"):
             _, cmd = line.split(" ", maxsplit=1)
 
-            if cmd.startswith("cd"):
-                _, dir_name = cmd.split(" ", maxsplit=1)
-                if dir_name == "..":
-                    try:
-                        cwd = cwd.parent
-                    except AttributeError as e:
-                        raise e
-                elif dir_name == "/":
-                    cwd = root
-                else:
-                    cwd = cwd[dir_name]
-
-            elif cmd.startswith("ls"):
-                mode = "ls"
+            match cmd.split():
+                case ["cd", dir_name]:
+                    match dir_name:
+                        case "..":
+                            cwd = cwd.parent
+                        case "/":
+                            cwd = root
+                        case _:
+                            cwd = cwd[dir_name]
+                case ["ls"]:
+                    mode = "ls"
 
         else:  # not a command
             if mode == "ls":
@@ -97,10 +86,6 @@ def part1() -> int:
     return find_under_100000(root)
 
 
-TOTAL_SPACE = 70_000_000
-REQUIRED_SPACE = 30_000_000
-
-
 def all_folder_sizes(folder: Folder) -> list[int]:
     all_sizes = []
     all_sizes.append(folder.get_size())
@@ -114,6 +99,8 @@ def all_folder_sizes(folder: Folder) -> list[int]:
 
 @utils.profile
 def part2() -> int:
+    TOTAL_SPACE = 70_000_000
+    REQUIRED_SPACE = 30_000_000
     input = utils.load_puzzle_input("2022/day7")
     root = explore_folders(input)
     occupied_space = root.get_size()
@@ -124,5 +111,5 @@ def part2() -> int:
 
 
 if __name__ == "__main__":
-    part1()
-    part2()
+    assert part1() == 1792222
+    assert part2() == 1112963
