@@ -1,10 +1,8 @@
 import datetime
-
-import matplotlib.pyplot as plt
 import json
 from pathlib import Path
-from pprint import pprint
 
+import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
 
 
@@ -70,34 +68,33 @@ def plot_results(data: dict):
     ax.grid(which="major", axis="x")
 
     scores = calc_scores(data)
-    members = [member["name"] for member in data["members"].values()]
-    member_scores = dict()
-    handles = []
-    for member in members:
-        timestamps, member_score = get_score_member(scores, name=member)
-        member_scores[member] = member_score[-1]
-        handle = ax.step(
+    members = []
+    for member_data in data["members"].values():
+        name = member_data["name"]
+        member = {}
+        timestamps, member_score = get_score_member(scores, name=name)
+        score = member_score[-1]
+        member["score"] = score
+        handles = ax.step(
             timestamps,
             member_score,
-            label=member,
+            label=name,
             where="post",
         )
-        handles.append(handle)
+        member["handle"] = handles[0]
+        member["label"] = f"{name} ({score})"
+        members.append(member)
         try:
-            x, y = next(
-                (ts, score)
-                for ts, score in reversed(list(zip(timestamps, member_score)))
-                if ts is not None
-            )
-            ax.plot(x, y, ".k")
-            ax.text(x=x, y=y, s=str(y))
+            timestamp = next(ts for ts in reversed(timestamps) if ts is not None)
+            ax.plot(timestamp, score, ".k")
+            ax.text(x=timestamp, y=score, s=str(score))
         except StopIteration:
             pass  # no points at all yet so don't print score
 
-    # labels, handles = zip(
-    #     (m, h) for (m, s), h in sorted(member_scores.items(), handles, key=lambda s_h: -s_h[0])
-    # )
-    ax.legend(loc="lower right", fontsize="x-small")
+    leaderboard = sorted(members, key=lambda m: -m["score"])
+    handles = [member["handle"] for member in leaderboard]
+    labels = [member["label"] for member in leaderboard]
+    ax.legend(handles, labels, loc="lower right", fontsize="x-small")
     plt.show()
 
 
