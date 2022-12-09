@@ -29,14 +29,13 @@ def sign(x: int) -> int:
 def move_head(head: Coord, direction: str) -> Coord:
     match direction:
         case "R":
-            new = (head[0] + 1, head[1])
+            return (head[0] + 1, head[1])
         case "L":
-            new = (head[0] - 1, head[1])
+            return (head[0] - 1, head[1])
         case "U":
-            new = (head[0], head[1] + 1)
+            return (head[0], head[1] - 1)
         case "D":
-            new = (head[0], head[1] - 1)
-    return new
+            return (head[0], head[1] + 1)
 
 
 def move_tail(head: Coord, tail: Coord) -> Coord:
@@ -45,14 +44,51 @@ def move_tail(head: Coord, tail: Coord) -> Coord:
 
     if abs(dx) > 1 or abs(dy) > 1:
         new_x, new_y = tail
-        if dy != 0:  # same column
+        if dy != 0:
             new_y = tail[1] + sign(dy)
         if dx != 0:
             new_x = tail[0] + sign(dx)
-
         return (new_x, new_y)
-    else:
+    else:  # still touching; do nothing
         return tail
+
+
+def print_path(tail_history: set[Coord]):
+    xs = [x for x, y in tail_history]
+    ys = [y for x, y in tail_history]
+    min_x = min(xs)
+    max_x = max(xs)
+    min_y = min(ys)
+    max_y = max(ys)
+    for y in range(min_y, max_y + 1):
+        for x in range(min_x, max_x + 1):
+            print("#" if (x, y) in tail_history else ".", end="")
+        print("")
+
+
+def plot_path(tail_history: set[Coord]):
+    import matplotlib.pyplot as plt
+    from matplotlib.axes import Axes
+    import numpy
+
+    xs = numpy.array([x for x, y in tail_history])
+    ys = numpy.array([y for x, y in tail_history])
+
+    # shift all coords into positive
+    xs = xs - min(xs)
+    ys = ys - min(ys)
+
+    # build image
+    width = max(xs) + 1
+    height = max(ys) + 1
+    img = numpy.zeros((width, height))
+    for x, y in zip(xs, ys):
+        img[x, y] = 1
+
+    fig, ax = plt.subplots()
+    ax: Axes
+    ax.imshow(img.T)
+    plt.show()
 
 
 @utils.profile
@@ -60,7 +96,7 @@ def part1():
     head = (0, 0)
     tail = (0, 0)
 
-    input = utils.load_puzzle_input("2022/day9")  # example
+    input = utils.load_puzzle_input("2022/day9")
     tail_history = {tail}
     for line in input.split("\n"):
         direction, amount = line.split()
@@ -70,40 +106,25 @@ def part1():
             tail = move_tail(head, tail)
             tail_history.add(tail)
 
+    plot_path(tail_history)
     return len(tail_history)
 
 
 @utils.profile
 def part2():
-    head = (0, 0)
-    tail1 = (0, 0)
-    tail2 = (0, 0)
-    tail3 = (0, 0)
-    tail4 = (0, 0)
-    tail5 = (0, 0)
-    tail6 = (0, 0)
-    tail7 = (0, 0)
-    tail8 = (0, 0)
-    tail9 = (0, 0)
-
+    snake = [(0, 0)] * 10
     input = utils.load_puzzle_input("2022/day9")
-    tail_history = {tail9}
+    tail_history = {snake[-1]}
     for line in input.split("\n"):
         direction, amount = line.split()
         amount = int(amount)
         for _ in range(amount):
-            head = move_head(head, direction)
-            tail1 = move_tail(head=head, tail=tail1)
-            tail2 = move_tail(head=tail1, tail=tail2)
-            tail3 = move_tail(head=tail2, tail=tail3)
-            tail4 = move_tail(head=tail3, tail=tail4)
-            tail5 = move_tail(head=tail4, tail=tail5)
-            tail6 = move_tail(head=tail5, tail=tail6)
-            tail7 = move_tail(head=tail6, tail=tail7)
-            tail8 = move_tail(head=tail7, tail=tail8)
-            tail9 = move_tail(head=tail8, tail=tail9)
-            tail_history.add(tail9)
-
+            snake[0] = move_head(snake[0], direction)
+            for ii, part in enumerate(snake[1:], start=1):
+                snake[ii] = move_tail(head=snake[ii - 1], tail=snake[ii])
+            tail_history.add(snake[-1])
+    print_path(tail_history)
+    plot_path(tail_history)
     return len(tail_history)
 
 
