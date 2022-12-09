@@ -108,5 +108,5 @@ def part2():
 
 
 if __name__ == "__main__":
-    part1()
-    part2()
+    assert part1() == 6494
+    assert part2() == 2691
