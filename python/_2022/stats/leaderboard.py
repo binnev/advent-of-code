@@ -76,6 +76,7 @@ def plot_results(data: dict):
     ax.set_xticks(timestamps)
     ax.set_xticklabels(x.day for x in days)
     ax.set_xlabel("Day")
+    ax.set_ylabel("Score")
     ax.grid(which="major", axis="x")
 
     leaderboard = sorted(data.values(), key=lambda x: -x["local_score"])
@@ -97,6 +98,7 @@ def plot_results(data: dict):
             ax.plot(last, final_score, ".k")
             ax.text(x=last, y=final_score, s=str(final_score))
     ax.legend(loc="best", fontsize="x-small")
+    ax.set_title("* Christmas music intensifies *", weight="bold", fontsize="xx-large")
     plt.show()
 
 
