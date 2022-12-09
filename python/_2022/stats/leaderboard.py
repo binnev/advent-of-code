@@ -100,6 +100,7 @@ def plot_results(data: dict):
     ax.legend(loc="best", fontsize="x-small")
     ax.set_title("* Christmas music intensifies *", weight="bold", fontsize="xx-large")
     plt.show()
+    fig.savefig("leaderboard.png")
 
 
 if __name__ == "__main__":
