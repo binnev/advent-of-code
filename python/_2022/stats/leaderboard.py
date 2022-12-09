@@ -95,11 +95,29 @@ def plot_results(data: dict):
         )
         if any(timestamps):
             last = timestamps[-1]
-            ax.plot(last, final_score, ".k")
-            ax.text(x=last, y=final_score, s=str(final_score))
+            ax.plot(
+                last,
+                final_score,
+                marker="*",
+                markersize=10,
+                markeredgewidth=1,
+                markeredgecolor="black",
+                markerfacecolor="gold",
+            )
+            ax.text(
+                x=last,
+                y=final_score,
+                s=f"  {final_score}",
+                horizontalalignment="left",
+                verticalalignment="center",
+            )
     ax.legend(loc="best", fontsize="x-small")
-    ax.set_title("* Christmas music intensifies *", weight="bold", fontsize="xx-large")
-    plt.show()
+    ax.set_title(
+        "* Christmas music intensifies *",
+        weight="bold",
+        style="italic",
+        fontsize="xx-large",
+    )
     fig.savefig("leaderboard.png")
 
 
