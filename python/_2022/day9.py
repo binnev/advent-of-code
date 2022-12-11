@@ -106,7 +106,6 @@ def part1():
             tail = move_tail(head, tail)
             tail_history.add(tail)
 
-    plot_path(tail_history)
     return len(tail_history)
 
 
@@ -123,8 +122,6 @@ def part2():
             for ii, part in enumerate(snake[1:], start=1):
                 snake[ii] = move_tail(head=snake[ii - 1], tail=snake[ii])
             tail_history.add(snake[-1])
-    print_path(tail_history)
-    plot_path(tail_history)
     return len(tail_history)
 
 
