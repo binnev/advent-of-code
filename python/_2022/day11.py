@@ -1,3 +1,4 @@
+import re
 from dataclasses import dataclass
 from typing import Callable
 
@@ -32,38 +33,38 @@ Monkey 3:
     If false: throw to monkey 1"""
 
 
+monkey_rx = """Monkey (\d):
+  Starting items: (.*)
+  Operation: new = (.*)
+  Test: divisible by (\d+)
+    If true: throw to monkey (\d)
+    If false: throw to monkey (\d)"""
+
+
 def parse_monkey(monkey_str: str) -> dict:
-    monkey_dict = dict()
-    for line in monkey_str.split("\n"):
-        line = line.strip()
-        if line.startswith("Monkey"):
-            monkey_dict["id"] = int(line.replace("Monkey ", "").replace(":", ""))
-        elif line.startswith("Starting items: "):
-            items = line.replace("Starting items: ", "")
-            monkey_dict["inventory"] = list(map(int, items.split(", ")))
-        elif line.startswith("Operation"):
-            operation = line.replace("Operation: new = ", "")
-            match operation.split():
-                case ["old", "*", "old"]:
-                    monkey_dict["operation"] = lambda old: old * old
-                case ["old", "*", number]:
-                    monkey_dict["operation"] = lambda old: old * int(number)
-                case ["old", "+", number]:
-                    monkey_dict["operation"] = lambda old: old + int(number)
-        elif line.startswith("Test"):
-            monkey_dict["divisor"] = int(line.replace("Test: divisible by ", ""))
-        elif line.startswith("If true"):
-            monkey_dict["if_true"] = int(line.replace("If true: throw to monkey ", ""))
-        elif line.startswith("If false"):
-            monkey_dict["if_false"] = int(line.replace("If false: throw to monkey ", ""))
-    return monkey_dict
+    rx = re.compile(monkey_rx)
+    match = rx.search(monkey_str)
+    id, items, operation, divisor, if_true, if_false = match.groups()
+    match operation.split():
+        case ["old", "*", "old"]:
+            operation = lambda old: old * old
+        case ["old", "*", number]:
+            operation = lambda old: old * int(number)
+        case ["old", "+", number]:
+            operation = lambda old: old + int(number)
+
+    return dict(
+        id=int(id),
+        inventory=list(map(int, items.split(", "))),
+        operation=operation,
+        divisor=int(divisor),
+        if_true=int(if_true),
+        if_false=int(if_false),
+    )
 
 
 def parse_input(input: str) -> list[dict]:
-    output = []
-    for monkey_str in input.split("\n\n"):
-        output.append(parse_monkey(monkey_str))
-    return output
+    return list(map(parse_monkey, input.split("\n\n")))
 
 
 @dataclass
