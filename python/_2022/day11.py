@@ -32,6 +32,40 @@ Monkey 3:
     If false: throw to monkey 1"""
 
 
+def parse_monkey(monkey_str: str) -> dict:
+    monkey_dict = dict()
+    for line in monkey_str.split("\n"):
+        line = line.strip()
+        if line.startswith("Monkey"):
+            monkey_dict["id"] = int(line.replace("Monkey ", "").replace(":", ""))
+        elif line.startswith("Starting items: "):
+            items = line.replace("Starting items: ", "")
+            monkey_dict["inventory"] = list(map(int, items.split(", ")))
+        elif line.startswith("Operation"):
+            operation = line.replace("Operation: new = ", "")
+            match operation.split():
+                case ["old", "*", "old"]:
+                    monkey_dict["operation"] = lambda old: old * old
+                case ["old", "*", number]:
+                    monkey_dict["operation"] = lambda old: old * int(number)
+                case ["old", "+", number]:
+                    monkey_dict["operation"] = lambda old: old + int(number)
+        elif line.startswith("Test"):
+            monkey_dict["divisor"] = int(line.replace("Test: divisible by ", ""))
+        elif line.startswith("If true"):
+            monkey_dict["if_true"] = int(line.replace("If true: throw to monkey ", ""))
+        elif line.startswith("If false"):
+            monkey_dict["if_false"] = int(line.replace("If false: throw to monkey ", ""))
+    return monkey_dict
+
+
+def parse_input(input: str) -> list[dict]:
+    output = []
+    for monkey_str in input.split("\n\n"):
+        output.append(parse_monkey(monkey_str))
+    return output
+
+
 @dataclass
 class Monkey:
     id: int
@@ -59,115 +93,11 @@ class Monkey:
         return number // 3
 
 
-def example_monkeys():
-    return [
-        dict(
-            id=0,
-            inventory=[79, 98],
-            operation=lambda worry: worry * 19,
-            divisor=23,
-            if_true=2,
-            if_false=3,
-        ),
-        dict(
-            id=1,
-            inventory=[54, 65, 75, 74],
-            operation=lambda worry: worry + 6,
-            divisor=19,
-            if_true=2,
-            if_false=0,
-        ),
-        dict(
-            id=2,
-            inventory=[79, 60, 97],
-            operation=lambda worry: worry * worry,
-            divisor=13,
-            if_true=1,
-            if_false=3,
-        ),
-        dict(
-            id=3,
-            inventory=[74],
-            operation=lambda worry: worry + 3,
-            divisor=17,
-            if_true=0,
-            if_false=1,
-        ),
-    ]
-
-
-def real_monkeys():
-    return [
-        dict(
-            id=0,
-            inventory=[83, 88, 96, 79, 86, 88, 70],
-            operation=lambda worry: worry * 5,
-            divisor=11,
-            if_true=2,
-            if_false=3,
-        ),
-        dict(
-            id=1,
-            inventory=[59, 63, 98, 85, 68, 72],
-            operation=lambda worry: worry * 11,
-            divisor=5,
-            if_true=4,
-            if_false=0,
-        ),
-        dict(
-            id=2,
-            inventory=[90, 79, 97, 52, 90, 94, 71, 70],
-            operation=lambda worry: worry + 2,
-            divisor=19,
-            if_true=5,
-            if_false=6,
-        ),
-        dict(
-            id=3,
-            inventory=[97, 55, 62],
-            operation=lambda worry: worry + 5,
-            divisor=13,
-            if_true=2,
-            if_false=6,
-        ),
-        dict(
-            id=4,
-            inventory=[74, 54, 94, 76],
-            operation=lambda worry: worry * worry,
-            divisor=7,
-            if_true=0,
-            if_false=3,
-        ),
-        dict(
-            id=5,
-            inventory=[58],
-            operation=lambda worry: worry + 4,
-            divisor=17,
-            if_true=7,
-            if_false=1,
-        ),
-        dict(
-            id=6,
-            inventory=[66, 63],
-            operation=lambda worry: worry + 6,
-            divisor=2,
-            if_true=7,
-            if_false=5,
-        ),
-        dict(
-            id=7,
-            inventory=[56, 56, 90, 96, 68],
-            operation=lambda worry: worry + 7,
-            divisor=3,
-            if_true=4,
-            if_false=1,
-        ),
-    ]
-
-
 @utils.profile
 def part1():
-    monkeys = [Monkey(**data) for data in real_monkeys()]
+    input = utils.load_puzzle_input("2022/day11")
+    monkey_data = parse_input(input)
+    monkeys = [Monkey(**data) for data in monkey_data]
     for round in range(20):
         for monkey in monkeys:
             while monkey.inventory:
@@ -179,7 +109,8 @@ def part1():
 
 @utils.profile
 def part2():
-    monkey_data = real_monkeys()
+    input = utils.load_puzzle_input("2022/day11")
+    monkey_data = parse_input(input)
     modulus = 1
     for m in monkey_data:
         modulus *= m["divisor"]
@@ -195,8 +126,6 @@ def part2():
             while monkey.inventory:
                 monkey.throw(monkeys)
 
-    for m in monkeys:
-        print(f"Monkey {m.id} inspected items {m.count} times")
     most_active = sorted(monkeys, key=lambda x: -x.count)
     return most_active[0].count * most_active[1].count
 
