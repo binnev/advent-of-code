@@ -5,5 +5,5 @@ import (
 )
 
 func main() {
-	_2022.Day6()
+	_2022.Day7()
 }
