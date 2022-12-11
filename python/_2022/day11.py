@@ -1,5 +1,6 @@
 import re
 from dataclasses import dataclass
+from functools import reduce
 from typing import Callable
 
 from python import utils
@@ -81,14 +82,11 @@ class Monkey:
         item = self.inventory.pop(0)
         item = self.operation(item)
         item = self.decrease_worry(item)
-        result = self.test(item)
-        monkey_id = self.if_true if result is True else self.if_false
+        result = item % self.divisor == 0
+        monkey_id = self.if_true if result else self.if_false
         monkey = next(m for m in monkeys if m.id == monkey_id)
         monkey.inventory.append(item)
         self.count += 1
-
-    def test(self, number: int) -> bool:
-        return number % self.divisor == 0
 
     def decrease_worry(self, number: int) -> int:
         return number // 3
@@ -99,6 +97,7 @@ def part1():
     input = utils.load_puzzle_input("2022/day11")
     monkey_data = parse_input(input)
     monkeys = [Monkey(**data) for data in monkey_data]
+
     for round in range(20):
         for monkey in monkeys:
             while monkey.inventory:
@@ -110,18 +109,23 @@ def part1():
 
 @utils.profile
 def part2():
+    """
+    Use clock arithmetic to keep the worry numbers low, while still allowing the "is divisible by
+    x" calculations to give the same result. For all monkeys' calculations to be unaffected,
+    the max value of the clock should be the lowest common multiple of all the monkeys' divisors.
+    Because the divisors are all prime, the lowest common multiple is simply the product.
+    """
+
     input = utils.load_puzzle_input("2022/day11")
     monkey_data = parse_input(input)
-    modulus = 1
-    for m in monkey_data:
-        modulus *= m["divisor"]
+    modulus = reduce(lambda a, b: a * b, (m["divisor"] for m in monkey_data))
 
     @dataclass
-    class Monkey2(Monkey):
+    class ModuloMonkey(Monkey):
         def decrease_worry(self, number: int) -> int:
             return number % modulus
 
-    monkeys = [Monkey2(**data) for data in monkey_data]
+    monkeys = [ModuloMonkey(**data) for data in monkey_data]
     for round in range(10000):
         for monkey in monkeys:
             while monkey.inventory:
