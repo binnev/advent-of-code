@@ -5,6 +5,7 @@ import (
 	"os"
 	"reflect"
 	"runtime"
+	"strings"
 	"time"
 )
 
@@ -15,6 +16,20 @@ func LoadPuzzleInput(filename string) string {
 		panic(err)
 	}
 	return string(data)
+}
+
+func LoadSolutions(year string) [][]string {
+	path := fmt.Sprintf("../solutions/%v.txt", year)
+	data, err := os.ReadFile(path)
+	if err != nil {
+		panic(err)
+	}
+	lines := strings.Split(string(data), "\n")
+	output := [][]string{}
+	for _, line := range lines {
+		output = append(output, strings.Split(line, ", "))
+	}
+	return output
 }
 
 func GetFuncName(f func() string) string {
