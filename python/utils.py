@@ -9,6 +9,14 @@ def load_puzzle_input(filename: str) -> str:
         return file.read()
 
 
+def load_solutions(year: str) -> list[list[str]]:
+    path = Path(__file__).parent.parent / f"solutions/{year}.txt"
+    with open(path) as file:
+        contents = file.read()
+    lines = contents.split("\n")
+    return [line.split(", ") for line in lines]
+
+
 def profile(func):
     @functools.wraps(func)
     def wrapped(*args, **kwargs):
