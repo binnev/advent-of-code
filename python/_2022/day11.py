@@ -78,8 +78,7 @@ class Monkey:
     if_true: int
     count: int = 0
 
-    def throw(self, monkeys: list["Monkey"]):
-        item = self.inventory.pop(0)
+    def throw(self, item: int, monkeys: list["Monkey"]):
         item = self.operation(item)
         item = self.decrease_worry(item)
         result = item % self.divisor == 0
@@ -100,8 +99,9 @@ def part1():
 
     for round in range(20):
         for monkey in monkeys:
-            while monkey.inventory:
-                monkey.throw(monkeys)
+            for item in monkey.inventory:
+                monkey.throw(item, monkeys)
+            monkey.inventory = []
 
     most_active = sorted(monkeys, key=lambda x: -x.count)
     return most_active[0].count * most_active[1].count
@@ -128,8 +128,9 @@ def part2():
     monkeys = [ModuloMonkey(**data) for data in monkey_data]
     for round in range(10000):
         for monkey in monkeys:
-            while monkey.inventory:
-                monkey.throw(monkeys)
+            for item in monkey.inventory:
+                monkey.throw(item, monkeys)
+            monkey.inventory = []
 
     most_active = sorted(monkeys, key=lambda x: -x.count)
     return most_active[0].count * most_active[1].count
