@@ -32,7 +32,6 @@ func parseState(stateStr string) Columns {
 	numberRow := rows[len(rows)-1]
 	numCols := len(strings.Fields(numberRow))
 	for ii := len(rows) - 2; ii >= 0; ii-- {
-		// for _, row := range rows[:len(rows)-1] {
 		row := rows[ii]
 		for col := 0; col < numCols; col++ {
 			x := 1 + 4*col
