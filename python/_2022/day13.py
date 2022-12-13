@@ -44,16 +44,7 @@ def are_integers_ordered(left: int, right: int) -> bool | None:
 
 def are_lists_ordered(left: list, right: list) -> bool | None:
     for a, b in zip(left, right):
-        if isinstance(a, int) and isinstance(b, int):
-            ordered = are_integers_ordered(a, b)
-        elif isinstance(a, list) and isinstance(b, list):
-            ordered = are_lists_ordered(a, b)
-        elif isinstance(a, int) and isinstance(b, list):
-            ordered = are_lists_ordered([a], b)
-        elif isinstance(a, list) and isinstance(b, int):
-            ordered = are_lists_ordered(a, [b])
-        else:
-            raise Exception(f"Not sure how to parse {a=}, {b=}")
+        ordered = are_packets_ordered(a, b)
         if ordered is not None:
             return ordered
 
