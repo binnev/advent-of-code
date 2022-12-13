@@ -85,11 +85,28 @@ def part1():
     return score
 
 
+class Packet:
+    contents: list | int
+
+    def __init__(self, contents):
+        self.contents = contents
+
+    def __lt__(self, other: "Packet") -> bool:
+        return are_packets_ordered(self.contents, other.contents)
+
+
 @utils.profile
 def part2():
-    ...
+    input = utils.load_puzzle_input("2022/day13")
+    spaces_removed = input.replace("\n\n", "\n")
+    spaces_removed += "\n[[2]]\n[[6]]"
+    packets = [Packet(eval(packet)) for packet in spaces_removed.splitlines()]
+    s = [p.contents for p in sorted(packets)]
+    loc2 = s.index([[2]]) + 1
+    loc6 = s.index([[6]]) + 1
+    return loc2 * loc6
 
 
 if __name__ == "__main__":
     assert part1() == 6420
-    part2()
+    assert part2() == 22000
