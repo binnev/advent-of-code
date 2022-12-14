@@ -6,6 +6,16 @@ import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
 from numpy import cumsum
 
+import random
+
+TITLES = [
+    "* Christmas music intensifies *",
+    "* Deafening sleighbells *",
+    "* Thundering hooves *",
+    "* Reindeer noises *",
+    "* Ho ho ho *",
+]
+
 
 def load_file() -> dict:
     json_file = Path(__file__).parent / "leaderboard.json"
@@ -113,7 +123,7 @@ def plot_results(data: dict):
             )
     ax.legend(loc="best", fontsize="x-small")
     ax.set_title(
-        "* Christmas music intensifies *",
+        random.choice(TITLES),
         weight="bold",
         style="italic",
         fontsize="xx-large",
