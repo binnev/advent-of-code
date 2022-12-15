@@ -153,25 +153,21 @@ def part1():
         if value := sensor_x_range(sensor=sensor, sensor_range=sensor_range, row_y=row_y):
             ranges.append(value)
 
+    def merge_ranges(ranges: list[Range], r: Range) -> list[Range]:
+        if ranges and r.intersects(ranges[-1]):
+            last = ranges.pop()
+            ranges.append(r.union(last))
+        else:
+            ranges.append(r)
+        return ranges
+
     ranges = sorted(ranges)
-    new = []
-    bubbling = True
-    while bubbling:
-        bubbling = False
-        for r in ranges:
-            if not new:
-                new.append(r)
-                continue
-            last = new[-1]
-            if r.intersects(last):
-                union = r.union(last)
-                last.start = union.start
-                last.stop = union.stop
-                bubbling = True
-            else:
-                new.append(r)
+
+    while True:
+        new = reduce(merge_ranges, ranges, [])
+        if new == ranges:
+            break
         ranges = new
-        new = []
 
     beacon_free_squares = sum(len(r) for r in ranges)
     beacons = {(x, y): value for (x, y), value in grid.items() if y==row_y and value == "B"}
