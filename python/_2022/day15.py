@@ -71,6 +71,16 @@ def exclude_sensor(sensor: Coord, beacon: Coord, grid: SparseMatrix):
                     grid[pt] = grid.get(pt) or "#"
 
 
+def sensor_x_range(sensor: Coord, sensor_range: int, row_y: int) -> tuple[int, int]:
+    sx, sy = sensor
+    dy = abs(row_y - sy)
+    if dy > sensor_range:
+        return None
+    dx = sensor_range - dy
+    result = (sx - dx, sx + dx)
+    return result
+
+
 @utils.profile
 def part1():
     """
@@ -83,18 +93,20 @@ def part1():
     input, row_y = utils.load_puzzle_input("2022/day15"), 2000000
     grid, sensor_list = parse_input(input)
 
+    # return sensor_x_range(sensor=(4, 5), sensor_range=3, row_y=5)
+    sensor_x_ranges = list(
+        filter(
+            None,
+            [
+                sensor_x_range(sensor=sensor, sensor_range=sensor_range, row_y=row_y)
+                for sensor, _, sensor_range in sensor_list
+            ],
+        )
+    )
     # get the min/max x-bounds of all sensors; this is our x search space (points whose x-value
     # COULD intersect a sensor's range)
-    min_x = math.inf
-    max_x = -math.inf
-    for sensor, beacon, dist in sensor_list:
-        x, y = sensor
-        sensor_min_x = x - dist
-        sensor_max_x = x + dist
-        if sensor_min_x < min_x:
-            min_x = sensor_min_x
-        if sensor_max_x > max_x:
-            max_x = sensor_max_x
+    min_x = min(start for start, end in sensor_x_ranges)
+    max_x = max(end for start, end in sensor_x_ranges)
 
     # scan all possible x values and check if they intersect a sensor
     no_beacons = 0  # spaces where there can be no beacons
@@ -105,18 +117,14 @@ def part1():
             percent_done = (x - min_x) / search_space * 100
             print(f"{percent_done:.2f}% done; blocked {no_beacons} so far")
 
-        point = (x, row_y)
-        value = grid.get(point)
+        value = grid.get((x, row_y))
         if value == "B":
             continue  # a beacon is here, it can't be blocked for beacons
         if value == "S":
             no_beacons += 1  # a sensor is here; no beacons can be here
             continue
-
-        for sensor, _, sensor_range in sensor_list:
-            if sensor_contains(sensor, sensor_range, point):
-                no_beacons += 1
-                break
+        if any(start <= x <= end for start, end in sensor_x_ranges):
+            no_beacons += 1
     return no_beacons
 
 
@@ -128,14 +136,14 @@ def tuning_freq(x: int, y: int) -> int:
 def part2():
     min_x = min_y = 0
     # input, max_x, max_y = example, 20, 20
-    input, max_x, max_y = utils.load_puzzle_input("2022/day15"), 4000000,4000000
+    input, max_x, max_y = utils.load_puzzle_input("2022/day15"), 4000000, 4000000
     grid, sensor_list = parse_input(input)
 
-    search_space = (max_x-min_x) * (max_y-min_y)
+    search_space = (max_x - min_x) * (max_y - min_y)
     print(f"{search_space=}")
     ii = 0
-    for x in range(min_x, max_x+1):
-        for y in range(min_y, max_y+1):
+    for x in range(min_x, max_x + 1):
+        for y in range(min_y, max_y + 1):
             if not any(
                 sensor_contains(sensor, sensor_range, (x, y))
                 for sensor, _, sensor_range in sensor_list
