@@ -1,5 +1,6 @@
 import math
 import re
+from functools import reduce
 from math import sqrt
 
 from python import utils
@@ -22,6 +23,62 @@ Sensor at x=20, y=1: closest beacon is at x=15, y=3"""
 
 
 SensorList = list[tuple[Coord, Coord, int]]  # sensor, beacon, distance
+
+
+class Range:
+    """
+    Start always < stop.
+    Range is inclusive endpoint.
+    Intersections can be just 1 point.
+    """
+
+    start: int
+    stop: int
+
+    def __init__(self, start, stop):
+        self.start = min(start, stop)
+        self.stop = max(start, stop)
+
+    def contains(self, x: int) -> bool:
+        return self.start <= x <= self.stop
+
+    def union(self, other: "Range") -> "Range":
+        """
+        self:   x----------x
+        other:      x-----------x
+        result: x---------------x
+        """
+        if self.intersects(other):
+            start = min(self.start, other.start)
+            stop = max(self.stop, other.stop)
+            return self.__class__(start, stop)
+        else:
+            raise ValueError(
+                "Can't do union for ranges that don't intersect: " f"{self=}, {other=}"
+            )
+
+    def merge(self, other: "Range") -> list["Range"]:
+        if self.intersects(other):
+            return [self.union(other)]
+        else:
+            return [self, other]
+
+    def intersects(self, other: "Range") -> bool:
+        return (
+            other.contains(self.start)
+            or other.contains(self.stop)
+            or self.contains(other.start)
+            or self.contains(other.stop)
+        )
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}({self.start}, {self.stop})"
+
+    def __len__(self):
+        return self.stop - self.start + 1
+
+    def __lt__(self, other):
+        return self.start < other.start
 
 
 def parse_input(input: str) -> (SparseMatrix, SensorList):
@@ -71,14 +128,13 @@ def exclude_sensor(sensor: Coord, beacon: Coord, grid: SparseMatrix):
                     grid[pt] = grid.get(pt) or "#"
 
 
-def sensor_x_range(sensor: Coord, sensor_range: int, row_y: int) -> tuple[int, int]:
+def sensor_x_range(sensor: Coord, sensor_range: int, row_y: int) -> Range:
     sx, sy = sensor
     dy = abs(row_y - sy)
     if dy > sensor_range:
         return None
     dx = sensor_range - dy
-    result = (sx - dx, sx + dx)
-    return result
+    return Range(sx - dx, sx + dx)
 
 
 @utils.profile
@@ -89,43 +145,42 @@ def part1():
     5696158 too low
     5716881 bingo!
     """
-    # input, row_y = example, 10
     input, row_y = utils.load_puzzle_input("2022/day15"), 2000000
     grid, sensor_list = parse_input(input)
 
-    # return sensor_x_range(sensor=(4, 5), sensor_range=3, row_y=5)
-    sensor_x_ranges = list(
-        filter(
-            None,
-            [
-                sensor_x_range(sensor=sensor, sensor_range=sensor_range, row_y=row_y)
-                for sensor, _, sensor_range in sensor_list
-            ],
-        )
-    )
-    # get the min/max x-bounds of all sensors; this is our x search space (points whose x-value
-    # COULD intersect a sensor's range)
-    min_x = min(start for start, end in sensor_x_ranges)
-    max_x = max(end for start, end in sensor_x_ranges)
+    ranges = []
+    for sensor, _, sensor_range in sensor_list:
+        if value := sensor_x_range(sensor=sensor, sensor_range=sensor_range, row_y=row_y):
+            ranges.append(value)
 
-    # scan all possible x values and check if they intersect a sensor
-    no_beacons = 0  # spaces where there can be no beacons
-    search_space = max_x - min_x
-    print(f"{search_space=}")
-    for x in range(min_x, max_x + 1):
-        if x % 100000 == 0:
-            percent_done = (x - min_x) / search_space * 100
-            print(f"{percent_done:.2f}% done; blocked {no_beacons} so far")
+    ranges = sorted(ranges)
+    new = []
+    bubbling = True
+    while bubbling:
+        bubbling = False
+        for r in ranges:
+            if not new:
+                new.append(r)
+                continue
+            last = new[-1]
+            if r.intersects(last):
+                union = r.union(last)
+                last.start = union.start
+                last.stop = union.stop
+                bubbling = True
+            else:
+                new.append(r)
+        ranges = new
+        new = []
 
-        value = grid.get((x, row_y))
-        if value == "B":
-            continue  # a beacon is here, it can't be blocked for beacons
-        if value == "S":
-            no_beacons += 1  # a sensor is here; no beacons can be here
-            continue
-        if any(start <= x <= end for start, end in sensor_x_ranges):
-            no_beacons += 1
-    return no_beacons
+    beacon_free_squares = sum(len(r) for r in ranges)
+    beacons = {(x, y): value for (x, y), value in grid.items() if y==row_y and value == "B"}
+
+    for (x, y), beacon in beacons.items():
+        if any(r.contains(x) for r in ranges):
+            beacon_free_squares -= 1
+
+    return beacon_free_squares
 
 
 def tuning_freq(x: int, y: int) -> int:
