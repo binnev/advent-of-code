@@ -128,9 +128,9 @@ def exclude_sensor(sensor: Coord, beacon: Coord, grid: SparseMatrix):
                     grid[pt] = grid.get(pt) or "#"
 
 
-def sensor_x_range(sensor: Coord, sensor_range: int, row_y: int) -> Range:
+def sensor_x_range(sensor: Coord, sensor_range: int, y_value: int) -> Range:
     sx, sy = sensor
-    dy = abs(row_y - sy)
+    dy = abs(y_value - sy)
     if dy > sensor_range:
         return None
     dx = sensor_range - dy
@@ -146,32 +146,41 @@ def merge_ranges(ranges: list[Range], r: Range) -> list[Range]:
     return ranges
 
 
-@utils.profile
-def part1():
-    input, row_y = utils.load_puzzle_input("2022/day15"), 2000000
-    grid, sensor_list = parse_input(input)
-
-    # find the min/max x values of where the horizontal line intersects each sensor's range polygon.
-    ranges = []
-    for sensor, _, sensor_range in sensor_list:
-        if value := sensor_x_range(sensor=sensor, sensor_range=sensor_range, row_y=row_y):
-            ranges.append(value)
-    ranges = sorted(ranges)
-
-    # merge any overlapping ranges together into one larger range
+def reduce_ranges(ranges: list[Range]) -> list[Range]:
     while True:
         new = reduce(merge_ranges, ranges, [])
         if new == ranges:
             break
         ranges = new
+    return ranges
 
-    # compute the total length of all the ranges -- these are the points on the horizontal line
-    # where the sensors did not detect a beacon.
+
+def get_x_ranges(sensor_list: SensorList, y_value: int) -> list[Range]:
+    ranges = []
+    for sensor, _, sensor_range in sensor_list:
+        if value := sensor_x_range(sensor=sensor, sensor_range=sensor_range, y_value=y_value):
+            ranges.append(value)
+    ranges = sorted(ranges)
+    return ranges
+
+
+@utils.profile
+def part1():
+    """
+    1) find the min/max x values of where the horizontal line intersects each sensor's range
+       polygon.
+    2) merge any overlapping ranges together into one larger range
+    3) compute the total length of all the ranges -- these are the points on the horizontal line
+       where the sensors did not detect a beacon.
+    4) for all known beacons that are inside any sensor's range, reduce the count of beacon-free
+       squares
+    """
+    input, row_y = utils.load_puzzle_input("2022/day15"), 2000000
+    grid, sensor_list = parse_input(input)
+    ranges = get_x_ranges(sensor_list, y_value=row_y)
+    ranges = reduce_ranges(ranges)
     beacon_free_squares = sum(len(r) for r in ranges)
     beacons = {(x, y): value for (x, y), value in grid.items() if y == row_y and value == "B"}
-
-    # for all known beacons that are inside any sensor's range, reduce the count of beacon-free
-    # squares
     for (x, y), beacon in beacons.items():
         if any(r.contains(x) for r in ranges):
             beacon_free_squares -= 1
@@ -185,27 +194,29 @@ def tuning_freq(x: int, y: int) -> int:
 
 @utils.profile
 def part2():
-    min_x = min_y = 0
+    min_y = 0
     # input, max_x, max_y = example, 20, 20
     input, max_x, max_y = utils.load_puzzle_input("2022/day15"), 4000000, 4000000
     grid, sensor_list = parse_input(input)
-
-    search_space = (max_x - min_x) * (max_y - min_y)
+    search_space = max_y - min_y
     print(f"{search_space=}")
     ii = 0
-    for x in range(min_x, max_x + 1):
-        for y in range(min_y, max_y + 1):
-            if not any(
-                sensor_contains(sensor, sensor_range, (x, y))
-                for sensor, _, sensor_range in sensor_list
-            ):
-                return tuning_freq(x, y)
-            ii += 1
-            if x % 1000000 == 0:
-                percent_done = (ii) / search_space * 100
-                print(f"{percent_done:.10f}% done")
+    for y in range(min_y, max_y + 1):
+        ranges = get_x_ranges(sensor_list, y_value=y)
+        ranges = reduce_ranges(ranges)
+        if len(ranges) > 1:  # then there can be holes
+            for rr in range(len(ranges) - 1):
+                current = ranges[rr]
+                following = ranges[rr + 1]
+                if following.start - current.stop == 2:
+                    x = current.stop + 1
+                    return tuning_freq(x, y)
+        ii += 1
+        if ii % 10000 == 0:
+            percent_done = ii / search_space * 100
+            print(f"{percent_done:.4f}% done")
 
 
 if __name__ == "__main__":
     assert part1() == 5716881
-    # part2()
+    assert part2() == 10852583132904
