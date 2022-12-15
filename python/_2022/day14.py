@@ -48,6 +48,7 @@ def print_sparse_matrix(grid: SparseMatrix, flip_y=False, pad=0):
         for x in range(min_x - pad, max_x + 1 + pad):
             print(grid.get((x, (-y if flip_y else y)), "."), end="")
         print("")
+    print("")
 
 
 def sand_step(pos: Coord, grid: SparseMatrix, floor: int = None) -> Coord | None:
