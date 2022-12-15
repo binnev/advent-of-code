@@ -137,41 +137,41 @@ def sensor_x_range(sensor: Coord, sensor_range: int, row_y: int) -> Range:
     return Range(sx - dx, sx + dx)
 
 
+def merge_ranges(ranges: list[Range], r: Range) -> list[Range]:
+    if ranges and r.intersects(ranges[-1]):
+        last = ranges.pop()
+        ranges.append(r.union(last))
+    else:
+        ranges.append(r)
+    return ranges
+
+
 @utils.profile
 def part1():
-    """
-    4814446 too low
-    5631712 too low
-    5696158 too low
-    5716881 bingo!
-    """
     input, row_y = utils.load_puzzle_input("2022/day15"), 2000000
     grid, sensor_list = parse_input(input)
 
+    # find the min/max x values of where the horizontal line intersects each sensor's range polygon.
     ranges = []
     for sensor, _, sensor_range in sensor_list:
         if value := sensor_x_range(sensor=sensor, sensor_range=sensor_range, row_y=row_y):
             ranges.append(value)
-
-    def merge_ranges(ranges: list[Range], r: Range) -> list[Range]:
-        if ranges and r.intersects(ranges[-1]):
-            last = ranges.pop()
-            ranges.append(r.union(last))
-        else:
-            ranges.append(r)
-        return ranges
-
     ranges = sorted(ranges)
 
+    # merge any overlapping ranges together into one larger range
     while True:
         new = reduce(merge_ranges, ranges, [])
         if new == ranges:
             break
         ranges = new
 
+    # compute the total length of all the ranges -- these are the points on the horizontal line
+    # where the sensors did not detect a beacon.
     beacon_free_squares = sum(len(r) for r in ranges)
-    beacons = {(x, y): value for (x, y), value in grid.items() if y==row_y and value == "B"}
+    beacons = {(x, y): value for (x, y), value in grid.items() if y == row_y and value == "B"}
 
+    # for all known beacons that are inside any sensor's range, reduce the count of beacon-free
+    # squares
     for (x, y), beacon in beacons.items():
         if any(r.contains(x) for r in ranges):
             beacon_free_squares -= 1
