@@ -38,12 +38,15 @@ def parse_input(input: str) -> SparseMatrix:
 
 
 def print_sparse_matrix(grid: SparseMatrix, flip_y=False, pad=0):
-    xs = [x for x, y in grid]
-    ys = [(-y if flip_y else y) for x, y in grid]
-    min_x = min(xs)
-    max_x = max(xs)
-    min_y = min(ys)
-    max_y = max(ys)
+    if grid:
+        xs = [x for x, y in grid]
+        ys = [(-y if flip_y else y) for x, y in grid]
+        min_x = min(xs)
+        max_x = max(xs)
+        min_y = min(ys)
+        max_y = max(ys)
+    else:
+        min_x = max_x = min_y = max_y = 0
     for y in range(min_y - pad, max_y + 1 + pad):
         for x in range(min_x - pad, max_x + 1 + pad):
             print(grid.get((x, (-y if flip_y else y)), "."), end="")
