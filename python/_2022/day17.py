@@ -39,10 +39,10 @@ SQUARE: Shape = (
 )
 SHAPES = [
     HLINE,
-    # PLUS,
-    # CORNER,
+    PLUS,
+    CORNER,
     VLINE,
-    # SQUARE,
+    SQUARE,
 ]
 
 example = """>>><<><>><<<>><>>><<<>>><<<><<<>><>><<>>"""
@@ -143,16 +143,20 @@ def find_cycle(input: str) -> tuple[int, int, int, int]:
 
 @utils.profile
 def part1():
-    # input = example
-    # input = utils.load_puzzle_input("2022/day17")
-    input = ">><"
+    input = utils.load_puzzle_input("2022/day17")
     grid1 = SparseMatrix()
-    N = 13
+    N = 2022
     build_tower(N, jets=input, grid=grid1)
     brute_height = max(y for x, y in grid1)
-    print(f"Brute force tower: with height {brute_height}")
-    print_sparse_matrix(grid1, pad=2, flip_y=True)
+    return brute_height
 
+
+@utils.profile
+def part2():
+    """Could probably improve this by detecting cycles on the fly instead of requiring a separate
+    simulation for it. But that's a problem for Future Robin"""
+    input = utils.load_puzzle_input("2022/day17")
+    N = 1000000000000
     ii_from, ii_to, height_from, height_to = find_cycle(input)
     cycle_length = ii_to - ii_from
     cycle_height = height_to - height_from
@@ -163,21 +167,15 @@ def part1():
     startup = ii_from
     num_cycles, remainder = divmod((N - startup), cycle_length)
     shapes_to_simulate = startup + remainder
-    assert num_cycles == 2
-    assert shapes_to_simulate == 5
+    print(f"After removing cycles, only need to simulate {shapes_to_simulate} shapes")
     grid2 = SparseMatrix()
     build_tower(shapes_to_simulate, jets=input, grid=grid2)
     simulated_height = max(y for x, y in grid2)
     height_from_cycles = cycle_height * num_cycles
     efficient_height = simulated_height + height_from_cycles
-    print(f"Efficient tower with height {efficient_height}")
-
-
-@utils.profile
-def part2():
-    ...
+    return efficient_height
 
 
 if __name__ == "__main__":
-    part1()
-    part2()
+    assert part1() == 3109
+    assert part2() == 1541449275365

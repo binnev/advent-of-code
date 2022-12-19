@@ -1,6 +1,6 @@
 import pytest
 
-from python import _2020, _2021, _2022, utils
+from python import _2020, _2021, _2022
 
 
 @pytest.mark.parametrize(
@@ -121,19 +121,10 @@ def test_2021(func, expected_output):
         # (_2022.day16.part1, _),
         # (_2022.day16.part2, _),
         (_2022.day17.part1, 3109),
-        # (_2022.day17.part2, _),
+        (_2022.day17.part2, 1541449275365),
         (_2022.day18.part1, 4628),
         (_2022.day18.part2, 2582),
     ],
 )
 def test_2022(func, expected_output):
     assert func() == expected_output
-
-
-@pytest.mark.parametrize("part", range(1, 3))
-@pytest.mark.parametrize("day", range(1, 26))
-def test_2022_auto(day, part):
-    solutions = utils.load_solutions("2022")
-    solution = solutions[day - 1][part - 1]
-    func = getattr(getattr(_2022, f"day{day}"), f"part{part}")
-    assert str(func()) == solution
