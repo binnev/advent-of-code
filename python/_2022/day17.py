@@ -77,58 +77,51 @@ def draw_moving_shape(shape: Shape, grid: SparseMatrix):
         grid.pop(pt, None)
 
 
-def add_column(grid: SparseMatrix):
-    for x in range(7):
-        grid[(x, 0)] = str(x + 1)
-    # for x in [-1, 7]:
-    #     grid[(x, 0)] = "+"
-    # for y in range(1, 10):
-    #     grid[(-1, y)] = grid[(7, y)] = "|"
+def add_shape_to_tower(
+    ii: int,
+    jet_ii: int,
+    grid: SparseMatrix,
+    jets: str,
+) -> int:
+    # spawn rock at correct x/y
+    shape_ii = ii % len(SHAPES)
+    shape = SHAPES[shape_ii]
+    tower_height = max(y for x, y in grid) if grid else 0
+    x = 2  # units away from left wall
+    y = 4 + tower_height
+    shape = tuple((a + x, b + y) for a, b in shape)
+
+    # move rock
+    collision = False
+    while not collision:
+        # rock is moved by jets
+        jet = jets[jet_ii]
+        if jet == ">":
+            shape = move_right(shape, grid)
+        else:
+            shape = move_left(shape, grid)
+        # rock falls
+        shape, collision = fall(shape, grid)
+        jet_ii = (jet_ii + 1) % len(jets)
+    # add rock to tower
+    for point in shape:
+        grid[point] = "#"
+
+    return jet_ii
+
+
+def build_tower(N_shapes: int, jets: str, grid: SparseMatrix):
+    jet_ii = 0
+    for ii in range(N_shapes):
+        jet_ii = add_shape_to_tower(ii, jet_ii, grid, jets)
 
 
 @utils.profile
 def part1():
-    """
-    3068 too low
-    """
     # input = example
     input = utils.load_puzzle_input("2022/day17")
-    jets = itertools.cycle(input)
     grid = SparseMatrix()
-    add_column(grid)
-
-    tower_height = 0
-    for ii in range(2022):
-        # spawn rock at correct x/y
-        shape = SHAPES[ii % len(SHAPES)]
-        x = 2  # units away from left wall
-        y = 4 + tower_height
-        shape = tuple((a + x, b + y) for a, b in shape)
-        # draw_moving_shape(shape, grid)
-
-        # move rock
-        collision = False
-        while not collision:
-            # rock is moved by jets
-            jet = next(jets)
-            if jet == ">":
-                # print("rock moves right")
-                shape = move_right(shape, grid)
-            else:
-                # print("rock moves left")
-                shape = move_left(shape, grid)
-            # draw_moving_shape(shape, grid)
-            # rock falls
-            shape, collision = fall(shape, grid)
-            # print("rock falls")
-            # draw_moving_shape(shape, grid)
-
-        # add rock to tower
-        for point in shape:
-            grid[point] = "#"
-        tower_height = max(y for (x, y), value in grid.items() if value == "#")
-
-    # print_sparse_matrix(grid, flip_y=True)
+    build_tower(2022, jets=input, grid=grid)
     return max(y for x, y in grid)
 
 
