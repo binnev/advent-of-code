@@ -1,3 +1,4 @@
+import itertools
 import math
 import re
 from pprint import pprint
@@ -143,15 +144,15 @@ def execute_plan(
     opened = []
     target = None
     while elapsed_time <= 30:
-        print("")
-        print(f"== Minute {elapsed_time} == ")
-        print(f"Valves {opened} are open, releasing {release_rate} pressure")
+        # print("")
+        # print(f"== Minute {elapsed_time} == ")
+        # print(f"Valves {opened} are open, releasing {release_rate} pressure")
         pressure_released += release_rate
 
         if not target:
             # select next target
             if plan:
-                id, score = plan.pop(0)
+                id = plan.pop(0)
                 target = nodes[id]
                 dist = dist_map[current.id][target.id]
             else:
@@ -163,14 +164,15 @@ def execute_plan(
             current = target
             opened.append(target.id)
             release_rate += target.flow_rate
-            print(f"You open valve {target.id}")
+            # print(f"You open valve {target.id}")
             target = None
         else:
             if target:
-                print(f"You are moving to {target.id}")
+                # print(f"You are moving to {target.id}")
                 dist -= 1
             else:
-                print("You are chilling")
+                ...
+                # print("You are chilling")
 
         elapsed_time += 1
 
@@ -195,18 +197,22 @@ def part1():
     # input = example
     input = utils.load_puzzle_input("2022/day16")
     nodes = parse_input(input)
-    pprint(nodes)
-
     dist_map = crunch_distance_map(nodes)
-    scores = score_nodes(nodes, start_id="AA")
-
-    plan = sorted(
-        ((id, score) for id, score in scores.items() if score > 0),
-        key=lambda kv: kv[1],
-        reverse=True,
-    )
-    result = execute_plan(plan, nodes, start_id="AA", dist_map=dist_map)
-    return result
+    nonzero_nodes = [node.id for node in nodes.values() if node.flow_rate > 0]
+    num_perms = math.factorial(len(nonzero_nodes))
+    print(f"{nonzero_nodes=}")
+    print(f"There are {num_perms} permutations to try")
+    perms = itertools.permutations(nonzero_nodes, len(nonzero_nodes))
+    max_result = 0
+    for ii, plan in enumerate(perms):
+        result = execute_plan(list(plan), nodes, start_id="AA", dist_map=dist_map)
+        if result > max_result:
+            max_result = result
+            print(f"New record! {ii=} {plan=} {result=}")
+        if ii % 100000 == 0:
+            progress = ii/num_perms * 100
+            print(f"Progress: {progress:.5f}%")
+    return max_result
 
 
 @utils.profile
