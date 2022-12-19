@@ -37,7 +37,13 @@ SQUARE: Shape = (
     (1, 0),
     (1, 1),
 )
-SHAPES = [HLINE, PLUS, CORNER, VLINE, SQUARE]
+SHAPES = [
+    HLINE,
+    # PLUS,
+    # CORNER,
+    VLINE,
+    # SQUARE,
+]
 
 example = """>>><<><>><<<>><>>><<<>>><<<><<<>><>><<>>"""
 
@@ -77,12 +83,7 @@ def draw_moving_shape(shape: Shape, grid: SparseMatrix):
         grid.pop(pt, None)
 
 
-def add_shape_to_tower(
-    ii: int,
-    jet_ii: int,
-    grid: SparseMatrix,
-    jets: str,
-) -> int:
+def add_shape_to_tower(ii: int, jet_ii: int, grid: SparseMatrix, jets: str) -> (int, Shape):
     # spawn rock at correct x/y
     shape_ii = ii % len(SHAPES)
     shape = SHAPES[shape_ii]
@@ -107,22 +108,69 @@ def add_shape_to_tower(
     for point in shape:
         grid[point] = "#"
 
-    return jet_ii
+    return jet_ii, shape
 
 
 def build_tower(N_shapes: int, jets: str, grid: SparseMatrix):
     jet_ii = 0
     for ii in range(N_shapes):
-        jet_ii = add_shape_to_tower(ii, jet_ii, grid, jets)
+        jet_ii, _ = add_shape_to_tower(ii, jet_ii, grid, jets)
+
+
+def find_cycle(input: str) -> tuple[int, int, int, int]:
+    jets = input
+    grid = SparseMatrix()
+    tower_height = 0
+    history = dict()
+    cycles = dict()
+    jet_ii = 0
+    for ii in range(9999999999999):
+        shape_ii = ii % len(SHAPES)
+        jet_ii, shape = add_shape_to_tower(ii, jet_ii, grid, jets)
+        tower_height = max(y for x, y in grid)
+
+        # make a unique id out of the shape id, x-position of the shape, and jet id
+        hash = (shape_ii, min(x for x, y in shape), jet_ii)
+        if hash in history:
+            prev_height, prev_ii = history[hash]
+            cycle_hash = (ii - prev_ii, tower_height - prev_height)
+            if cycle_hash in cycles:
+                return cycles[cycle_hash]
+
+            cycles[cycle_hash] = (prev_ii, ii, prev_height, tower_height)
+        history[hash] = (tower_height, ii)
 
 
 @utils.profile
 def part1():
     # input = example
-    input = utils.load_puzzle_input("2022/day17")
-    grid = SparseMatrix()
-    build_tower(2022, jets=input, grid=grid)
-    return max(y for x, y in grid)
+    # input = utils.load_puzzle_input("2022/day17")
+    input = ">><"
+    grid1 = SparseMatrix()
+    N = 13
+    build_tower(N, jets=input, grid=grid1)
+    brute_height = max(y for x, y in grid1)
+    print(f"Brute force tower: with height {brute_height}")
+    print_sparse_matrix(grid1, pad=2, flip_y=True)
+
+    ii_from, ii_to, height_from, height_to = find_cycle(input)
+    cycle_length = ii_to - ii_from
+    cycle_height = height_to - height_from
+    print(
+        f"cycle detected from ii={ii_from}..{ii_to} (length {cycle_length}),"
+        f"height={height_from=}..{height_to=} (length {cycle_height})"
+    )
+    startup = ii_from
+    num_cycles, remainder = divmod((N - startup), cycle_length)
+    shapes_to_simulate = startup + remainder
+    assert num_cycles == 2
+    assert shapes_to_simulate == 5
+    grid2 = SparseMatrix()
+    build_tower(shapes_to_simulate, jets=input, grid=grid2)
+    simulated_height = max(y for x, y in grid2)
+    height_from_cycles = cycle_height * num_cycles
+    efficient_height = simulated_height + height_from_cycles
+    print(f"Efficient tower with height {efficient_height}")
 
 
 @utils.profile
