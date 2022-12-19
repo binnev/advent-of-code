@@ -1,10 +1,8 @@
 import itertools
 import math
 import re
-from pprint import pprint
 
 from python import utils
-
 
 example = """Valve AA has flow rate=0; tunnels lead to valves DD, II, BB
 Valve BB has flow rate=13; tunnels lead to valves CC, AA
@@ -210,7 +208,7 @@ def part1():
             max_result = result
             print(f"New record! {ii=} {plan=} {result=}")
         if ii % 100000 == 0:
-            progress = ii/num_perms * 100
+            progress = ii / num_perms * 100
             print(f"Progress: {progress:.5f}%")
     return max_result
 
