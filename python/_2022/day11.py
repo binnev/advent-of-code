@@ -1,7 +1,8 @@
 import re
 from dataclasses import dataclass
+from enum import Enum
 from functools import reduce
-from typing import Callable
+from typing import Callable, Literal
 
 from python import utils
 
@@ -42,17 +43,23 @@ monkey_rx = """Monkey (\d):
     If false: throw to monkey (\d)"""
 
 
+class Operation(Enum):
+    ADD = 0
+    MULT = 1
+    SQUARE = 2
+
+
 def parse_monkey(monkey_str: str) -> dict:
     rx = re.compile(monkey_rx)
     match = rx.search(monkey_str)
     id, items, operation, divisor, if_true, if_false = match.groups()
     match operation.split():
         case ["old", "*", "old"]:
-            operation = lambda old: old * old
+            operation = (Operation.SQUARE, 69)
         case ["old", "*", number]:
-            operation = lambda old: old * int(number)
+            operation = (Operation.MULT, int(number))
         case ["old", "+", number]:
-            operation = lambda old: old + int(number)
+            operation = (Operation.ADD, int(number))
 
     return dict(
         id=int(id),
@@ -72,23 +79,27 @@ def parse_input(input: str) -> list[dict]:
 class Monkey:
     id: int
     inventory: list[int]
-    operation: Callable  # changes worry level
+    operation: tuple[Operation, int]
     divisor: int
     if_false: int
     if_true: int
     count: int = 0
 
-    def throw(self, item: int, monkeys: list["Monkey"]):
-        item = self.operation(item)
-        item = self.decrease_worry(item)
-        result = item % self.divisor == 0
-        monkey_id = self.if_true if result else self.if_false
-        monkey = next(m for m in monkeys if m.id == monkey_id)
-        monkey.inventory.append(item)
-        self.count += 1
 
-    def decrease_worry(self, number: int) -> int:
-        return number // 3
+def throw(monkey: Monkey, item: int, others: list["Monkey"], decrease_worry: Callable):
+    match monkey.operation:
+        case [Operation.SQUARE, _]:
+            item *= item
+        case [Operation.MULT, number]:
+            item *= number
+        case [Operation.ADD, number]:
+            item += number
+    item = decrease_worry(item)
+    result = item % monkey.divisor == 0
+    other_id = monkey.if_true if result else monkey.if_false
+    other = next(o for o in others if o.id == other_id)
+    other.inventory.append(item)
+    monkey.count += 1
 
 
 @utils.profile
@@ -100,7 +111,7 @@ def part1():
     for round in range(20):
         for monkey in monkeys:
             for item in monkey.inventory:
-                monkey.throw(item, monkeys)
+                throw(monkey, item, monkeys, decrease_worry=lambda number: number // 3)
             monkey.inventory = []
 
     most_active = sorted(monkeys, key=lambda x: -x.count)
@@ -119,17 +130,11 @@ def part2():
     input = utils.load_puzzle_input("2022/day11")
     monkey_data = parse_input(input)
     modulus = reduce(lambda a, b: a * b, (m["divisor"] for m in monkey_data))
-
-    @dataclass
-    class ModuloMonkey(Monkey):
-        def decrease_worry(self, number: int) -> int:
-            return number % modulus
-
-    monkeys = [ModuloMonkey(**data) for data in monkey_data]
+    monkeys = [Monkey(**data) for data in monkey_data]
     for round in range(10000):
         for monkey in monkeys:
             for item in monkey.inventory:
-                monkey.throw(item, monkeys)
+                throw(monkey, item, monkeys, decrease_worry=lambda number: number % modulus)
             monkey.inventory = []
 
     most_active = sorted(monkeys, key=lambda x: -x.count)
