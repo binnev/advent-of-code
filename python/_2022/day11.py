@@ -49,32 +49,6 @@ class Operation(Enum):
     SQUARE = 2
 
 
-def parse_monkey(monkey_str: str) -> dict:
-    rx = re.compile(monkey_rx)
-    match = rx.search(monkey_str)
-    id, items, operation, divisor, if_true, if_false = match.groups()
-    match operation.split():
-        case ["old", "*", "old"]:
-            operation = (Operation.SQUARE, 69)
-        case ["old", "*", number]:
-            operation = (Operation.MULT, int(number))
-        case ["old", "+", number]:
-            operation = (Operation.ADD, int(number))
-
-    return dict(
-        id=int(id),
-        inventory=list(map(int, items.split(", "))),
-        operation=operation,
-        divisor=int(divisor),
-        if_true=int(if_true),
-        if_false=int(if_false),
-    )
-
-
-def parse_input(input: str) -> list[dict]:
-    return list(map(parse_monkey, input.split("\n\n")))
-
-
 @dataclass
 class Monkey:
     id: int
@@ -86,7 +60,36 @@ class Monkey:
     count: int = 0
 
 
-def throw(monkey: Monkey, item: int, others: list["Monkey"], decrease_worry: Callable):
+MonkeyBunch = dict[int, Monkey]
+
+
+def parse_monkey(monkey_str: str) -> Monkey:
+    rx = re.compile(monkey_rx)
+    match = rx.search(monkey_str)
+    id, items, operation, divisor, if_true, if_false = match.groups()
+    match operation.split():
+        case ["old", "*", "old"]:
+            operation = (Operation.SQUARE, 69)
+        case ["old", "*", number]:
+            operation = (Operation.MULT, int(number))
+        case ["old", "+", number]:
+            operation = (Operation.ADD, int(number))
+
+    return Monkey(
+        id=int(id),
+        inventory=list(map(int, items.split(", "))),
+        operation=operation,
+        divisor=int(divisor),
+        if_true=int(if_true),
+        if_false=int(if_false),
+    )
+
+
+def parse_input(input: str) -> MonkeyBunch:
+    return {ii: parse_monkey(monkey_str) for ii, monkey_str in enumerate(input.split("\n\n"))}
+
+
+def throw(monkey: Monkey, item: int, monkey_bunch: MonkeyBunch, decrease_worry: Callable):
     match monkey.operation:
         case [Operation.SQUARE, _]:
             item *= item
@@ -97,7 +100,7 @@ def throw(monkey: Monkey, item: int, others: list["Monkey"], decrease_worry: Cal
     item = decrease_worry(item)
     result = item % monkey.divisor == 0
     other_id = monkey.if_true if result else monkey.if_false
-    other = next(o for o in others if o.id == other_id)
+    other = monkey_bunch[other_id]
     other.inventory.append(item)
     monkey.count += 1
 
@@ -105,16 +108,19 @@ def throw(monkey: Monkey, item: int, others: list["Monkey"], decrease_worry: Cal
 @utils.profile
 def part1():
     input = utils.load_puzzle_input("2022/day11")
-    monkey_data = parse_input(input)
-    monkeys = [Monkey(**data) for data in monkey_data]
-
+    monkey_bunch = parse_input(input)
     for round in range(20):
-        for monkey in monkeys:
+        for monkey in monkey_bunch.values():
             for item in monkey.inventory:
-                throw(monkey, item, monkeys, decrease_worry=lambda number: number // 3)
+                throw(
+                    monkey=monkey,
+                    item=item,
+                    monkey_bunch=monkey_bunch,
+                    decrease_worry=lambda number: number // 3,
+                )
             monkey.inventory = []
 
-    most_active = sorted(monkeys, key=lambda x: -x.count)
+    most_active = sorted(monkey_bunch.values(), key=lambda x: -x.count)
     return most_active[0].count * most_active[1].count
 
 
@@ -128,16 +134,20 @@ def part2():
     """
 
     input = utils.load_puzzle_input("2022/day11")
-    monkey_data = parse_input(input)
-    modulus = reduce(lambda a, b: a * b, (m["divisor"] for m in monkey_data))
-    monkeys = [Monkey(**data) for data in monkey_data]
+    monkey_bunch = parse_input(input)
+    modulus = reduce(lambda a, b: a * b, (m.divisor for m in monkey_bunch.values()))
     for round in range(10000):
-        for monkey in monkeys:
+        for monkey in monkey_bunch.values():
             for item in monkey.inventory:
-                throw(monkey, item, monkeys, decrease_worry=lambda number: number % modulus)
+                throw(
+                    monkey=monkey,
+                    item=item,
+                    monkey_bunch=monkey_bunch,
+                    decrease_worry=lambda number: number % modulus,
+                )
             monkey.inventory = []
 
-    most_active = sorted(monkeys, key=lambda x: -x.count)
+    most_active = sorted(monkey_bunch.values(), key=lambda x: -x.count)
     return most_active[0].count * most_active[1].count
 
 
