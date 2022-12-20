@@ -51,7 +51,6 @@ class Operation(Enum):
 
 @dataclass
 class Monkey:
-    id: int
     inventory: list[int]
     operation: tuple[Operation, int]
     divisor: int
@@ -76,7 +75,6 @@ def parse_monkey(monkey_str: str) -> Monkey:
             operation = (Operation.ADD, int(number))
 
     return Monkey(
-        id=int(id),
         inventory=list(map(int, items.split(", "))),
         operation=operation,
         divisor=int(divisor),
