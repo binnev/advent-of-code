@@ -98,11 +98,10 @@ func ParseMonkeys(input string) MonkeyBunch {
 	return monkeyBunch
 }
 
-func monkeyThrow(monkeyPtr *Monkey, item int, others MonkeyBunch, decreaseWorry func(int) int) {
-	// accepting a pointer to monkey here allows us to change the monkey's
-	// values outside the scope of this function.
-	number := monkeyPtr.operation[1]
-	switch monkeyPtr.operation[0] {
+func monkeyThrow(monkeyId int, item int, others MonkeyBunch, decreaseWorry func(int) int) {
+	monkey := others[monkeyId]
+	number := monkey.operation[1]
+	switch monkey.operation[0] {
 	case SQUARE:
 		item *= item
 	case MULT:
@@ -112,13 +111,13 @@ func monkeyThrow(monkeyPtr *Monkey, item int, others MonkeyBunch, decreaseWorry 
 	}
 	item = decreaseWorry(item)
 	otherId := -1
-	if item%monkeyPtr.divisor == 0 {
-		otherId = monkeyPtr.ifTrue
+	if item%monkey.divisor == 0 {
+		otherId = monkey.ifTrue
 	} else {
-		otherId = monkeyPtr.ifFalse
+		otherId = monkey.ifFalse
 	}
 	others[otherId].inventory = append(others[otherId].inventory, item)
-	monkeyPtr.count++
+	monkey.count++
 }
 
 func getMostActiveMonkeys(monkeys MonkeyBunch, top int) []Monkey {
@@ -143,7 +142,7 @@ func Day11Part1() string {
 		for monkeyId := 0; monkeyId < len(monkeys); monkeyId++ {
 			monkey := monkeys[monkeyId]
 			for _, item := range monkey.inventory {
-				monkeyThrow(monkey, item, monkeys, worryFunc)
+				monkeyThrow(monkeyId, item, monkeys, worryFunc)
 			}
 			monkey.inventory = []int{}
 		}
@@ -165,7 +164,7 @@ func Day11Part2() string {
 		for monkeyId := 0; monkeyId < len(monkeys); monkeyId++ {
 			monkey := monkeys[monkeyId]
 			for _, item := range monkey.inventory {
-				monkeyThrow(monkey, item, monkeys, worryFunc)
+				monkeyThrow(monkeyId, item, monkeys, worryFunc)
 			}
 			monkey.inventory = []int{}
 		}
