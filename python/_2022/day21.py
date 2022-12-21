@@ -71,14 +71,8 @@ def part1():
 @utils.profile
 def part2():
     """
-    Can calculate the side of the tree that "humn" is not involved in. Then we know what value
-    we're aiming for.
-
-    Then calculate our side of the tree, but pass down the value we're aiming for through all the
-    functions, and divide/mult etc it; eventually when it reaches "humn" it will be the required
-    value.
-
-    Now the trick is to figure out which side of the tree we are on...
+    Calculate what we can, and then step down the path of unknowns until we reach "humn",
+    updating the target number as we go.
     """
     # input = example
     input = utils.load_puzzle_input("2022/day21")
@@ -90,11 +84,12 @@ def part2():
     except StopIteration:
         pass
 
+    # figure out which side of the root equation we need to follow
     left, op, right = unknown["root"]
     if left in known:
         target_number = known[left]
         current = right
-    if right in known:
+    else:
         target_number = known[right]
         current = left
 
