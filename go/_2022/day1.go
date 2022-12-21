@@ -4,7 +4,6 @@ import (
 	"advent/utils"
 	"fmt"
 	"sort"
-	"strconv"
 	"strings"
 )
 
@@ -15,7 +14,7 @@ func getCalories() []int {
 	for _, elf := range elves {
 		elfCalories := 0
 		for _, s := range strings.Split(elf, "\n") {
-			c, _ := strconv.Atoi(s)
+			c := utils.ParseInt(s)
 			elfCalories += c
 		}
 		calories = append(calories, elfCalories)

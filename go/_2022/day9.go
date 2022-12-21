@@ -3,7 +3,6 @@ package _2022
 import (
 	"advent/utils"
 	"fmt"
-	"strconv"
 	"strings"
 )
 
@@ -67,10 +66,7 @@ func Day9Part1() string {
 	for _, line := range strings.Split(input, "\n") {
 		fields := strings.Fields(line)
 		direction := fields[0]
-		amount, err := strconv.Atoi(fields[1])
-		if err != nil {
-			panic(err)
-		}
+		amount := utils.ParseInt(fields[1])
 		for ii := 0; ii < amount; ii++ {
 			head = moveHead(head, direction)
 			tail = moveTail(head, tail)
@@ -89,10 +85,7 @@ func Day9Part2() string {
 	for _, line := range strings.Split(input, "\n") {
 		fields := strings.Fields(line)
 		direction := fields[0]
-		amount, err := strconv.Atoi(fields[1])
-		if err != nil {
-			panic(err)
-		}
+		amount := utils.ParseInt(fields[1])
 		for ii := 0; ii < amount; ii++ {
 			snake[0] = moveHead(snake[0], direction)
 			for ii, _ := range snake[1:] {

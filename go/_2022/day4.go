@@ -3,7 +3,6 @@ package _2022
 import (
 	"advent/utils"
 	"fmt"
-	"strconv"
 	"strings"
 )
 
@@ -17,7 +16,7 @@ func parseElfRanges() [1000]Elves {
 	for rr, row := range strings.Split(input, "\n") {
 		for ee, elf := range strings.Split(row, ",") {
 			for ll, limit := range strings.Split(elf, "-") {
-				elves[rr][ee][ll], _ = strconv.Atoi(limit)
+				elves[rr][ee][ll] = utils.ParseInt(limit)
 			}
 		}
 	}

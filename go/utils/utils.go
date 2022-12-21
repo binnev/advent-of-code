@@ -5,6 +5,7 @@ import (
 	"os"
 	"reflect"
 	"runtime"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -52,4 +53,12 @@ func Profile(f func() string) string {
 
 func SpecialPrint(text string) {
 	fmt.Println(text)
+}
+
+func ParseInt(s string) int {
+	output, err := strconv.Atoi(s)
+	if err != nil {
+		panic(err)
+	}
+	return output
 }

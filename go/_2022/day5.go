@@ -4,7 +4,6 @@ import (
 	"advent/utils"
 	"regexp"
 	"sort"
-	"strconv"
 	"strings"
 	"unicode"
 )
@@ -44,9 +43,9 @@ func parseInstructions(instructionsStr string) []Instruction {
 	}
 	for _, line := range strings.Split(instructionsStr, "\n") {
 		match := rx.FindStringSubmatch(line)
-		amount, _ := strconv.Atoi(match[1])
-		orig, _ := strconv.Atoi(match[2])
-		dest, _ := strconv.Atoi(match[3])
+		amount := utils.ParseInt(match[1])
+		orig := utils.ParseInt(match[2])
+		dest := utils.ParseInt(match[3])
 		instructions = append(instructions, Instruction{
 			amount: amount,
 			orig:   orig,

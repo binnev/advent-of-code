@@ -3,7 +3,6 @@ package _2022
 import (
 	"advent/utils"
 	"fmt"
-	"strconv"
 	"strings"
 )
 
@@ -44,10 +43,7 @@ func exploreFolders(input string) Filesystem {
 				split := strings.Fields(line)
 				fileSize := split[0]
 				fileName := split[1]
-				fs, err := strconv.Atoi(fileSize)
-				if err != nil {
-					panic(err)
-				}
+				fs := utils.ParseInt(fileSize)
 				contents[cwd+"/"+fileName] = fs
 			}
 		}

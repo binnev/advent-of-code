@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"regexp"
 	"sort"
-	"strconv"
 	"strings"
 )
 
@@ -44,17 +43,11 @@ func parseOperation(operationStr string) Operation {
 		return Operation{SQUARE, 69}
 	} else if rxMult.MatchString(operationStr) {
 		match := rxMult.FindStringSubmatch(operationStr)
-		number, err := strconv.Atoi(match[1])
-		if err != nil {
-			panic(err)
-		}
+		number := utils.ParseInt(match[1])
 		return Operation{MULT, number}
 	} else if rxAdd.MatchString(operationStr) {
 		match := rxAdd.FindStringSubmatch(operationStr)
-		number, err := strconv.Atoi(match[1])
-		if err != nil {
-			panic(operationStr)
-		}
+		number := utils.ParseInt(match[1])
 		return Operation{ADD, number}
 	} else {
 		panic(fmt.Sprintf("Help! Couldn't find any match for: '%v'", operationStr))
@@ -66,17 +59,17 @@ func parseMonkey(monkeyStr string) Monkey {
 	rx := regexp.MustCompile(monkeyRx)
 	match := rx.FindStringSubmatch(monkeyStr)
 
-	id, _ := strconv.Atoi(match[1])
+	id := utils.ParseInt(match[1])
 	itemsStr := match[2]
 	items := []int{}
 	for _, iStr := range strings.Split(itemsStr, ", ") {
-		item, _ := strconv.Atoi(iStr)
+		item := utils.ParseInt(iStr)
 		items = append(items, item)
 	}
 	operationStr := match[3]
-	divisor, _ := strconv.Atoi(match[4])
-	ifTrue, _ := strconv.Atoi(match[5])
-	ifFalse, _ := strconv.Atoi(match[6])
+	divisor := utils.ParseInt(match[4])
+	ifTrue := utils.ParseInt(match[5])
+	ifFalse := utils.ParseInt(match[6])
 
 	operation := parseOperation(operationStr)
 	return Monkey{

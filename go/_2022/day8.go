@@ -3,7 +3,6 @@ package _2022
 import (
 	"advent/utils"
 	"fmt"
-	"strconv"
 	"strings"
 )
 
@@ -14,10 +13,7 @@ func parseTreeGrid(input string) TreeGrid {
 	for _, rowStr := range strings.Split(input, "\n") {
 		row := []int{}
 		for _, heightStr := range rowStr {
-			height, err := strconv.Atoi(string(heightStr))
-			if err != nil {
-				panic(err)
-			}
+			height := utils.ParseInt(string(heightStr))
 			row = append(row, height)
 		}
 		grid = append(grid, row)
