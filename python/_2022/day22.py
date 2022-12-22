@@ -248,31 +248,37 @@ def get_bottom_edge(face_id: int, coloured: SparseMatrix):
 
 @utils.profile
 def part2():
-    # input = utils.load_puzzle_input("2022/day22")
-    input = example
+    input = utils.load_puzzle_input("2022/day22")
     grid, instructions = parse_input(input)
-    # instructions = parse_instructions("LL5L1L5")
     faces = get_coloured_grid(grid, face_size=get_cube_face_size(grid))
     start_x = min(x for x, y in grid if y == 0)
     pos = (start_x, 0)
     facing = RIGHT
     grid[pos] = ARROWS[facing]
 
-    print_sparse_matrix(grid, empty_char=" ")
-    print_sparse_matrix(faces, empty_char=" ")
-
     # we need something for when we step off the edge of a tile. Depending on the tile we were
     # on, we need to do a certain transform.
-    EDGES = {
+    EDGES_EXAMPLE = {
         # (origin_face, edge): (destination_face, edge, direction_change, reverse_nodes),
         (1, LEFT): (3, UP, -1, False),
         (3, DOWN): (5, LEFT, -1, True),
-        (1, RIGHT): (6, RIGHT, -2, True),
+        (1, RIGHT): (6, RIGHT, 2, True),
         (3, DOWN): (5, LEFT, -1, True),
         (4, RIGHT): (6, UP, 1, True),
-        (5, DOWN): (2, DOWN, -2, True),
+        (5, DOWN): (2, DOWN, 2, True),
         (2, LEFT): (6, DOWN, 1, True),
     }
+    EDGES_REAL = {
+        (1, LEFT): (4, LEFT, 2, True),
+        (1, UP): (6, LEFT, 1, False),
+        (2, DOWN): (3, RIGHT, 1, False),
+        (2, RIGHT): (5, RIGHT, 2, True),
+        (2, UP): (6, DOWN, 0, False),
+        (3, LEFT): (4, UP, -1, False),
+        (5, DOWN): (6, RIGHT, 1, False),
+    }
+    # EDGES = EDGES_EXAMPLE
+    EDGES = EDGES_REAL
     # add the reverse rules too
     EDGES.update(
         {
@@ -280,17 +286,13 @@ def part2():
             for (d_face, d_edge), (o_face, o_edge, dirch, flip) in EDGES.items()
         }
     )
-
     for instruction in instructions:
         if instruction.isnumeric():
             num_steps = int(instruction)
             for _ in range(num_steps):
-                # find the next_square and next_facing
                 next_square = get_next_square(pos, facing)
                 if next_square not in grid:
-                    next_square, new_facing = cube_fold_wrap(
-                        pos, facing, faces=faces, edges=EDGES
-                    )
+                    next_square, new_facing = cube_fold_wrap(pos, facing, faces=faces, edges=EDGES)
                     if grid[next_square] != WALL:
                         facing = new_facing
                 if grid[next_square] == WALL:
@@ -298,7 +300,6 @@ def part2():
                 else:
                     pos = next_square
                 grid[pos] = ARROWS[facing]
-                print_sparse_matrix(grid, empty_char=" ")
 
         else:
             if instruction == "R":
@@ -306,7 +307,6 @@ def part2():
             else:
                 facing = (facing - 1) % 4
             grid[pos] = ARROWS[facing]
-            print_sparse_matrix(grid, empty_char=" ")
 
     # print_sparse_matrix(grid, empty_char=" ")
     row = pos[1] + 1
@@ -315,5 +315,5 @@ def part2():
 
 
 if __name__ == "__main__":
-    # assert part1() == 65368
-    part2()
+    assert part1() == 65368
+    assert part2() == 156166
