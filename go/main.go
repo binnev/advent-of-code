@@ -1,7 +1,7 @@
 package main
 
 import (
-	"advent/_2022"
+	_2022 "advent/2022"
 )
 
 func main() {

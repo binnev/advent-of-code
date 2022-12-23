@@ -1,9 +1,9 @@
 package main
 
 import (
-	"advent/_2020"
-	"advent/_2021"
-	"advent/_2022"
+	_2020 "advent/2020"
+	_2021 "advent/2021"
+	_2022 "advent/2022"
 	"advent/utils"
 	"testing"
 )
