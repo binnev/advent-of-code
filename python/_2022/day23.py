@@ -112,15 +112,11 @@ def part1():
 
     direction_counter = NORTH
     for iteration in range(10):
-        # print(f"===== Iteration {iteration+1} =====")
-        # {new_square: [list, of, elves, that, want, to, move, there]}
-        # print(f"----- Proposals -----")
         proposals = dict[Coord, list[Coord]]()
         # 1) propose move for each elf
         for elf in grid:
             surroundings = get_surrounding(elf)
             if not any(grid.get(pt) for pt in surroundings):
-                # print(f"Elf {elf} is perfectly placed and does not make a proposal")
                 continue  # elf is already properly placed; it does nothing
 
             for ii in range(4):
@@ -129,29 +125,13 @@ def part1():
                 if not any(grid.get(pt) for pt in neighbours):
                     new_square = get_next_square(elf, direction)
                     proposals[new_square] = proposals.get(new_square, []) + [elf]
-                    # print(
-                    #     f"Elf {elf} proposes moving "
-                    #     f"{DIRECTION_NAMES[direction]} to {new_square}"
-                    # )
                     break
-                # print(f"Elf {elf} cannot move {DIRECTION_NAMES[direction]}")
-            else:
-                pass
-                # print(f"Elf {elf} has no options")
 
         # 2) move each elf if possible -- if they're the only elf proposing that sq.
-        # print(f"----- Movement -----")
         for next_square, elves in proposals.items():
             if len(elves) == 1:
                 elf = elves[0]
-                # print(f"Elf {elf} moves to {next_square}")
                 grid[next_square] = grid.pop(elf)
-            else:
-                pass
-                # print(
-                #     f"Elves {', '.join(map(str, elves))} all proposed moving to "
-                #     f"{next_square}; they all stay put."
-                # )
 
         direction_counter = (direction_counter + 1) % 4
         if not proposals:
@@ -164,21 +144,16 @@ def part2():
     # input = example
     input = utils.load_puzzle_input("2022/day23")
     grid = parse_input(input)
-    # print_sparse_matrix(grid)
 
     direction_counter = NORTH
     iteration = 0
     proposals = True
     while proposals:
-        # print(f"===== Iteration {iteration+1} =====")
-        # {new_square: [list, of, elves, that, want, to, move, there]}
-        # print(f"----- Proposals -----")
         proposals = dict[Coord, list[Coord]]()
         # 1) propose move for each elf
         for elf in grid:
             surroundings = get_surrounding(elf)
             if not any(grid.get(pt) for pt in surroundings):
-                # print(f"Elf {elf} is perfectly placed and does not make a proposal")
                 continue  # elf is already properly placed; it does nothing
 
             for ii in range(4):
@@ -187,29 +162,13 @@ def part2():
                 if not any(grid.get(pt) for pt in neighbours):
                     new_square = get_next_square(elf, direction)
                     proposals[new_square] = proposals.get(new_square, []) + [elf]
-                    # print(
-                    #     f"Elf {elf} proposes moving "
-                    #     f"{DIRECTION_NAMES[direction]} to {new_square}"
-                    # )
                     break
-                # print(f"Elf {elf} cannot move {DIRECTION_NAMES[direction]}")
-            else:
-                pass
-                # print(f"Elf {elf} has no options")
 
         # 2) move each elf if possible -- if they're the only elf proposing that sq.
-        # print(f"----- Movement -----")
         for next_square, elves in proposals.items():
             if len(elves) == 1:
                 elf = elves[0]
-                # print(f"Elf {elf} moves to {next_square}")
                 grid[next_square] = grid.pop(elf)
-            else:
-                pass
-                # print(
-                #     f"Elves {', '.join(map(str, elves))} all proposed moving to "
-                #     f"{next_square}; they all stay put."
-                # )
 
         direction_counter = (direction_counter + 1) % 4
         iteration += 1
