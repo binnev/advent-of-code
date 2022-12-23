@@ -135,13 +135,13 @@ def get_sparse_matrix_zlim(grid: SparseMatrix | SparseMatrix3) -> tuple[int, int
 
 
 def print_sparse_matrix(grid: SparseMatrix, flip_y=False, pad=0, empty_char="."):
+    min_x = max_x = min_y = max_y = 0
     if grid:
         min_x, max_x = get_sparse_matrix_xlim(grid)
         min_y, max_y = get_sparse_matrix_ylim(grid)
-        if flip_y:
-            min_y, max_y = -max_y, -min_y
-    else:
-        min_x = max_x = min_y = max_y = 0
+    if flip_y:
+        min_y, max_y = -max_y, -min_y
+
     for y in range(min_y - pad, max_y + 1 + pad):
         for x in range(min_x - pad, max_x + 1 + pad):
             print(grid.get((x, (-y if flip_y else y)), empty_char), end="")
@@ -157,3 +157,10 @@ def print_sparse_matrix3(grid: SparseMatrix3, flip_y=False, pad=0, empty_char=".
     for layer_z in range(min_z, max_z + 1):
         layer = SparseMatrix({(x, y): value for (x, y, z), value in grid.items() if z == layer_z})
         print_sparse_matrix(layer, flip_y=flip_y, pad=pad, empty_char=empty_char)
+
+
+if __name__ == "__main__":
+    grid = SparseMatrix()
+    grid[(0, 0)] = "A"
+    grid[(2, 3)] = "B"
+    grid.print()

@@ -6,8 +6,6 @@ import (
 	"strings"
 )
 
-type Coord = [2]int
-
 func sign(x int) int {
 	if x >= 0 {
 		return 1
