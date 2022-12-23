@@ -76,46 +76,27 @@ Coord3 = tuple[int, int, int]
 
 class SparseMatrix(dict[Coord, str]):
     def get_xlim(self) -> tuple[int, int]:
-        return min(x for x, _ in self), max(x for x, _ in self)
+        return get_sparse_matrix_xlim(self)
 
     def get_ylim(self) -> tuple[int, int]:
-        return min(y for _, y in self), max(y for _, y in self)
+        return get_sparse_matrix_ylim(self)
 
     def print(self, flip_y=False, pad=0, empty_char="."):
-        if self:
-            min_x, max_x = self.get_xlim()
-            min_y, max_y = self.get_ylim()
-            if flip_y:
-                min_y, max_y = -max_y, -min_y
-        else:
-            min_x = max_x = min_y = max_y = 0
-        for y in range(min_y - pad, max_y + 1 + pad):
-            for x in range(min_x - pad, max_x + 1 + pad):
-                print(self.get((x, (-y if flip_y else y)), empty_char), end="")
-            print("")
-        print("")
+        print_sparse_matrix(self, flip_y=flip_y, pad=pad, empty_char=empty_char)
 
 
 class SparseMatrix3(dict[Coord3, str]):
     def get_xlim(self) -> tuple[int, int]:
-        return min(x for x, _, _ in self), max(x for x, _, _ in self)
+        return get_sparse_matrix_xlim(self)
 
     def get_ylim(self) -> tuple[int, int]:
-        return min(y for _, y, _ in self), max(y for _, y, _ in self)
+        return get_sparse_matrix_ylim(self)
 
     def get_zlim(self) -> tuple[int, int]:
-        return min(z for _, _, z in self), max(z for _, _, z in self)
+        return get_sparse_matrix_zlim(self)
 
     def print(self, flip_y=False, pad=0, empty_char="."):
-        if self:
-            min_z, max_z = self.get_zlim()
-        else:
-            min_z = max_z = 0
-        for layer_z in range(min_z, max_z + 1):
-            layer = SparseMatrix(
-                {(x, y): value for (x, y, z), value in self.items() if z == layer_z}
-            )
-            layer.print(flip_y=flip_y, pad=pad, empty_char=empty_char)
+        print_sparse_matrix3(self, flip_y=flip_y, pad=pad, empty_char=empty_char)
 
     def plot(self):
         import numpy as np
@@ -139,3 +120,40 @@ class SparseMatrix3(dict[Coord3, str]):
         )
         ax.set_aspect("equal")
         plt.show()
+
+
+def get_sparse_matrix_xlim(grid: SparseMatrix | SparseMatrix3) -> tuple[int, int]:
+    return min(pt[0] for pt in grid), max(pt[0] for pt in grid)
+
+
+def get_sparse_matrix_ylim(grid: SparseMatrix | SparseMatrix3) -> tuple[int, int]:
+    return min(pt[1] for pt in grid), max(pt[1] for pt in grid)
+
+
+def get_sparse_matrix_zlim(grid: SparseMatrix | SparseMatrix3) -> tuple[int, int]:
+    return min(pt[2] for pt in grid), max(pt[2] for pt in grid)
+
+
+def print_sparse_matrix(grid: SparseMatrix, flip_y=False, pad=0, empty_char="."):
+    if grid:
+        min_x, max_x = get_sparse_matrix_xlim(grid)
+        min_y, max_y = get_sparse_matrix_ylim(grid)
+        if flip_y:
+            min_y, max_y = -max_y, -min_y
+    else:
+        min_x = max_x = min_y = max_y = 0
+    for y in range(min_y - pad, max_y + 1 + pad):
+        for x in range(min_x - pad, max_x + 1 + pad):
+            print(grid.get((x, (-y if flip_y else y)), empty_char), end="")
+        print("")
+    print("")
+
+
+def print_sparse_matrix3(grid: SparseMatrix3, flip_y=False, pad=0, empty_char="."):
+    if grid:
+        min_z, max_z = get_sparse_matrix_zlim(grid)
+    else:
+        min_z = max_z = 0
+    for layer_z in range(min_z, max_z + 1):
+        layer = SparseMatrix({(x, y): value for (x, y, z), value in grid.items() if z == layer_z})
+        print_sparse_matrix(layer, flip_y=flip_y, pad=pad, empty_char=empty_char)
