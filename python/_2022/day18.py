@@ -45,12 +45,9 @@ def surround_with_steam(grid: SparseMatrix3):
     """
     Surround the lava droplet with a BFS-grown steam cube
     """
-    min_x = min(x for x, y, z in grid)
-    max_x = max(x for x, y, z in grid)
-    min_y = min(y for x, y, z in grid)
-    max_y = max(y for x, y, z in grid)
-    min_z = min(z for x, y, z in grid)
-    max_z = max(z for x, y, z in grid)
+    min_x, max_x = grid.get_xlim()
+    min_y, max_y = grid.get_ylim()
+    min_z, max_z = grid.get_zlim()
 
     steam_min_x = min_x - 1
     steam_max_x = max_x + 1

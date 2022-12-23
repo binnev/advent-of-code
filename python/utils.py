@@ -122,12 +122,9 @@ class SparseMatrix3(dict[Coord3, str]):
         import matplotlib.pyplot as plt
         from mpl_toolkits.mplot3d import Axes3D
 
-        min_x = min(x for x, y, z in self)
-        max_x = max(x for x, y, z in self)
-        min_y = min(y for x, y, z in self)
-        max_y = max(y for x, y, z in self)
-        min_z = min(z for x, y, z in self)
-        max_z = max(z for x, y, z in self)
+        min_x, max_x = self.get_xlim()
+        min_y, max_y = self.get_ylim()
+        min_z, max_z = self.get_zlim()
         x_width = max_x - min_x + 1
         y_width = max_y - min_y + 1
         z_width = max_z - min_z + 1

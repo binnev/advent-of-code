@@ -92,10 +92,8 @@ def get_next_square(pos: Coord, direction: int) -> Coord:
 
 
 def empty_ground(grid: SparseMatrix) -> int:
-    min_x = min(x for x, y in grid)
-    max_x = max(x for x, y in grid)
-    min_y = min(y for x, y in grid)
-    max_y = max(y for x, y in grid)
+    min_x, max_x = grid.get_xlim()
+    min_y, max_y = grid.get_ylim()
     width = max_x - min_x + 1
     height = max_y - min_y + 1
     area = width * height
