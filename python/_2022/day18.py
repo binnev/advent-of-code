@@ -1,7 +1,3 @@
-import matplotlib.pyplot as plt
-import numpy as np
-from mpl_toolkits.mplot3d import Axes3D
-
 from python import utils
 from python.utils import SparseMatrix3, Coord3
 
@@ -87,29 +83,6 @@ def surround_with_steam(grid: SparseMatrix3):
 
         visited = visited.union(frontier)
         frontier = neighbours
-
-
-def plot_droplet(grid: SparseMatrix3):
-    min_x = min(x for x, y, z in grid)
-    max_x = max(x for x, y, z in grid)
-    min_y = min(y for x, y, z in grid)
-    max_y = max(y for x, y, z in grid)
-    min_z = min(z for x, y, z in grid)
-    max_z = max(z for x, y, z in grid)
-    x_width = max_x - min_x + 1
-    y_width = max_y - min_y + 1
-    z_width = max_z - min_z + 1
-    filled = np.zeros((x_width, y_width, z_width), dtype=bool)
-    for x, y, z in grid:
-        filled[x][y][z] = True
-
-    ax: Axes3D = plt.figure().add_subplot(projection="3d")
-    ax.voxels(
-        filled,
-        facecolors=[1, 0, 0, 0.1],
-    )
-    ax.set_aspect("equal")
-    plt.show()
 
 
 @utils.profile

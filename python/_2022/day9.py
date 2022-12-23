@@ -1,4 +1,5 @@
 from python import utils
+from python.utils import Coord
 
 example = """R 4
 U 4
@@ -17,9 +18,6 @@ R 17
 D 10
 L 25
 U 20"""
-
-
-Coord = tuple[int, int]
 
 
 def sign(x: int) -> int:

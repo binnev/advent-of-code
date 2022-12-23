@@ -6,6 +6,7 @@ import numpy
 from matplotlib.axes import Axes
 
 from python import utils
+from python.utils import Coord
 
 example = """Sabqponm
 abcryxxl
@@ -15,7 +16,6 @@ abdefghi"""
 
 
 Map = numpy.ndarray[numpy.ndarray[int]]
-Coord = tuple[int, int]
 
 
 def get_height(char: str) -> int:

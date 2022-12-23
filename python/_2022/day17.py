@@ -72,15 +72,6 @@ def fall(shape: Shape, grid: SparseMatrix) -> (Shape, bool):
     return new_shape, collision
 
 
-def draw_moving_shape(shape: Shape, grid: SparseMatrix):
-    for pt in shape:
-        grid[pt] = "@"
-    grid.print(flip_y=True, pad=2)
-    for pt in shape:
-
-        grid.pop(pt, None)
-
-
 def add_shape_to_tower(ii: int, jet_ii: int, grid: SparseMatrix, jets: str) -> (int, Shape):
     # spawn rock at correct x/y
     shape_ii = ii % len(SHAPES)

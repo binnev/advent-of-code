@@ -298,7 +298,6 @@ def part2():
                 facing = (facing - 1) % 4
             grid[pos] = ARROWS[facing]
 
-    # grid.print(empty_char=" ")
     row = pos[1] + 1
     col = pos[0] + 1
     return 1000 * row + 4 * col + facing

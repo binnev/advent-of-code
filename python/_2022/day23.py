@@ -1,6 +1,5 @@
 from python import utils
 from python.utils import SparseMatrix, Coord
-import pprint
 
 example = """....#..
 ..###.#

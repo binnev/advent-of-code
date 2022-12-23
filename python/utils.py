@@ -1,4 +1,5 @@
 import functools
+import math
 import time
 from pathlib import Path
 
@@ -74,14 +75,18 @@ Coord3 = tuple[int, int, int]
 
 
 class SparseMatrix(dict[Coord, str]):
+    def get_xlim(self) -> tuple[int, int]:
+        return min(x for x, _ in self), max(x for x, _ in self)
+
+    def get_ylim(self) -> tuple[int, int]:
+        return min(y for _, y in self), max(y for _, y in self)
+
     def print(self, flip_y=False, pad=0, empty_char="."):
         if self:
-            xs = [x for x, y in self]
-            ys = [(-y if flip_y else y) for x, y in self]
-            min_x = min(xs)
-            max_x = max(xs)
-            min_y = min(ys)
-            max_y = max(ys)
+            min_x, max_x = self.get_xlim()
+            min_y, max_y = self.get_ylim()
+            if flip_y:
+                min_y, max_y = -max_y, -min_y
         else:
             min_x = max_x = min_y = max_y = 0
         for y in range(min_y - pad, max_y + 1 + pad):
@@ -92,11 +97,48 @@ class SparseMatrix(dict[Coord, str]):
 
 
 class SparseMatrix3(dict[Coord3, str]):
+    def get_xlim(self) -> tuple[int, int]:
+        return min(x for x, _, _ in self), max(x for x, _, _ in self)
+
+    def get_ylim(self) -> tuple[int, int]:
+        return min(y for _, y, _ in self), max(y for _, y, _ in self)
+
+    def get_zlim(self) -> tuple[int, int]:
+        return min(z for _, _, z in self), max(z for _, _, z in self)
+
     def print(self, flip_y=False, pad=0, empty_char="."):
-        min_z = min(z for x, y, z in self)
-        max_z = max(z for x, y, z in self)
+        if self:
+            min_z, max_z = self.get_zlim()
+        else:
+            min_z = max_z = 0
         for layer_z in range(min_z, max_z + 1):
             layer = SparseMatrix(
                 {(x, y): value for (x, y, z), value in self.items() if z == layer_z}
             )
             layer.print(flip_y=flip_y, pad=pad, empty_char=empty_char)
+
+    def plot(self):
+        import numpy as np
+        import matplotlib.pyplot as plt
+        from mpl_toolkits.mplot3d import Axes3D
+
+        min_x = min(x for x, y, z in self)
+        max_x = max(x for x, y, z in self)
+        min_y = min(y for x, y, z in self)
+        max_y = max(y for x, y, z in self)
+        min_z = min(z for x, y, z in self)
+        max_z = max(z for x, y, z in self)
+        x_width = max_x - min_x + 1
+        y_width = max_y - min_y + 1
+        z_width = max_z - min_z + 1
+        filled = np.zeros((x_width, y_width, z_width), dtype=bool)
+        for x, y, z in self:
+            filled[x][y][z] = True
+
+        ax: Axes3D = plt.figure().add_subplot(projection="3d")
+        ax.voxels(
+            filled,
+            facecolors=[1, 0, 0, 1],
+        )
+        ax.set_aspect("equal")
+        plt.show()
