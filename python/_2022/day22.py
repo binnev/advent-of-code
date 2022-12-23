@@ -1,7 +1,7 @@
 import re
 
 from python import utils
-from python._2022.day14 import SparseMatrix, print_sparse_matrix, Coord
+from python.utils import SparseMatrix, Coord
 
 example = """        ...#
         .#..
@@ -298,7 +298,7 @@ def part2():
                 facing = (facing - 1) % 4
             grid[pos] = ARROWS[facing]
 
-    # print_sparse_matrix(grid, empty_char=" ")
+    # grid.print(empty_char=" ")
     row = pos[1] + 1
     col = pos[0] + 1
     return 1000 * row + 4 * col + facing

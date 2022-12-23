@@ -1,6 +1,3 @@
-from pprint import pprint
-from typing import Callable
-
 from python import utils
 
 example = """noop

@@ -2,7 +2,7 @@ import re
 from dataclasses import dataclass
 from enum import Enum
 from functools import reduce
-from typing import Callable, Literal
+from typing import Callable
 
 from python import utils
 

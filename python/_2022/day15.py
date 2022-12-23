@@ -1,10 +1,8 @@
-import math
 import re
 from functools import reduce
-from math import sqrt
 
 from python import utils
-from python._2022.day14 import SparseMatrix, print_sparse_matrix, Coord
+from python.utils import SparseMatrix, Coord
 
 example = """Sensor at x=2, y=18: closest beacon is at x=-2, y=15
 Sensor at x=9, y=16: closest beacon is at x=10, y=16

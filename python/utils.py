@@ -67,3 +67,36 @@ def prime_factors(number) -> dict[int:int]:
                 factors[remainder] = factors.get(remainder, 0) + 1
                 product *= remainder
     return factors
+
+
+Coord = tuple[int, int]
+Coord3 = tuple[int, int, int]
+
+
+class SparseMatrix(dict[Coord, str]):
+    def print(self, flip_y=False, pad=0, empty_char="."):
+        if self:
+            xs = [x for x, y in self]
+            ys = [(-y if flip_y else y) for x, y in self]
+            min_x = min(xs)
+            max_x = max(xs)
+            min_y = min(ys)
+            max_y = max(ys)
+        else:
+            min_x = max_x = min_y = max_y = 0
+        for y in range(min_y - pad, max_y + 1 + pad):
+            for x in range(min_x - pad, max_x + 1 + pad):
+                print(self.get((x, (-y if flip_y else y)), empty_char), end="")
+            print("")
+        print("")
+
+
+class SparseMatrix3(dict[Coord3, str]):
+    def print(self, flip_y=False, pad=0, empty_char="."):
+        min_z = min(z for x, y, z in self)
+        max_z = max(z for x, y, z in self)
+        for layer_z in range(min_z, max_z + 1):
+            layer = SparseMatrix(
+                {(x, y): value for (x, y, z), value in self.items() if z == layer_z}
+            )
+            layer.print(flip_y=flip_y, pad=pad, empty_char=empty_char)

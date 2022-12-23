@@ -1,7 +1,5 @@
-import itertools
-
 from python import utils
-from python._2022.day14 import print_sparse_matrix, SparseMatrix, Coord
+from python.utils import SparseMatrix, Coord
 
 Shape = tuple[Coord, ...]
 HLINE: Shape = (
@@ -77,7 +75,7 @@ def fall(shape: Shape, grid: SparseMatrix) -> (Shape, bool):
 def draw_moving_shape(shape: Shape, grid: SparseMatrix):
     for pt in shape:
         grid[pt] = "@"
-    print_sparse_matrix(grid, flip_y=True, pad=2)
+    grid.print(flip_y=True, pad=2)
     for pt in shape:
 
         grid.pop(pt, None)

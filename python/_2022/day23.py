@@ -1,7 +1,6 @@
-from pprint import pprint
-
 from python import utils
-from python._2022.day14 import SparseMatrix, print_sparse_matrix, Coord
+from python.utils import SparseMatrix, Coord
+import pprint
 
 example = """....#..
 ..###.#
@@ -174,7 +173,7 @@ def part2():
         iteration += 1
         if not proposals:
             break
-    print_sparse_matrix(grid)
+    grid.print()
     return iteration
 
 

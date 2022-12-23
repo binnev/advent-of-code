@@ -1,6 +1,3 @@
-import operator
-from pprint import pprint
-
 from python import utils
 
 example = """root: pppw + sjmn

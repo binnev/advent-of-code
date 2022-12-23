@@ -3,7 +3,7 @@ import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
 
 from python import utils
-from python._2022.day14 import print_sparse_matrix
+from python.utils import SparseMatrix3, Coord3
 
 example = """2,2,2
 1,2,2
@@ -19,8 +19,6 @@ example = """2,2,2
 2,1,5
 2,3,5"""
 
-Coord3 = tuple[int, int, int]
-SparseMatrix3 = dict[Coord3, str]
 LAVA = "░"
 STEAM = "s"
 
@@ -114,19 +112,10 @@ def plot_droplet(grid: SparseMatrix3):
     plt.show()
 
 
-def print_sparse_matrix_3d(grid: SparseMatrix3):
-    min_z = min(z for x, y, z in grid)
-    max_z = max(z for x, y, z in grid)
-    for layer_z in range(min_z, max_z + 1):
-        layer = {(x, y): value for (x, y, z), value in grid.items() if z == layer_z}
-        print_sparse_matrix(layer, pad=2)
-
-
 @utils.profile
 def part1():
     input = utils.load_puzzle_input("2022/day18")
     grid = parse_input(input)
-
     surface_area = 0
     for cube in grid:
         for neighbour in get_3d_neighbours(cube):
