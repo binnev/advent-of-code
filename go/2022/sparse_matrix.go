@@ -7,7 +7,9 @@ import (
 )
 
 type Coord [2]int
+type Coord3 [3]int
 type SparseMatrix map[Coord]rune
+type SparseMatrix3 map[Coord3]rune
 
 func (grid SparseMatrix) Xlim() (int, int) {
 	min := math.Inf(1)
