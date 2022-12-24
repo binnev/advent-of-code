@@ -38,18 +38,21 @@ ARROW_TO_HEADING = {
     "v": SOUTH,
     "<": WEST,
 }
-HEADING_TO_ARROW = {
-    NORTH: "^",
-    EAST: ">",
-    SOUTH: "v",
-    WEST: "<",
+HEADING_TO_ARROW = {v: k for k, v in ARROW_TO_HEADING.items()}
+NUMBER_TO_BLIZZARD = {
+    1: "░",
+    2: "▒",
+    3: "▓",
+    4: "█",
 }
+BLIZZARD_TO_NUMBER = {v: k for k, v in NUMBER_TO_BLIZZARD.items()}
 WALL = "#"
-EMPTY = "."
+EMPTY = " "
 ELF = "░"
 ELF = "▒"
 ELF = "▓"
 ELF = "█"
+ELF = "e"
 
 Blizzards = dict[int, tuple[Coord, Heading]]
 Map = numpy.ndarray[numpy.ndarray[str]]
@@ -58,27 +61,6 @@ Map = numpy.ndarray[numpy.ndarray[str]]
 class State(NamedTuple):
     minute: int  # minutes elapsed
     pos: Coord  # current position
-
-
-def parse_input_map(input: str) -> (Map, Blizzards):
-    string_array = input.splitlines()
-    height = len(string_array)
-    width = len(string_array[0])
-    blizzards = Blizzards()
-    grid = numpy.zeros(shape=(width, height), dtype=str)
-    blizz_id = 0
-    for y, line in enumerate(input.splitlines()):
-        for x, value in enumerate(line):
-            if value == "#":
-                grid[y][x] = WALL
-            elif value in ["<", ">", "^", "v"]:
-                heading = ARROW_TO_HEADING[value]
-                blizzards[blizz_id] = ((x, y), heading)
-                blizz_id += 1
-                grid[y][x] = "."
-            else:
-                grid[y][x] = "."
-    return grid, blizzards
 
 
 def parse_input(input: str) -> (SparseMatrix, Blizzards):
@@ -93,42 +75,23 @@ def parse_input(input: str) -> (SparseMatrix, Blizzards):
                 heading = ARROW_TO_HEADING[value]
                 blizzards[blizz_id] = ((x, y), heading)
                 blizz_id += 1
-                grid[(x, y)] = "."
+                grid[(x, y)] = EMPTY
             else:
-                grid[(x, y)] = "."
+                grid[(x, y)] = EMPTY
     return grid, blizzards
-
-
-def print_array(grid: Map, blizzards: Blizzards, you: Coord):
-    newgrid = grid.copy()
-    for id, ((x, y), heading) in blizzards.items():
-        if grid[y][x] == EMPTY:
-            newgrid[y][x] = HEADING_TO_ARROW[heading]
-        else:
-            existing = newgrid[y][x]
-            if existing.isnumeric():
-                value = int(existing) + 1
-            else:
-                value = 2
-            newgrid[y][x] = str(value)
-    x, y = you
-    newgrid[y][x] = ELF
-    stringified = "\n".join("".join(row) for row in newgrid)
-    print(stringified)
 
 
 def print_sparse(grid: SparseMatrix, blizzards: Blizzards, elves: set[Coord]):
     grid = SparseMatrix({**grid})
     for id, (pos, heading) in blizzards.items():
         if pos not in grid or grid[pos] == EMPTY:
-            grid[pos] = HEADING_TO_ARROW[heading]
+            grid[pos] = NUMBER_TO_BLIZZARD[1]
         else:
-            existing = grid[pos]
-            if existing.isnumeric():
-                value = int(existing) + 1
-            else:
-                value = 2
-            grid[pos] = str(value)
+            blizz = grid[pos]
+            intensity = BLIZZARD_TO_NUMBER[blizz]
+            intensity += 1
+            blizz = NUMBER_TO_BLIZZARD[intensity]
+            grid[pos] = str(blizz)
     for elf in elves:
         grid[elf] = ELF
     grid.print()
@@ -195,19 +158,15 @@ def draw_blizzards_on_grid(grid: SparseMatrix, blizzards: Blizzards):
         grid[coord] = arrow
 
 
-@utils.profile
-def part1():
-    # input = larger_example
-    input = utils.load_puzzle_input("2022/day24")
-    grid, blizzards = parse_input(input)
-    elves = {(1, 0)}
-
-    print_sparse(grid, blizzards, elves=elves)
-    target_y = max(y for x, y in grid)
-    target_pos = next((x, y) for (x, y), value in grid.items() if y == target_y and value == EMPTY)
+def run_the_gauntlet(
+    start: Coord,
+    target: Coord,
+    grid: SparseMatrix,
+    blizzards: Blizzards,
+) -> int:
+    elves = {start}
     minute = 0
-    for iteration in range(99999999999999999):
-        print(f"===== Iteration {iteration+1} =====")
+    while True:
         for elf in elves:
             options = get_options(elf, grid, blizzards)
             elves = elves.union(options)
@@ -216,19 +175,38 @@ def part1():
         for id, (coord, heading) in blizzards.items():
             if coord in elves:
                 elves.remove(coord)
-        print_sparse(grid, blizzards, elves=elves)
-
         minute += 1
-        if any(elf == target_pos for elf in elves):
+        if any(elf == target for elf in elves):
             break
     return minute
 
 
 @utils.profile
+def part1():
+    # input = larger_example
+    input = utils.load_puzzle_input("2022/day24")
+    grid, blizzards = parse_input(input)
+    START = (1, 0)
+    target_y = max(y for x, y in grid)
+    TARGET = next((x, y) for (x, y), value in grid.items() if y == target_y and value == EMPTY)
+    return run_the_gauntlet(start=START, target=TARGET, grid=grid, blizzards=blizzards)
+
+
+@utils.profile
 def part2():
-    ...
+    # input = larger_example
+    input = utils.load_puzzle_input("2022/day24")
+    grid, blizzards = parse_input(input)
+    START = (1, 0)
+    target_y = max(y for x, y in grid)
+    TARGET = next((x, y) for (x, y), value in grid.items() if y == target_y and value == EMPTY)
+    minute = 0
+    minute += run_the_gauntlet(start=START, target=TARGET, grid=grid, blizzards=blizzards)
+    minute += run_the_gauntlet(start=TARGET, target=START, grid=grid, blizzards=blizzards)
+    minute += run_the_gauntlet(start=START, target=TARGET, grid=grid, blizzards=blizzards)
+    return minute
 
 
 if __name__ == "__main__":
-    part1()
-    part2()
+    assert part1() == 228
+    assert part2() == 723
