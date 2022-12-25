@@ -134,6 +134,10 @@ def test_2021(func, expected_output):
         (_2022.day22.part2, 156166),
         (_2022.day23.part1, 4236),
         (_2022.day23.part2, 1023),
+        (_2022.day24.part1, 228),
+        # (_2022.day24.part2, 723),  # takes 16 seconds
+        (_2022.day25.part1, "20-1-0=-2=-2220=0011"),
+        # (_2022.day25.part2, _),
     ],
 )
 def test_2022(func, expected_output):
