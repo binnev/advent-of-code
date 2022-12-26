@@ -2,6 +2,8 @@ import itertools
 import math
 import re
 
+from typing import NamedTuple
+
 from python import utils
 
 example = """Valve AA has flow rate=0; tunnels lead to valves DD, II, BB
@@ -42,80 +44,51 @@ class Node:
 Nodes = dict[str, Node]
 Distances = dict[str, int]
 DistanceMap = dict[str, Distances]
+Adjacency = dict[str, set[str]]
+FlowRates = dict[str, int]
 
 
-def parse_input(input: str) -> Nodes:
+class State(NamedTuple):
+    description: str
+    node: str
+    release_rate: int
+    open_valves: tuple[str]
+    minute: int
+    pressure_released: int
+
+
+def parse_input(input: str) -> tuple[Adjacency, FlowRates]:
     rx = re.compile("Valve (\w+) has flow rate=(\d+); tunnels? leads? to valves? (.*)")
-    parsed = []
+    adjacency = dict()
+    flow_rates = dict()
     for line in input.splitlines():
         id, flow_rate, neighbours = rx.search(line).groups()
         flow_rate = int(flow_rate)
-        neighbours = neighbours.split(", ")
-        parsed.append((id, flow_rate, neighbours))
-
-    nodes = Nodes()
-    for id, flow_rate, _ in parsed:
-        nodes[id] = Node(id=id, flow_rate=flow_rate)
-
-    for id, _, neighbours in parsed:
-        for n in neighbours:
-            nodes[id].link(nodes[n])
-
-    return nodes
+        neighbours = set(neighbours.split(", "))
+        adjacency[id] = neighbours
+        flow_rates[id] = flow_rate
+    return adjacency, flow_rates
 
 
-def score_nodes(nodes: Nodes, start_id: str) -> dict[str:int]:
-    start = nodes[start_id]
-    visited = set()
-    start = nodes[start_id]
-    scores = {start_id: start.flow_rate}
-    distances = {start_id: 0}
-    frontier = [start]
-    neighbour_dist = 1  # it takes 1 sec to get to a neighbour
-    valve_open_time = 1
-    while True:
-        neighbours = set()
-        for node in frontier:
-            for n in node.neighbours.values():
-                if n not in visited:
-                    neighbours.add(n)
-
-        if not neighbours:
-            break  # finished exploring
-
-        for n in neighbours:
-            dist = min(distances.get(n.id, math.inf), neighbour_dist)
-            distances[n.id] = dist
-            score = n.flow_rate / (dist or 1)
-            scores[n.id] = score
-
-        visited = visited.union(frontier)
-        frontier = neighbours
-        neighbour_dist += 1
-
-    return scores
-
-
-def get_distances(start_id: str, nodes: Nodes) -> Distances:
+def get_distances(start_id: str, adjacency: Adjacency) -> Distances:
     visited = set()
 
-    start = nodes[start_id]
-    frontier = [start]
+    frontier = [start_id]
     distances: Distances = {start_id: 0}
     neighbour_dist = 1
     while True:
         neighbours = set()
         for node in frontier:
-            for n in node.neighbours.values():
+            for n in adjacency[node]:
                 if n not in visited:
                     neighbours.add(n)
 
         if not neighbours:
             break  # finished exploring
 
-        for n in neighbours:
-            dist = min(distances.get(n, math.inf), neighbour_dist)
-            distances[n.id] = dist
+        for node in neighbours:
+            dist = min(distances.get(node, math.inf), neighbour_dist)
+            distances[node] = dist
 
         visited = visited.union(frontier)
         frontier = neighbours
@@ -124,65 +97,68 @@ def get_distances(start_id: str, nodes: Nodes) -> Distances:
     return distances
 
 
-def shortest_path(a: Node, b: Node):
-    distances = get_distances(a)  # this is cached
-    return distances[b]
-
-
-def execute_plan(
-    plan: list[tuple[str, float]],
-    nodes: Nodes,
-    start_id: str,
-    dist_map: DistanceMap,
-) -> int:
-    current = nodes[start_id]
-    pressure_released = 0
-    elapsed_time = 1
-    release_rate = 0
-    opened = []
-    target = None
-    while elapsed_time <= 30:
-        # print("")
-        # print(f"== Minute {elapsed_time} == ")
-        # print(f"Valves {opened} are open, releasing {release_rate} pressure")
-        pressure_released += release_rate
-
-        if not target:
-            # select next target
-            if plan:
-                id = plan.pop(0)
-                target = nodes[id]
-                dist = dist_map[current.id][target.id]
-            else:
-                # idle
-                dist = 69
-                target = None
-
-        if dist == 0:
-            current = target
-            opened.append(target.id)
-            release_rate += target.flow_rate
-            # print(f"You open valve {target.id}")
-            target = None
-        else:
-            if target:
-                # print(f"You are moving to {target.id}")
-                dist -= 1
-            else:
-                ...
-                # print("You are chilling")
-
-        elapsed_time += 1
-
-    return pressure_released
-
-
-def crunch_distance_map(nodes: Nodes) -> DistanceMap:
+def crunch_distance_map(adjacency: Adjacency) -> DistanceMap:
     dist_map = DistanceMap()
-    for id in nodes:
-        distances = get_distances(start_id=id, nodes=nodes)
+    for id in adjacency:
+        distances = get_distances(start_id=id, adjacency=adjacency)
         dist_map[id] = distances
     return dist_map
+
+
+def get_next_states(
+    current: State,
+    nonzero_nodes: set[str],
+    dist_map: DistanceMap,
+    flow_rates: FlowRates,
+) -> list[State]:
+    """
+    Either open the current valve, or go to another valve (with nonzero flow_rate that hasn't
+    already been opened)
+
+    Go to each of the nonzero, non-opened valves and create a new State for that
+    """
+    unopened = [node for node in nonzero_nodes if node not in current.open_valves]
+
+    # to prevent pointless walking around: if you are standing on an unopened node, always open it.
+    if current.node in unopened:
+        return [
+            State(
+                description=f"Open valve {current.node}",
+                node=current.node,
+                release_rate=current.release_rate + flow_rates[current.node],
+                open_valves=(*current.open_valves, current.node),
+                minute=current.minute + 1,  # flat 1 minute to open valve
+                pressure_released=current.pressure_released + current.release_rate,
+            )
+        ]
+    # if all valves have been opened, just wait
+    if not unopened:
+        return [
+            State(
+                description="Waiting...",
+                node=current.node,
+                release_rate=current.release_rate,
+                open_valves=current.open_valves,
+                minute=current.minute + 1,  # flat 1 minute to open valve
+                pressure_released=current.pressure_released + current.release_rate,
+            )
+        ]
+    # otherwise, create a list of unopened nodes to walk to
+    next_states = []
+    for node in unopened:
+        distance = dist_map[current.node][node]
+        time_taken = distance * 1  # 1 minute to walk between nodes
+        next_states.append(
+            State(
+                description=f"Walking to valve {node}",
+                node=node,
+                release_rate=current.release_rate,
+                open_valves=current.open_valves,
+                minute=current.minute + time_taken,
+                pressure_released=current.pressure_released + current.release_rate * time_taken,
+            )
+        )
+    return next_states
 
 
 @utils.profile
@@ -191,26 +167,81 @@ def part1():
     875 too low
     Traveling Purchaser Problem https://en.wikipedia.org/wiki/Traveling_purchaser_problem
 
+    create graph of State space
+    State(
+        node: str
+        release_rate: int
+    )
     """
     # input = example
     input = utils.load_puzzle_input("2022/day16")
-    nodes = parse_input(input)
-    dist_map = crunch_distance_map(nodes)
-    nonzero_nodes = [node.id for node in nodes.values() if node.flow_rate > 0]
-    num_perms = math.factorial(len(nonzero_nodes))
-    print(f"{nonzero_nodes=}")
-    print(f"There are {num_perms} permutations to try")
-    perms = itertools.permutations(nonzero_nodes, len(nonzero_nodes))
-    max_result = 0
-    for ii, plan in enumerate(perms):
-        result = execute_plan(list(plan), nodes, start_id="AA", dist_map=dist_map)
-        if result > max_result:
-            max_result = result
-            print(f"New record! {ii=} {plan=} {result=}")
-        if ii % 100000 == 0:
-            progress = ii / num_perms * 100
-            print(f"Progress: {progress:.5f}%")
-    return max_result
+    adjacency, flow_rates = parse_input(input)
+    dist_map = crunch_distance_map(adjacency)
+    nonzero_nodes = {node for node, flow in flow_rates.items() if flow > 0}
+
+    # bfs through the state space
+
+    start = State(
+        description="initial state",
+        node="AA",
+        release_rate=0,
+        pressure_released=0,
+        open_valves=tuple(),
+        minute=0,
+    )
+    frontier = {start}
+    max_pressure_released = 0
+    ii = 0
+    while frontier:
+        print(f"===== Iteration {ii} =====")
+        print(f"{len(frontier)=}")
+
+        finished = {state for state in frontier if state.minute == 30}
+        print(f"{len(finished)} finished runs")
+        for f in finished:
+            # print(f"\tFinished state: {f}")
+            f: State
+            if f.pressure_released > max_pressure_released:
+                print(f"\t\tNew record for pressure released: {f.pressure_released}, "
+                      f"with valve order {', '.join(f.open_valves)}")
+                max_pressure_released = f.pressure_released
+        frontier = frontier - finished
+
+        timed_out = {state for state in frontier if state.minute > 30}
+        print(f"{len(timed_out)} runs exceeded 30 minutes")
+        for f in timed_out:
+            # print(f"\tTimed-out state: {f}. Back-calculating pressure at 30 minutes...")
+            overtime = f.minute - 30
+            back_pressure = f.pressure_released - f.release_rate * overtime
+            # print(f"\t\tAt 30 minutes, the pressure released was {back_pressure}")
+            if back_pressure > max_pressure_released:
+                print(f"\t\tNew record for pressure released: {back_pressure}, "
+                      f"with valve order {', '.join(f.open_valves)}")
+                max_pressure_released = back_pressure
+        frontier = frontier - timed_out
+
+        # prune the frontier to consider only the 100 best runs
+        frontier = sorted(
+            frontier, key=lambda x: x.pressure_released / (x.minute or 1), reverse=True
+        )[:12000]
+
+        # fixme: this isn't working. Step through the nodes one at a time and add a "visited" dict
+        #  where the key is (node, release_rate), and the value is (pressure_released, minute).
+        #  This way the frontier only grows proportional to the number of neighbours each node
+        #  has (instead of with the total number of nodes, which is way more).
+        options = set()
+        for state in frontier:
+            state_options = get_next_states(
+                current=state,
+                nonzero_nodes=nonzero_nodes,
+                dist_map=dist_map,
+                flow_rates=flow_rates,
+            )
+            options = options.union(state_options)
+
+        frontier = options
+        ii += 1
+    return max_pressure_released
 
 
 @utils.profile
