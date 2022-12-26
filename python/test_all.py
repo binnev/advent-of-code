@@ -118,8 +118,8 @@ def test_2021(func, expected_output):
         (_2022.day14.part2, 29805),
         (_2022.day15.part1, 5716881),
         # (_2022.day15.part2, 10852583132904), # way too slow
-        # (_2022.day16.part1, _),
-        # (_2022.day16.part2, _),
+        # (_2022.day16.part1, 2056),  # way too slow
+        # (_2022.day16.part2, 2513),  # way too slow
         (_2022.day17.part1, 3109),
         (_2022.day17.part2, 1541449275365),
         (_2022.day18.part1, 4628),
