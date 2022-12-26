@@ -36,6 +36,18 @@ class State(NamedTuple):
         return (self.node, self.release_rate, self.open_valves)
 
 
+class State2(NamedTuple):
+    description: str
+    nodes: tuple[str, str]  # left is you, right is elephant
+    release_rate: int
+    open_valves: tuple[str]
+    pressure_released: int
+
+    @property
+    def hash(self):
+        return (self.nodes, self.release_rate, self.open_valves)
+
+
 def parse_input(input: str) -> tuple[Adjacency, FlowRates]:
     rx = re.compile("Valve (\w+) has flow rate=(\d+); tunnels? leads? to valves? (.*)")
     adjacency = dict()
@@ -132,6 +144,56 @@ def get_next_states(
     return next_states
 
 
+def get_next_states_with_elephant(
+    current: State2,
+    adjacency: Adjacency,
+    flow_rates: FlowRates,
+    nonzero_nodes: set[str],
+) -> list[State2]:
+    human_state = State(
+        description="Temporary human state",
+        node=current.nodes[0],
+        release_rate=current.release_rate,
+        open_valves=current.open_valves,
+        pressure_released=current.pressure_released,
+    )
+    human_options = get_next_states(
+        current=human_state,
+        adjacency=adjacency,
+        flow_rates=flow_rates,
+        nonzero_nodes=nonzero_nodes,
+    )
+    elephant_state = State(
+        description="Temporary elephant state",
+        node=current.nodes[1],
+        release_rate=current.release_rate,
+        open_valves=current.open_valves,
+        pressure_released=current.pressure_released,
+    )
+    elephant_options = get_next_states(
+        current=elephant_state,
+        adjacency=adjacency,
+        flow_rates=flow_rates,
+        nonzero_nodes=nonzero_nodes,
+    )
+    new_states = []
+    for human_option in human_options:
+        for elephant_option in elephant_options:
+            open_valves = human_option.open_valves + tuple(
+                v for v in elephant_option.open_valves if v not in human_option.open_valves
+            )
+            release_rate = sum(flow_rates[v] for v in open_valves)
+            new_state = State2(
+                description=f"Human {human_option.description}; Elephant {elephant_option.description}",
+                nodes=(human_option.node, elephant_option.node),
+                pressure_released=current.pressure_released + current.release_rate,
+                release_rate=release_rate,
+                open_valves=open_valves,
+            )
+            new_states.append(new_state)
+    return new_states
+
+
 @utils.profile
 def part1():
     """
@@ -177,9 +239,48 @@ def part1():
 
 @utils.profile
 def part2():
-    ...
+    """
+    2502 too low
+    """
+    # input = example
+    input = utils.load_puzzle_input("2022/day16")
+    adjacency, flow_rates = parse_input(input)
+    nonzero_nodes = {node for node, flow in flow_rates.items() if flow > 0}
+    start = State2(
+        description="Initial state.",
+        nodes=("AA", "AA"),
+        release_rate=0,
+        open_valves=tuple(),
+        pressure_released=0,
+    )
+    visited = {start.hash: start}
+    frontier = {start}
+    for minute in range(26):
+        options = set()
+        for state in frontier:
+            for neighbouring_state in get_next_states_with_elephant(
+                state,
+                adjacency,
+                flow_rates,
+                nonzero_nodes,
+            ):
+                if (
+                    neighbouring_state.hash not in visited
+                    or "Waiting..." in neighbouring_state.description
+                ):
+                    options.add(neighbouring_state)
+            visited[state.hash] = state
+        frontier = options
+        frontier = sorted(frontier, key=lambda s: s.pressure_released, reverse=True)[:100000]
+        print(f"===== Minute {minute+1} =====")
+        print(f"{len(frontier)=}")
+        print("Top runs so far:")
+        top10 = frontier[:5]
+        for top in top10:
+            print(f"\t{top}")
+    return max(state.pressure_released for state in frontier)
 
 
 if __name__ == "__main__":
     assert part1() == 2056
-    part2()
+    assert part2() == 2513
