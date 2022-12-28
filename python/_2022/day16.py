@@ -240,7 +240,8 @@ def part1():
 @utils.profile
 def part2():
     """
-    2502 too low
+    todo:
+    halve the search space by not considering mirror options.
     """
     # input = example
     input = utils.load_puzzle_input("2022/day16")
