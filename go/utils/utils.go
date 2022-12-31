@@ -34,11 +34,11 @@ func LoadSolutions(year string) [][]string {
 	return output
 }
 
-func GetFuncName(f func() string) string {
+func GetFuncName[V string | int](f func() V) string {
 	return runtime.FuncForPC(reflect.ValueOf(f).Pointer()).Name()
 }
 
-func Profile(f func() string) string {
+func Profile[V string | int](f func() V) V {
 	t1 := time.Now()
 	result := f()
 	t2 := time.Now()
