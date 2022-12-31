@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"math"
 	"os"
 	"reflect"
 	"runtime"
@@ -51,14 +52,46 @@ func Profile(f func() string) string {
 	return result
 }
 
-func SpecialPrint(text string) {
-	fmt.Println(text)
-}
-
 func ParseInt(s string) int {
 	output, err := strconv.Atoi(s)
 	if err != nil {
 		panic(err)
 	}
 	return output
+}
+
+func Sum[V int | float64](arr []V) V {
+	var sum V
+	for _, item := range arr {
+		sum += item
+	}
+	return sum
+}
+
+func Max[V int | float64](arr []V) V {
+	if len(arr) == 0 {
+		panic("Can't do max of empty array")
+	}
+	max := math.Inf(-1)
+	for _, item := range arr {
+		floated := float64(item)
+		if floated > max {
+			max = floated
+		}
+	}
+	return V(max)
+}
+
+func Min[V int | float64](arr []V) V {
+	if len(arr) == 0 {
+		panic("Can't do min of empty array")
+	}
+	min := math.Inf(1)
+	for _, item := range arr {
+		floated := float64(item)
+		if floated < min {
+			min = floated
+		}
+	}
+	return V(min)
 }

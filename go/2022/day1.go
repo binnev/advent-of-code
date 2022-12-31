@@ -14,8 +14,7 @@ func getCalories() []int {
 	for _, elf := range elves {
 		elfCalories := 0
 		for _, s := range strings.Split(elf, "\n") {
-			c := utils.ParseInt(s)
-			elfCalories += c
+			elfCalories += utils.ParseInt(s)
 		}
 		calories = append(calories, elfCalories)
 	}
@@ -23,12 +22,7 @@ func getCalories() []int {
 }
 
 func Day1Part1() string {
-	maxCalories := 0
-	for _, calories := range getCalories() {
-		if calories > maxCalories {
-			maxCalories = calories
-		}
-	}
+	maxCalories := utils.Max(getCalories())
 	return fmt.Sprint(maxCalories)
 }
 
@@ -36,14 +30,9 @@ func Day1Part2() string {
 	calories := getCalories()
 	sort.Slice(
 		calories,
-		func(a, b int) bool {
-			return calories[a] > calories[b]
-		},
+		func(a, b int) bool { return calories[a] > calories[b] },
 	)
-	sum := 0
-	for ii := 0; ii < 3; ii++ {
-		sum += calories[ii]
-	}
+	sum := utils.Sum(calories[:3])
 	return fmt.Sprint(sum)
 }
 
