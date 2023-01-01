@@ -95,3 +95,12 @@ func Min[V int | float64](arr []V) V {
 	}
 	return V(min)
 }
+
+func Contains[V int | string](arr []V, value V) bool {
+	for _, item := range arr {
+		if item == value {
+			return true
+		}
+	}
+	return false
+}
