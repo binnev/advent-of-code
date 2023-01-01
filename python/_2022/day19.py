@@ -191,7 +191,7 @@ def improvise(blueprint: BluePrint) -> int:
     return resources[GEODE]
 
 
-def calculate_max_geodes(blueprint: BluePrint) -> int:
+def calculate_max_geodes(blueprint: BluePrint, minutes: int) -> int:
     limits = {
         material: max(costs.get(material, 0) for robot_type, costs in blueprint.items())
         for material in [ORE, CLAY, OBSIDIAN]
@@ -206,7 +206,8 @@ def calculate_max_geodes(blueprint: BluePrint) -> int:
 
     current = State(description="initial state")
     frontier = [current]
-    for minute in range(24):
+    for minute in range(minutes):
+        frontier = sorted(frontier, key=lambda x: x.resources[GEODE], reverse=True)[:10000]
         # print(f"===== minute {minute} =====")
         # print(f"{len(frontier)=}")
         max_geodes = max(state.resources[GEODE] for state in frontier)
@@ -271,20 +272,29 @@ def part1():
     # input = example
     input = utils.load_puzzle_input("2022/day19")
     blueprints = parse_input(input)
-    # =========================================
     result = 0
     for id, blueprint in blueprints.items():
-        print(f"blueprint {id}")
-        max_geodes = calculate_max_geodes(blueprint)
+        max_geodes = calculate_max_geodes(blueprint, 24)
+        print(f"blueprint {id} generates {max_geodes=}")
         result += max_geodes * id
     return result
 
 
 @utils.profile
 def part2():
-    ...
+    # input = example
+    input = utils.load_puzzle_input("2022/day19")
+    blueprints = parse_input(input)
+    result = 1
+    for id, blueprint in blueprints.items():
+        if id > 3:
+            break
+        max_geodes = calculate_max_geodes(blueprint, 32)
+        print(f"blueprint {id} generates {max_geodes=}")
+        result *= max_geodes
+    return result
 
 
 if __name__ == "__main__":
-    part1()
-    part2()
+    assert part1() == 1766
+    assert part2() == 30780
