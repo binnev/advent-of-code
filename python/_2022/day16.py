@@ -242,6 +242,7 @@ def part2():
     """
     todo:
     halve the search space by not considering mirror options.
+    represent open valves with one binary number: for valves ABCD, 0010 means valve C is open.
     """
     # input = example
     input = utils.load_puzzle_input("2022/day16")
