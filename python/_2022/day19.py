@@ -1,10 +1,10 @@
 import re
+from typing import NamedTuple
 
 from python import utils
 
 example = """Blueprint 1: Each ore robot costs 4 ore. Each clay robot costs 2 ore. Each obsidian robot costs 3 ore and 14 clay. Each geode robot costs 2 ore and 7 obsidian.
 Blueprint 2: Each ore robot costs 2 ore. Each clay robot costs 3 ore. Each obsidian robot costs 3 ore and 8 clay. Each geode robot costs 3 ore and 12 obsidian."""
-
 
 ORE = "ore"
 CLAY = "clay"
@@ -87,7 +87,7 @@ def execute_plan(build_queue: list[str], blueprint: BluePrint) -> int:
     required_resources = blueprint[next_robot_to_build]
     for ii in range(24):
         print("")
-        print(f"== Minute {ii+1} ==")
+        print(f"== Minute {ii + 1} ==")
 
         # build robots
         building_robot = False
@@ -149,7 +149,7 @@ def improvise(blueprint: BluePrint) -> int:
     resources: ResourceDict = {ORE: 0, CLAY: 0, OBSIDIAN: 0, GEODE: 0}
     for ii in range(24):
         print("")
-        print(f"== Minute {ii+1} ==")
+        print(f"== Minute {ii + 1} ==")
 
         # build robots
         robot_type = None
@@ -191,15 +191,93 @@ def improvise(blueprint: BluePrint) -> int:
     return resources[GEODE]
 
 
+def calculate_max_geodes(blueprint: BluePrint) -> int:
+    limits = {
+        material: max(costs.get(material, 0) for robot_type, costs in blueprint.items())
+        for material in [ORE, CLAY, OBSIDIAN]
+    }
+    limits[GEODE] = 999999
+
+    class State(NamedTuple):
+        description: str
+        # you start with 1 ore-collecting robot
+        income: ResourceDict = {ORE: 1, CLAY: 0, OBSIDIAN: 0, GEODE: 0}
+        resources: ResourceDict = {ORE: 0, CLAY: 0, OBSIDIAN: 0, GEODE: 0}
+
+    current = State(description="initial state")
+    frontier = [current]
+    for minute in range(24):
+        # print(f"===== minute {minute} =====")
+        # print(f"{len(frontier)=}")
+        max_geodes = max(state.resources[GEODE] for state in frontier)
+        max_obs = max(state.resources[OBSIDIAN] for state in frontier)
+        # print(f"{max_geodes=}")
+        # print(f"{max_obs=}")
+        neighbours = []
+        for state in frontier:
+            # building new robots
+            for material in [GEODE, OBSIDIAN, CLAY, ORE]:
+                need_more = state.income[material] < limits[material]
+                previous_resources = {
+                    mat: amount - state.income[mat] for mat, amount in state.resources.items()
+                }
+                recipe = blueprint[material]
+                coulda = have_resources(
+                    required=recipe,
+                    resources=previous_resources,
+                )
+                if (
+                    have_resources(
+                        required=recipe,
+                        resources=state.resources,
+                    )
+                    and need_more
+                    and not coulda
+                ):
+                    new_state = State(
+                        description=f"Build {material} robot",
+                        income=state.income.copy(),
+                        resources=state.resources.copy(),
+                    )
+                    # pay for the robot
+                    for resource, amount in recipe.items():
+                        new_state.resources[resource] -= amount
+                    # collect income
+                    for resource, amount in new_state.income.items():
+                        new_state.resources[resource] += amount
+                    # increase income thanks to new robot
+                    new_state.income[material] += 1
+                    neighbours.append(new_state)
+            # waiting and collecting income
+            new_state = State(
+                description=f"Wait...",
+                income=state.income.copy(),
+                resources=state.resources.copy(),
+            )
+            for resource, amount in new_state.income.items():
+                new_state.resources[resource] += amount
+            neighbours.append(new_state)
+
+        frontier = neighbours
+    max_geodes = max(state.resources[GEODE] for state in frontier)
+    return max_geodes
+
+
 @utils.profile
 def part1():
     """
     Which blueprint maximises the number of opened geodes after 24 minutes?
     """
-    input = example
+    # input = example
+    input = utils.load_puzzle_input("2022/day19")
     blueprints = parse_input(input)
-    num_opened = improvise(blueprints[1])
-    return num_opened
+    # =========================================
+    result = 0
+    for id, blueprint in blueprints.items():
+        print(f"blueprint {id}")
+        max_geodes = calculate_max_geodes(blueprint)
+        result += max_geodes * id
+    return result
 
 
 @utils.profile
