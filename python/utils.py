@@ -74,7 +74,7 @@ Coord = tuple[int, int]
 Coord3 = tuple[int, int, int]
 
 
-class SparseMatrix(dict[Coord, str]):
+class SparseMatrix(dict[Coord, str | int]):
     def get_xlim(self) -> tuple[int, int]:
         return get_sparse_matrix_xlim(self)
 

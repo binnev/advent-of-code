@@ -6,7 +6,7 @@ import numpy
 from matplotlib.axes import Axes
 
 from python import utils
-from python.utils import Coord
+from python.utils import Coord, SparseMatrix
 
 example = """Sabqponm
 abcryxxl
@@ -26,24 +26,22 @@ def get_height(char: str) -> int:
     return string.ascii_lowercase.index(char)
 
 
-def get_heightmap(input: str) -> (Map, Coord, Coord):
-    str_array = [list(line) for line in input.splitlines()]
-    height_array = [[get_height(char) for char in line] for line in str_array]
-    height_array = numpy.array(height_array)
-
+def get_heightmap(input: str) -> (SparseMatrix, Coord, Coord):
+    height_map = SparseMatrix()
     start, target = None, None
-    for row, line in enumerate(str_array):
-        for col, char in enumerate(line):
+    for y, line in enumerate(input.splitlines()):
+        for x, char in enumerate(line):
+            height_map[(x, y)] = get_height(char)
             if char == "S":
-                start = (col, row)
+                start = (x, y)
             if char == "E":
-                target = (col, row)
-    return height_array, start, target
+                target = (x, y)
+    return height_map, start, target
 
 
-def get_neighbours(map: Map, pos: Coord) -> list[Coord]:
+def get_neighbours(map: SparseMatrix, pos: Coord) -> list[Coord]:
     x, y = pos
-    height = map[y][x]
+    height = map[pos]
     potential_neighbours = [
         (x + 1, y),
         (x - 1, y),
@@ -51,28 +49,25 @@ def get_neighbours(map: Map, pos: Coord) -> list[Coord]:
         (x, y - 1),
     ]
     neighbours = []
-    for nx, ny in potential_neighbours:
-        if nx < 0 or ny < 0:
+    for n_pos in potential_neighbours:
+        if n_pos not in map:
             continue
-        try:
-            neighbour_height = map[ny][nx]
-            if neighbour_height > height:
-                if abs(neighbour_height - height) < 2:
-                    neighbours.append((nx, ny))
-            else:  # lower neighbours always OK
-                neighbours.append((nx, ny))
-        except IndexError:
-            continue  # outside map
+        neighbour_height = map[n_pos]
+        if neighbour_height > height:
+            if abs(neighbour_height - height) < 2:
+                neighbours.append(n_pos)
+        else:  # lower neighbours always OK
+            neighbours.append(n_pos)
     return neighbours
 
 
-def get_neighbours_reversed(map: Map, pos: Coord) -> list[Coord]:
+def get_neighbours_reversed(map: SparseMatrix, pos: Coord) -> list[Coord]:
     """
     Get neighbours following the same rules, but when travelling downwards instead of upwards
     """
 
     x, y = pos
-    height = map[y][x]
+    height = map[pos]
     potential_neighbours = [
         (x + 1, y),
         (x - 1, y),
@@ -80,40 +75,19 @@ def get_neighbours_reversed(map: Map, pos: Coord) -> list[Coord]:
         (x, y - 1),
     ]
     neighbours = []
-    for nx, ny in potential_neighbours:
-        if nx < 0 or ny < 0:
+    for n_pos in potential_neighbours:
+        if n_pos not in map:
             continue
-        try:
-            neighbour_height = map[ny][nx]
-            if neighbour_height < height:
-                if abs(neighbour_height - height) < 2:
-                    neighbours.append((nx, ny))
-            else:  # lower neighbours always OK
-                neighbours.append((nx, ny))
-        except IndexError:
-            continue  # outside map
+        neighbour_height = map[n_pos]
+        if neighbour_height < height:
+            if abs(neighbour_height - height) < 2:
+                neighbours.append(n_pos)
+        else:  # lower neighbours always OK
+            neighbours.append(n_pos)
     return neighbours
 
 
-def bfs(map: Map, start: Coord, get_neighbours_func: Callable) -> dict[Coord:int]:
-    """
-    PLAN:
-    - convert the map to a graph (create links between every node if the height diff < 2)
-    - run Dijkstra
-        - iteration 1
-        - pick starting node. Find the distance to all its neighbours
-        - update those neighbour nodes with their distance from starting pt
-        - move starting node into the "visited" array
-
-        - iteration 2
-        - pick new node -- the one with the smallest distance from the start
-        - etc
-
-
-        We will end up with an array of distances for each node.
-        But what about the path? All we need is the distance.
-    """
-
+def bfs(grid: SparseMatrix, start: Coord, get_neighbours_func: Callable) -> dict[Coord:int]:
     visited = set()
     frontier = [start]
     distances = {start: 0}
@@ -121,7 +95,7 @@ def bfs(map: Map, start: Coord, get_neighbours_func: Callable) -> dict[Coord:int
     while True:
         neighbours = set()  # new frontier
         for node in frontier:
-            for neighbour in get_neighbours_func(map, node):
+            for neighbour in get_neighbours_func(grid, node):
                 if neighbour not in visited:
                     neighbours.add(neighbour)
 
@@ -139,26 +113,27 @@ def bfs(map: Map, start: Coord, get_neighbours_func: Callable) -> dict[Coord:int
     return distances
 
 
-def plot_map(map: Map):
+def plot_grid(grid: SparseMatrix):
     import matplotlib.pyplot as plt
 
+    xmin, xmax = grid.get_xlim()
+    ymin, ymax = grid.get_ylim()
+    width = xmax - xmin + 1
+    height = ymax - ymin + 1
+    arr = numpy.zeros((height, width))
+    for (x, y), value in grid.items():
+        arr[y][x] = value
     fig, ax = plt.subplots()
-    ax: Axes
-    ax.imshow(map)
+    ax.imshow(arr)
     plt.show()
 
 
 @utils.profile
 def part1():
     input = utils.load_puzzle_input("2022/day12")
-    map, start, target = get_heightmap(input)
-    distances = bfs(map, start=start, get_neighbours_func=get_neighbours)
-    # plot_map(map)
-    # distances_img = numpy.ones(map.shape) * math.inf
-    # for (x, y), dist in distances.items():
-    #     distances_img[y][x] = dist
-    #
-    # plot_map(distances_img)
+    grid, start, target = get_heightmap(input)
+    distances = bfs(grid, start=start, get_neighbours_func=get_neighbours)
+    plot_grid(SparseMatrix(distances))
     return distances[target]
 
 
@@ -173,10 +148,9 @@ def part2():
     distances = bfs(map, start=target, get_neighbours_func=get_neighbours_reversed)
 
     low_points = []
-    for y, row in enumerate(map):
-        for x, height in enumerate(row):
-            if height == 0:
-                low_points.append((x, y))
+    for (x, y), height in map.items():
+        if height == 0:
+            low_points.append((x, y))
 
     results = []
     for pt in low_points:
