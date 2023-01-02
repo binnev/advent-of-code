@@ -149,9 +149,9 @@ def part2():
     distances = bfs(map, start=target, get_neighbours_func=get_neighbours_reversed)
 
     low_points = []
-    for (x, y), height in map.items():
+    for coord, height in map.items():
         if height == 0:
-            low_points.append((x, y))
+            low_points.append(coord)
 
     results = []
     for pt in low_points:

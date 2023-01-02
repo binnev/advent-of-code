@@ -2,8 +2,9 @@ package main
 
 import (
 	_2022 "advent/2022"
+	"advent/utils"
 )
 
 func main() {
-	_2022.Day12Part1()
+	utils.Profile(_2022.Day12Part2)
 }

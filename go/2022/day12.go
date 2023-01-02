@@ -15,7 +15,7 @@ func getHeight(char rune) int {
 	if char == 'E' {
 		char = 'z'
 	}
-	return int(char) - 97 + 1
+	return int(char) - 97
 }
 
 func getHeightMap(input string) (HeightMap, Coord, Coord) {
@@ -52,6 +52,31 @@ func getNeighbours(heightMap HeightMap, pos Coord) []Coord {
 			continue
 		}
 		if neighbourHeight > height {
+			if abs(neighbourHeight-height) < 2 {
+				neighbours = append(neighbours, neighbour)
+			}
+		} else {
+			neighbours = append(neighbours, neighbour)
+		}
+	}
+	return neighbours
+}
+func getNeighboursReversed(heightMap HeightMap, pos Coord) []Coord {
+	x, y := pos[0], pos[1]
+	height := heightMap[pos]
+	candidates := []Coord{
+		{x + 1, y},
+		{x - 1, y},
+		{x, y + 1},
+		{x, y - 1},
+	}
+	var neighbours []Coord
+	for _, neighbour := range candidates {
+		neighbourHeight, ok := heightMap[neighbour]
+		if !ok {
+			continue
+		}
+		if neighbourHeight < height {
 			if abs(neighbourHeight-height) < 2 {
 				neighbours = append(neighbours, neighbour)
 			}
@@ -105,4 +130,24 @@ func Day12Part1() string {
 	heightMap, start, target := getHeightMap(input)
 	distances := BFS(heightMap, start, getNeighbours)
 	return fmt.Sprint(distances[target])
+}
+
+func Day12Part2() string {
+	input := utils.LoadPuzzleInput("2022/day12")
+	HeightMap, _, target := getHeightMap(input)
+	distances := BFS(HeightMap, target, getNeighboursReversed)
+	lowPoints := []Coord{}
+	for coord, height := range HeightMap {
+		if height == 0 {
+			lowPoints = append(lowPoints, coord)
+		}
+	}
+	results := []int{}
+	for _, point := range lowPoints {
+		dist, ok := distances[point]
+		if ok {
+			results = append(results, dist)
+		}
+	}
+	return fmt.Sprint(utils.Min(results))
 }
