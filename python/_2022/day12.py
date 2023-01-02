@@ -39,9 +39,9 @@ def get_heightmap(input: str) -> (SparseMatrix, Coord, Coord):
     return height_map, start, target
 
 
-def get_neighbours(map: SparseMatrix, pos: Coord) -> list[Coord]:
+def get_neighbours(grid: SparseMatrix, pos: Coord, reverse: bool) -> list[Coord]:
     x, y = pos
-    height = map[pos]
+    height = grid[pos]
     potential_neighbours = [
         (x + 1, y),
         (x - 1, y),
@@ -50,41 +50,26 @@ def get_neighbours(map: SparseMatrix, pos: Coord) -> list[Coord]:
     ]
     neighbours = []
     for n_pos in potential_neighbours:
-        if n_pos not in map:
+        if n_pos not in grid:
             continue
-        neighbour_height = map[n_pos]
-        if neighbour_height > height:
+        neighbour_height = grid[n_pos]
+        condition = neighbour_height > height
+        if reverse:
+            condition = neighbour_height < height
+        if condition:
             if abs(neighbour_height - height) < 2:
                 neighbours.append(n_pos)
-        else:  # lower neighbours always OK
+        else:
             neighbours.append(n_pos)
     return neighbours
 
 
-def get_neighbours_reversed(map: SparseMatrix, pos: Coord) -> list[Coord]:
-    """
-    Get neighbours following the same rules, but when travelling downwards instead of upwards
-    """
+def get_neighbours_uphill(grid: SparseMatrix, pos: Coord) -> list[Coord]:
+    return get_neighbours(grid, pos, reverse=False)
 
-    x, y = pos
-    height = map[pos]
-    potential_neighbours = [
-        (x + 1, y),
-        (x - 1, y),
-        (x, y + 1),
-        (x, y - 1),
-    ]
-    neighbours = []
-    for n_pos in potential_neighbours:
-        if n_pos not in map:
-            continue
-        neighbour_height = map[n_pos]
-        if neighbour_height < height:
-            if abs(neighbour_height - height) < 2:
-                neighbours.append(n_pos)
-        else:  # lower neighbours always OK
-            neighbours.append(n_pos)
-    return neighbours
+
+def get_neighbours_downhill(grid: SparseMatrix, pos: Coord) -> list[Coord]:
+    return get_neighbours(grid, pos, reverse=True)
 
 
 def bfs(grid: SparseMatrix, start: Coord, get_neighbours_func: Callable) -> SparseMatrix:
@@ -133,7 +118,7 @@ def plot_grid(grid: SparseMatrix):
 def part1():
     input = utils.load_puzzle_input("2022/day12")
     grid, start, target = get_heightmap(input)
-    distances = bfs(grid, start=start, get_neighbours_func=get_neighbours)
+    distances = bfs(grid, start=start, get_neighbours_func=get_neighbours_uphill)
     # plot_grid(SparseMatrix(distances))
     return distances[target]
 
@@ -146,7 +131,7 @@ def part2():
     """
     input = utils.load_puzzle_input("2022/day12")
     map, _, target = get_heightmap(input)
-    distances = bfs(map, start=target, get_neighbours_func=get_neighbours_reversed)
+    distances = bfs(map, start=target, get_neighbours_func=get_neighbours_downhill)
 
     low_points = []
     for coord, height in map.items():
