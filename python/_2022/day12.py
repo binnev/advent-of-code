@@ -87,10 +87,11 @@ def get_neighbours_reversed(map: SparseMatrix, pos: Coord) -> list[Coord]:
     return neighbours
 
 
-def bfs(grid: SparseMatrix, start: Coord, get_neighbours_func: Callable) -> dict[Coord:int]:
+def bfs(grid: SparseMatrix, start: Coord, get_neighbours_func: Callable) -> SparseMatrix:
     visited = set()
     frontier = [start]
-    distances = {start: 0}
+    distances = SparseMatrix()
+    distances[start] = 0
     neighbour_dist = 1
     while True:
         neighbours = set()  # new frontier
@@ -133,7 +134,7 @@ def part1():
     input = utils.load_puzzle_input("2022/day12")
     grid, start, target = get_heightmap(input)
     distances = bfs(grid, start=start, get_neighbours_func=get_neighbours)
-    plot_grid(SparseMatrix(distances))
+    # plot_grid(SparseMatrix(distances))
     return distances[target]
 
 
