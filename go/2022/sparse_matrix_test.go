@@ -9,9 +9,9 @@ import (
 
 func TestSparseMatrixLimits(t *testing.T) {
 	grid := SparseMatrix{
-		Coord{69, 420}:  rune("#"[0]),
-		Coord{666, 888}: rune("#"[0]),
-		Coord{777, 999}: rune("#"[0]),
+		Coord{69, 420}:  '#',
+		Coord{666, 888}: '#',
+		Coord{777, 999}: '#',
 	}
 	min, max := grid.Xlim()
 	assert.Equal(t, min, 69)
