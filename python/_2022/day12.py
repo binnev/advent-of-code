@@ -26,7 +26,7 @@ def get_height(char: str) -> int:
     return string.ascii_lowercase.index(char)
 
 
-def get_heightmap(input: str) -> (SparseMatrix, Coord, Coord):
+def get_heightmap(input: str) -> tuple[SparseMatrix, Coord, Coord]:
     height_map = SparseMatrix()
     start, target = None, None
     for y, line in enumerate(input.splitlines()):
