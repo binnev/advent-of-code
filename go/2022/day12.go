@@ -98,7 +98,7 @@ func BFS(
 	neighbourDist := 1
 	for {
 		neighbours := map[Coord]bool{}
-		for node, _ := range frontier {
+		for node := range frontier {
 			for _, neighbour := range getNeighboursFunc(grid, node) {
 				if !visited[neighbour] {
 					neighbours[neighbour] = true
@@ -108,7 +108,7 @@ func BFS(
 		if len(neighbours) == 0 {
 			break // explored whole map
 		}
-		for n, _ := range neighbours {
+		for n := range neighbours {
 			dist, ok := distances[n]
 			if !ok {
 				dist = 9999
@@ -116,7 +116,7 @@ func BFS(
 			dist = utils.Min([]int{dist, neighbourDist})
 			distances[n] = dist
 		}
-		for node, _ := range frontier {
+		for node := range frontier {
 			visited[node] = true
 		}
 		frontier = neighbours // wrong type

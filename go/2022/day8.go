@@ -91,7 +91,7 @@ func Day8Part1() string {
 	grid := parseTreeGrid(input)
 	count := 0
 	for y, row := range grid {
-		for x, _ := range row {
+		for x := range row {
 			if isVisibleFromEdge(x, y, grid) {
 				count += 1
 			}
@@ -106,7 +106,7 @@ func Day8Part2() string {
 	grid := parseTreeGrid(input)
 	maxScore := 0
 	for y, row := range grid {
-		for x, _ := range row {
+		for x := range row {
 			score := scenicScore(x, y, grid)
 			if score > maxScore {
 				maxScore = score

@@ -86,7 +86,7 @@ func Day9Part2() string {
 		amount := utils.ParseInt(fields[1])
 		for ii := 0; ii < amount; ii++ {
 			snake[0] = moveHead(snake[0], direction)
-			for ii, _ := range snake[1:] {
+			for ii := range snake[1:] {
 				snake[ii+1] = moveTail(snake[ii], snake[ii+1])
 			}
 			tailHistory[snake[len(snake)-1]] = 1

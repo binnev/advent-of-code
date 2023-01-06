@@ -52,7 +52,6 @@ func parseOperation(operationStr string) Operation {
 	} else {
 		panic(fmt.Sprintf("Help! Couldn't find any match for: '%v'", operationStr))
 	}
-	return Operation{}
 }
 
 func parseMonkey(monkeyStr string) Monkey {
