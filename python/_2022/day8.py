@@ -12,7 +12,8 @@ def parse_input(input: str) -> np.ndarray:
     return np.array([list(map(int, line)) for line in input.split("\n")])
 
 
-def is_visible_in_row(x: int, row: np.ndarray) -> bool:
+def is_visible_1d(x: int, row: np.ndarray) -> bool:
+    """Is the tree visible in a 1D row of trees"""
     height = row[x]
     left = row[:x]
     right = row[x + 1 :]
@@ -22,10 +23,11 @@ def is_visible_in_row(x: int, row: np.ndarray) -> bool:
     return result
 
 
-def is_visible_from_edge(x: int, y: int, grid: np.ndarray) -> bool:
+def is_visible_2d(x: int, y: int, grid: np.ndarray) -> bool:
+    """Is the tree visible in a 2D grid of trees"""
     row = grid[y, :]
     col = grid[:, x]
-    return is_visible_in_row(x, row) or is_visible_in_row(y, col)
+    return is_visible_1d(x, row) or is_visible_1d(y, col)
 
 
 def scenic_score_row(x: int, row: list[int]) -> int:
@@ -59,7 +61,7 @@ def part1() -> int:
     count = 0
     for y, row in enumerate(grid):
         for x, _ in enumerate(row):
-            if is_visible_from_edge(x=x, y=y, grid=grid):
+            if is_visible_2d(x=x, y=y, grid=grid):
                 count += 1
     return count
 

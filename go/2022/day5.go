@@ -36,21 +36,19 @@ func parseState(stateStr string) Columns {
 }
 
 func parseInstructions(instructionsStr string) []Instruction {
-	instructions := []Instruction{}
-	rx, err := regexp.Compile(`move (\d+) from (\d+) to (\d+)`)
-	if err != nil {
-		panic(err)
-	}
-	for _, line := range strings.Split(instructionsStr, "\n") {
+	instructionLines := strings.Split(instructionsStr, "\n")
+	instructions := make([]Instruction, len(instructionLines))
+	rx := regexp.MustCompile(`move (\d+) from (\d+) to (\d+)`)
+	for ii, line := range instructionLines {
 		match := rx.FindStringSubmatch(line)
 		amount := utils.ParseInt(match[1])
 		orig := utils.ParseInt(match[2])
 		dest := utils.ParseInt(match[3])
-		instructions = append(instructions, Instruction{
+		instructions[ii] = Instruction{
 			amount: amount,
 			orig:   orig,
 			dest:   dest,
-		})
+		}
 	}
 	return instructions
 }

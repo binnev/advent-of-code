@@ -61,9 +61,8 @@ func parseMonkey(monkeyStr string) Monkey {
 	id := utils.ParseInt(match[1])
 	itemsStr := match[2]
 	items := []int{}
-	for _, iStr := range strings.Split(itemsStr, ", ") {
-		item := utils.ParseInt(iStr)
-		items = append(items, item)
+	for _, item := range strings.Split(itemsStr, ", ") {
+		items = append(items, utils.ParseInt(item))
 	}
 	operationStr := match[3]
 	divisor := utils.ParseInt(match[4])
@@ -102,11 +101,9 @@ func monkeyThrow(monkeyId int, item int, others MonkeyBunch, decreaseWorry func(
 		item += number
 	}
 	item = decreaseWorry(item)
-	otherId := -1
+	otherId := monkey.ifFalse
 	if item%monkey.divisor == 0 {
 		otherId = monkey.ifTrue
-	} else {
-		otherId = monkey.ifFalse
 	}
 	others[otherId].inventory = append(others[otherId].inventory, item)
 	monkey.count++

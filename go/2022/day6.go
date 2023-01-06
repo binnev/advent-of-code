@@ -8,9 +8,9 @@ import (
 func findMarker(input string, length int) int {
 	for xpos := length; xpos < len(input); xpos++ {
 		snippet := input[xpos-length : xpos]
-		unique := map[rune]int{}
+		unique := map[rune]bool{}
 		for _, char := range snippet {
-			unique[char] = 0
+			unique[char] = true
 		}
 		if len(unique) == length {
 			return xpos

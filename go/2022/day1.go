@@ -10,13 +10,13 @@ import (
 func getCalories() []int {
 	data := utils.LoadPuzzleInput("2022/day1")
 	elves := strings.Split(data, "\n\n")
-	calories := []int{}
-	for _, elf := range elves {
+	calories := make([]int, len(elves))
+	for ii, elf := range elves {
 		elfCalories := 0
 		for _, s := range strings.Split(elf, "\n") {
 			elfCalories += utils.ParseInt(s)
 		}
-		calories = append(calories, elfCalories)
+		calories[ii] = elfCalories
 	}
 	return calories
 }

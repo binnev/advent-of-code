@@ -79,11 +79,11 @@ func Day7Part1() string {
 func Day7Part2() string {
 	input := utils.LoadPuzzleInput("2022/day7")
 	contents := exploreFolders(input)
-	const TotalSpace = 70000000
-	const RequiredSpace = 30000000
+	totalSpace := 70000000
+	requiredSpace := 30000000
 	occupiedSpace := getFolderSize(contents, "/")
-	unusedSpace := TotalSpace - occupiedSpace
-	needToDelete := RequiredSpace - unusedSpace
+	unusedSpace := totalSpace - occupiedSpace
+	needToDelete := requiredSpace - unusedSpace
 
 	allSizes := []int{}
 	for path, size := range contents {

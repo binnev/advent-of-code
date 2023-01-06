@@ -9,10 +9,10 @@ import (
 type ElfRange [2]int
 type Elves [2]ElfRange
 
-func parseElfRanges() [1000]Elves {
-	// declaring a fixed-length typed array in advance like a big boy :')
+func parseElfRanges() []Elves {
 	input := utils.LoadPuzzleInput("2022/day4")
-	elves := [1000]Elves{}
+	lines := strings.Split(input, "\n")
+	elves := make([]Elves, len(lines))
 	for rr, row := range strings.Split(input, "\n") {
 		for ee, elf := range strings.Split(row, ",") {
 			for ll, limit := range strings.Split(elf, "-") {

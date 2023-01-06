@@ -6,9 +6,11 @@ import (
 	"strings"
 )
 
-const FALLING = 0
-const RESTING = 1
-const DESTROYED = 2
+const (
+	FALLING   = 0
+	RESTING   = 1
+	DESTROYED = 2
+)
 
 func drawLine(start, end Coord, grid SparseMatrix) {
 	startX, startY := start[0], start[1]

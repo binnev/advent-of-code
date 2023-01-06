@@ -21,27 +21,6 @@ func parseTreeGrid(input string) TreeGrid {
 	return grid
 }
 
-func isVisibleInRow(x int, row []int) bool {
-	height := row[x]
-	left := row[:x]
-	right := row[x+1:]
-	leftVisible := true
-	rightVisible := true
-	for _, tree := range left {
-		if tree >= height {
-			leftVisible = false
-			break
-		}
-	}
-	for _, tree := range right {
-		if tree >= height {
-			rightVisible = false
-			break
-		}
-	}
-	return leftVisible || rightVisible
-}
-
 func getCol(x int, grid TreeGrid) []int {
 	col := []int{}
 	for _, row := range grid {
@@ -50,13 +29,34 @@ func getCol(x int, grid TreeGrid) []int {
 	return col
 }
 
-func isVisibleFromEdge(x int, y int, grid TreeGrid) bool {
-	col := getCol(x, grid)
-	row := grid[y]
-	return isVisibleInRow(x, row) || isVisibleInRow(y, col)
+// Is the tree visible in a 1D array of trees
+func isVisible1D(x int, row []int) bool {
+	height := row[x]
+	left := row[:x]
+	right := row[x+1:]
+	for _, side := range [][]int{left, right} {
+		visible := true
+		for _, tree := range side {
+			if tree >= height {
+				visible = false
+				break
+			}
+		}
+		if visible {
+			return true
+		}
+	}
+	return false
 }
 
-func scenicScoreRow(x int, row []int) int {
+// Is the tree visible in a 2D array of trees
+func isVisible2D(x int, y int, grid TreeGrid) bool {
+	col := getCol(x, grid)
+	row := grid[y]
+	return isVisible1D(x, row) || isVisible1D(y, col)
+}
+
+func scenicScore1D(x int, row []int) int {
 	height := row[x]
 	left := row[:x]
 	right := row[x+1:]
@@ -77,22 +77,21 @@ func scenicScoreRow(x int, row []int) int {
 	return lScore * rScore
 }
 
-func scenicScore(x, y int, grid TreeGrid) int {
+func scenicScore2D(x, y int, grid TreeGrid) int {
 	col := getCol(x, grid)
 	row := grid[y]
-	rowScore := scenicScoreRow(x, row)
-	colScore := scenicScoreRow(y, col)
+	rowScore := scenicScore1D(x, row)
+	colScore := scenicScore1D(y, col)
 	return rowScore * colScore
 }
 
 func Day8Part1() string {
-	// input := example
 	input := utils.LoadPuzzleInput("2022/day8")
 	grid := parseTreeGrid(input)
 	count := 0
 	for y, row := range grid {
 		for x := range row {
-			if isVisibleFromEdge(x, y, grid) {
+			if isVisible2D(x, y, grid) {
 				count += 1
 			}
 		}
@@ -101,13 +100,12 @@ func Day8Part1() string {
 }
 
 func Day8Part2() string {
-	// input := example
 	input := utils.LoadPuzzleInput("2022/day8")
 	grid := parseTreeGrid(input)
 	maxScore := 0
 	for y, row := range grid {
 		for x := range row {
-			score := scenicScore(x, y, grid)
+			score := scenicScore2D(x, y, grid)
 			if score > maxScore {
 				maxScore = score
 			}

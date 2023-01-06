@@ -24,12 +24,12 @@ func loadRPSMoves() [][2]int {
 	}
 	input := utils.LoadPuzzleInput("2022/day2")
 	lines := strings.Split(input, "\n")
-	output := [][2]int{}
-	for _, line := range lines {
+	output := make([][2]int, len(lines))
+	for ii, line := range lines {
 		chars := strings.Split(line, "")
 		l := chars[0]
 		r := chars[2]
-		output = append(output, [2]int{mapping[string(l)], mapping[string(r)]})
+		output[ii] = [2]int{mapping[string(l)], mapping[string(r)]}
 	}
 	return output
 }

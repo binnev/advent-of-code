@@ -6,8 +6,10 @@ import (
 	"strings"
 )
 
-const LAVA = '░'
-const STEAM = 's'
+const (
+	LAVA  = '░'
+	STEAM = 's'
+)
 
 func parseSensors(input string) {
 	sensorRx := regexp.MustCompile(`Sensor at x=(\d+), y=(\d+): closest beacon is at x=(\d+), y=(\d+)`)

@@ -23,15 +23,16 @@ func abs(x int) int {
 }
 
 func moveHead(head Coord, direction string) Coord {
+	x, y := head[0], head[1]
 	switch direction {
 	case "R":
-		return Coord{head[0] + 1, head[1]}
+		return Coord{x + 1, y}
 	case "L":
-		return Coord{head[0] - 1, head[1]}
+		return Coord{x - 1, y}
 	case "U":
-		return Coord{head[0], head[1] - 1}
+		return Coord{x, y - 1}
 	case "D":
-		return Coord{head[0], head[1] + 1}
+		return Coord{x, y + 1}
 	default:
 		panic(fmt.Sprintf("Unrecognised direction: %v", direction))
 	}
@@ -50,7 +51,6 @@ func moveTail(head, tail Coord) Coord {
 			newX = tail[0] + sign(dx)
 		}
 		return Coord{newX, newY}
-
 	} else {
 		return tail
 	}
@@ -58,9 +58,9 @@ func moveTail(head, tail Coord) Coord {
 
 func Day9Part1() string {
 	input := utils.LoadPuzzleInput("2022/day9")
-	head := Coord{} // passing no values results in zero value default
+	head := Coord{}
 	tail := Coord{}
-	tailHistory := map[Coord]int{tail: 1}
+	tailHistory := map[Coord]bool{tail: true}
 	for _, line := range strings.Split(input, "\n") {
 		fields := strings.Fields(line)
 		direction := fields[0]
@@ -68,18 +68,17 @@ func Day9Part1() string {
 		for ii := 0; ii < amount; ii++ {
 			head = moveHead(head, direction)
 			tail = moveTail(head, tail)
-			tailHistory[tail] = 1
+			tailHistory[tail] = true
 		}
-
 	}
 	return fmt.Sprint(len(tailHistory))
 }
 
 func Day9Part2() string {
 	input := utils.LoadPuzzleInput("2022/day9")
-	snake := [10]Coord{} // default values FTW!!
+	snake := [10]Coord{}
 	tail := snake[len(snake)-1]
-	tailHistory := map[Coord]int{tail: 1}
+	tailHistory := map[Coord]bool{tail: true}
 	for _, line := range strings.Split(input, "\n") {
 		fields := strings.Fields(line)
 		direction := fields[0]
@@ -89,7 +88,7 @@ func Day9Part2() string {
 			for ii := range snake[1:] {
 				snake[ii+1] = moveTail(snake[ii], snake[ii+1])
 			}
-			tailHistory[snake[len(snake)-1]] = 1
+			tailHistory[snake[len(snake)-1]] = true
 		}
 	}
 	return fmt.Sprint(len(tailHistory))
