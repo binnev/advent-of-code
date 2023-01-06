@@ -39,8 +39,7 @@ def get_list(string: str, start: int) -> tuple[str, int]:
     depth = 1
     ii = start + 1
     while depth:
-        char = string[ii]
-        match char:
+        match string[ii]:
             case "[":
                 depth += 1
             case "]":
@@ -80,48 +79,32 @@ def get_values(string: str) -> list[str]:
 
 def are_packets_ordered(left: str, right: str, depth=0) -> bool | None:
     indent = "\t" * depth
-    # print(f"{indent}Compare {left} vs {right}")
 
     # both ints
     if left.isnumeric() and right.isnumeric():
         if int(left) < int(right):
-            # print(f"{indent}\tLeft side is smaller, so inputs are in the right order")
             return True
         if int(left) == int(right):
             return None
         else:
-            # print(f"{indent}\tRight side is smaller, so inputs are not in the right order")
             return False  # right integer is larger
 
     # mixed types
     if left.isnumeric() and not right.isnumeric():
-        converted = f"[{left}]"
-        # print(f"{indent}\tMixed types; convert left to {converted} and retry comparison")
-        return are_packets_ordered(converted, right, depth + 1)
+        return are_packets_ordered(f"[{left}]", right, depth + 1)
     if right.isnumeric() and not left.isnumeric():
-        converted = f"[{right}]"
-        # print(f"{indent}\tMixed types; convert right to {converted} and retry comparison")
-        return are_packets_ordered(left, converted, depth + 1)
+        return are_packets_ordered(left, f"[{right}]", depth + 1)
 
     # both list
     left_values = get_values(left)
     right_values = get_values(right)
-    left_len = len(left_values)
-    right_len = len(right_values)
-    left_shorter = None if left_len == right_len else left_len < right_len
+    left_shorter = None if len(left) == len(right) else len(left) < len(right)
     while True:
         try:
             left_value = left_values.pop(0)
             right_value = right_values.pop(0)
         except IndexError:
-            if left_shorter is True:
-                # print(f"{indent}\tLeft side ran out of items, so inputs are in the right order")
-                return left_shorter
-            elif left_shorter is None:
-                return left_shorter
-            else:
-                # print(f"{indent}\tRight side ran out of items, so inputs are not in the right order")
-                return left_shorter
+            return left_shorter
         result = are_packets_ordered(left_value, right_value, depth + 1)
         if result is None:
             continue
@@ -131,7 +114,6 @@ def are_packets_ordered(left: str, right: str, depth=0) -> bool | None:
 
 @utils.profile
 def part1():
-    # input = example
     input = utils.load_puzzle_input("2022/day13")
     packets = parse_input(input)
     score = 0
