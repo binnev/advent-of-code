@@ -152,72 +152,46 @@ noop
 noop"""
 
 
+def iterate_beam(tasks: list[int], code: list[str]) -> int:
+    if tasks:
+        amount = tasks.pop()
+        return amount
+    else:
+        line = code.pop(0)
+        match line.split():
+            case ["noop"]:
+                pass
+            case ["addx", amount]:
+                tasks.append(int(amount))
+        return 0
+
+
 @utils.profile
 def part1():
-
     input = utils.load_puzzle_input("2022/day10")
     code = input.split("\n")
-    tasks = []
+    tasks = list[int]()
     x = 1
-    cycle = 0
     signal_strength = 0
-    while code or tasks:
-        cycle += 1
+    for cycle in range(1, 221):
         if cycle in [20, 60, 100, 140, 180, 220]:
             signal_strength += cycle * x
-        if tasks:
-            _, amount = tasks.pop()
-            x += amount
-        else:
-            line = code.pop(0)
-            match line.split():
-                case ["noop"]:
-                    pass
-                case ["addx", amount]:
-                    tasks.append(["addx", int(amount)])
+        x += iterate_beam(tasks, code)
     return signal_strength
-
-
-def print_sprite(x):
-    sprite_str = ["."] * 41
-    try:
-        sprite_str[x] = sprite_str[x - 1] = sprite_str[x + 1] = "#"
-    except IndexError:
-        print(x)
-    sprite_str = "".join(sprite_str)
-    print(f"Sprite position: {sprite_str}")
 
 
 @utils.profile
 def part2():
     input = utils.load_puzzle_input("2022/day10")
-    # input = larger_example
     code = input.split("\n")
-    tasks = []
+    tasks = list[int]()
     x = 1
     current_row = 0
-    print_sprite(x)
-    print("")
     crt_row = []
     crt_rows = []
-    for cycle in range(1, 241):
-        do_tasks = bool(tasks)
-        if not do_tasks:
-            line = code.pop(0)
-            match line.split():
-                case ["noop"]:
-                    pass
-                case ["addx", amount]:
-                    print(f"Start cycle {cycle:>3}: begin executing addx {amount}")
-                    tasks.append(["addx", int(amount)])
-
-        row, h = divmod(cycle - 1, 40)
-        print(f"During cycle {cycle:>2}: CRT draws pixel in position {h}")
-        # h is the horizontal position of the current pixel being drawn
-        if h in [x - 1, x, x + 1]:
-            pixel = "#"
-        else:
-            pixel = " "
+    for cycle in range(0, 240):
+        row, pixel_x = divmod(cycle, 40)
+        pixel = "#" if x-1 <= pixel_x <= x + 1 else " "
         if row > current_row:
             current_row = row
             crt_rows.append(crt_row)
@@ -225,18 +199,7 @@ def part2():
         else:
             pass
         crt_row.append(pixel)
-        print(f"Current CRT row: {''.join(crt_row)}")
-
-        if do_tasks:
-            _, amount = tasks.pop()
-            x += amount
-            print(
-                f"End of cycle {cycle:>2}: finish executing addx {amount} (Register X is now {x})"
-            )
-            print_sprite(x)
-
-        print("")
-
+        x += iterate_beam(tasks, code)
     crt_rows.append(crt_row)
     return r"\n".join("".join(row) for row in crt_rows)
 
