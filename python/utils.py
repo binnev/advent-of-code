@@ -82,7 +82,10 @@ class SparseMatrix(dict[Coord, str | int]):
         return get_sparse_matrix_ylim(self)
 
     def print(self, flip_y=False, pad=0, empty_char="."):
-        print_sparse_matrix(self, flip_y=flip_y, pad=pad, empty_char=empty_char)
+        print_sparse_matrix(self, flip_y, pad, empty_char)
+
+    def to_str(self, flip_y=False, pad=0, empty_char="."):
+        return sparse_matrix_string(self, flip_y, pad, empty_char)
 
 
 class SparseMatrix3(dict[Coord3, str]):
@@ -134,7 +137,7 @@ def get_sparse_matrix_zlim(grid: SparseMatrix | SparseMatrix3) -> tuple[int, int
     return min(pt[2] for pt in grid), max(pt[2] for pt in grid)
 
 
-def print_sparse_matrix(grid: SparseMatrix, flip_y=False, pad=0, empty_char="."):
+def sparse_matrix_string(grid: SparseMatrix, flip_y=False, pad=0, empty_char="."):
     min_x = max_x = min_y = max_y = 0
     if grid:
         min_x, max_x = get_sparse_matrix_xlim(grid)
@@ -142,11 +145,17 @@ def print_sparse_matrix(grid: SparseMatrix, flip_y=False, pad=0, empty_char=".")
     if flip_y:
         min_y, max_y = -max_y, -min_y
 
+    lines = list[str]()
     for y in range(min_y - pad, max_y + 1 + pad):
+        line = ""
         for x in range(min_x - pad, max_x + 1 + pad):
-            print(grid.get((x, (-y if flip_y else y)), empty_char), end="")
-        print("")
-    print("")
+            line += grid.get((x, (-y if flip_y else y)), empty_char)
+        lines.append(line)
+    return "\n".join(lines)
+
+
+def print_sparse_matrix(grid: SparseMatrix, flip_y=False, pad=0, empty_char="."):
+    print(sparse_matrix_string(grid, flip_y, pad, empty_char))
 
 
 def print_sparse_matrix3(grid: SparseMatrix3, flip_y=False, pad=0, empty_char="."):

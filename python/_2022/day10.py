@@ -1,4 +1,5 @@
 from python import utils
+from python.utils import SparseMatrix, sparse_matrix_string
 
 example = """noop
 addx 3
@@ -186,31 +187,22 @@ def part2():
     code = input.split("\n")
     tasks = list[int]()
     x = 1
-    current_row = 0
-    crt_row = []
-    crt_rows = []
+    screen = SparseMatrix()
     for cycle in range(0, 240):
         row, pixel_x = divmod(cycle, 40)
-        pixel = "#" if x-1 <= pixel_x <= x + 1 else " "
-        if row > current_row:
-            current_row = row
-            crt_rows.append(crt_row)
-            crt_row = []
-        else:
-            pass
-        crt_row.append(pixel)
+        pixel = "#" if x - 1 <= pixel_x <= x + 1 else " "
+        screen[(pixel_x, row)] = pixel
         x += iterate_beam(tasks, code)
-    crt_rows.append(crt_row)
-    return r"\n".join("".join(row) for row in crt_rows)
+    return screen.to_str()
 
 
 if __name__ == "__main__":
     assert part1() == 13440
     assert part2() == (
-        "###  ###  ####  ##  ###   ##  ####  ##  \\n"
-        "#  # #  #    # #  # #  # #  #    # #  # \\n"
-        "#  # ###    #  #    #  # #  #   #  #  # \\n"
-        "###  #  #  #   # ## ###  ####  #   #### \\n"
-        "#    #  # #    #  # # #  #  # #    #  # \\n"
+        "###  ###  ####  ##  ###   ##  ####  ##  \n"
+        "#  # #  #    # #  # #  # #  #    # #  # \n"
+        "#  # ###    #  #    #  # #  #   #  #  # \n"
+        "###  #  #  #   # ## ###  ####  #   #### \n"
+        "#    #  # #    #  # # #  #  # #    #  # \n"
         "#    ###  ####  ### #  # #  # #### #  # "
     )
