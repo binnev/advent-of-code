@@ -4,6 +4,10 @@ from python.utils import SparseMatrix, Coord
 example = """498,4 -> 498,6 -> 496,6
 503,4 -> 502,4 -> 502,9 -> 494,9"""
 
+FALLING = 0
+RESTING = 1
+DESTROYED = 2
+
 
 def draw_line(start: Coord, end: Coord, grid: SparseMatrix):
     start_x, start_y = start
@@ -32,54 +36,50 @@ def parse_input(input: str) -> SparseMatrix:
     return grid
 
 
-def sand_step(pos: Coord, grid: SparseMatrix, floor: int = None) -> Coord | None:
-    """Return new Coord if still falling; return None if came to rest."""
+def sand_step(pos: Coord, grid: SparseMatrix, floor: int, solid_floor: bool) -> tuple[Coord, int]:
     x, y = pos
     options = [
         (x, y + 1),  # down
         (x - 1, y + 1),  # down_left
         (x + 1, y + 1),  # down_right
     ]
-    # try to move in order of preference
     for (x, y) in options:
-        if grid.get((x, y)) is None and y != floor:
-            return (x, y)
-    return None  # if all are blocked, come to rest
+        if (x, y) not in grid:
+            if y == floor:
+                if solid_floor:
+                    return pos, RESTING
+                else:
+                    return pos, DESTROYED
+            else:
+                return (x, y), FALLING
+
+    # all movement options blocked; sand came to rest on obstacle
+    return pos, RESTING
 
 
-def sand_trace(origin: Coord, grid: SparseMatrix, abyss: int = None, floor: int = None) -> bool:
-    """
-    Return True if sand came to rest OK, False if it fell off the map
-    """
+def sand_trace(origin: Coord, grid: SparseMatrix, floor: int, solid_floor: bool) -> int:
     pos = origin
 
-    while True:
-        new_pos = sand_step(pos, grid, floor=floor)
-
-        # came to rest
-        if new_pos is None:
-            grid[pos] = "o"
-            return True
-
-        # fall into abyss
-        x, y = new_pos
-        if abyss is not None and y > abyss:
-            return False
-
+    status = FALLING
+    while status == FALLING:
+        new_pos, status = sand_step(pos, grid, floor, solid_floor)
         pos = new_pos
+
+    if status == RESTING:
+        grid[pos] = "o"
+    return status
 
 
 @utils.profile
 def part1():
-    # input = example
     input = utils.load_puzzle_input("2022/day14")
     grid = parse_input(input)
     origin = (500, 0)
-    abyss = max(y for x, y in grid)
+    floor = max(y for x, y in grid)
     ii = 0
     while True:
-        ok = sand_trace(origin, grid, abyss=abyss)
-        if not ok:
+        status = sand_trace(origin, grid, floor=floor, solid_floor=False)
+        if status == DESTROYED:
             break
         ii += 1
     return ii
@@ -93,11 +93,11 @@ def part2():
     floor = 2 + max(y for x, y in grid)
     ii = 0
     while True:
-        ok = sand_trace(origin, grid, floor=floor)
-        if not ok:
+        status = sand_trace(origin, grid, floor=floor, solid_floor=True)
+        if status == DESTROYED:
             break
         ii += 1
-        if grid.get(origin) is not None:
+        if origin in grid:
             break
     return ii
 
