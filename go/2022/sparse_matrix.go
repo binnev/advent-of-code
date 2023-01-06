@@ -41,7 +41,7 @@ func (grid SparseMatrix) Ylim() (int, int) {
 	return int(min), int(max)
 }
 
-func (grid SparseMatrix) GetString(flipY bool, pad int, emptyChar rune) string {
+func (grid SparseMatrix) ToString(flipY bool, pad int, emptyChar rune) string {
 	minX, maxX, minY, maxY := 0, 0, 0, 0
 	if len(grid) > 0 {
 		minX, maxX = grid.Xlim()
@@ -72,5 +72,5 @@ func (grid SparseMatrix) GetString(flipY bool, pad int, emptyChar rune) string {
 }
 
 func (grid SparseMatrix) Print(flipY bool, pad int, emptyChar rune) {
-	fmt.Println(grid.GetString(flipY, pad, emptyChar))
+	fmt.Println(grid.ToString(flipY, pad, emptyChar))
 }

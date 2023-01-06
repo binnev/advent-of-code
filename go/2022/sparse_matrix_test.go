@@ -21,19 +21,19 @@ func TestSparseMatrixLimits(t *testing.T) {
 	assert.Equal(t, min, 420)
 	assert.Equal(t, max, 999)
 }
-func TestSparseMatrixGetString(t *testing.T) {
+
+func TestSparseMatrixToString(t *testing.T) {
 	grid := SparseMatrix{
 		Coord{0, 0}: 'A',
 		Coord{2, 3}: 'B',
 	}
-	expected := strings.Join(
-		[]string{
-			"A..",
-			"...",
-			"...",
-			"..B",
-		}, "\n")
-	result := grid.GetString(false, 0, '.')
+	expected := strings.Join([]string{
+		"A..",
+		"...",
+		"...",
+		"..B",
+	}, "\n")
+	result := grid.ToString(false, 0, '.')
 	assert.Equal(t, expected, result)
 }
 
@@ -59,6 +59,6 @@ func TestSparseMatrixConstruct(t *testing.T) {
 		}
 	}
 
-	printed := grid.GetString(false, 0, '.')
+	printed := grid.ToString(false, 0, '.')
 	assert.Equal(t, printed, FOO)
 }

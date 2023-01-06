@@ -154,18 +154,15 @@ noop"""
 
 
 def iterate_beam(tasks: list[int], code: list[str]) -> int:
+    amount = 0
     if tasks:
         amount = tasks.pop()
-        return amount
     else:
         line = code.pop(0)
         match line.split():
-            case ["noop"]:
-                pass
-            case ["addx", amount]:
-                tasks.append(int(amount))
-        return 0
-
+            case ["addx", amount_string]:
+                tasks.append(int(amount_string))
+    return amount
 
 @utils.profile
 def part1():
