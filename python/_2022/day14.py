@@ -87,15 +87,15 @@ def part1():
 
 @utils.profile
 def part2():
+    # todo: speed this up by ignoring any sand particles that get further left/right than the l/r
+    #  bounds of the platforms.
     input = utils.load_puzzle_input("2022/day14")
     grid = parse_input(input)
     origin = (500, 0)
     floor = 2 + max(y for x, y in grid)
     ii = 0
     while True:
-        status = sand_trace(origin, grid, floor=floor, solid_floor=True)
-        if status == DESTROYED:
-            break
+        sand_trace(origin, grid, floor=floor, solid_floor=True)
         ii += 1
         if origin in grid:
             break
