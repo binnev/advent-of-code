@@ -12,8 +12,11 @@ move 2 from 2 to 1
 move 1 from 1 to 2"""
 
 
-def parse_input():
-    input = utils.load_puzzle_input("2022/day5")
+Columns = dict[int, str]
+Instructions = list[list[int]]
+
+
+def parse_input(input: str) -> tuple[Columns, Instructions]:
     state_str, instructions_str = input.split("\n\n")
 
     # parse state: flip columns to rows and grab the rows that contain the actual data; ignore
@@ -38,7 +41,8 @@ def move(origin: int, destination: int, state: dict, amount: int = 1):
 
 @utils.profile
 def part1() -> str:
-    state, instructions = parse_input()
+    input = utils.load_puzzle_input("2022/day5")
+    state, instructions = parse_input(input)
     for amount, origin, destination in instructions:
         for _ in range(amount):
             move(origin, destination, state)
@@ -47,7 +51,8 @@ def part1() -> str:
 
 @utils.profile
 def part2() -> str:
-    state, instructions = parse_input()
+    input = utils.load_puzzle_input("2022/day5")
+    state, instructions = parse_input(input)
     for amount, origin, destination in instructions:
         move(origin, destination, state, amount=amount)
     return "".join(state[key][-1] for key in sorted(state.keys()))

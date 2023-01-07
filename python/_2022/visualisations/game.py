@@ -1,26 +1,39 @@
 import sys
 
 import pygame
+from pygame.surface import Surface
 from robingame.input import EventQueue
 from robingame.objects import Game
+from robingame.text.font import fonts
 
-from python._2022.visualisations import day14sand
+from python._2022.visualisations import day14sand, day5columns
 
 
 class Advent2022Visualisations(Game):
     window_caption = "Advent of Code 2022"
     window_width = 1000
     window_height = 1000
-    fps = 0  # run as fast as possible
+    fps = 60  # run as fast as possible
     ticks_per_frame = 1
 
     def __init__(self):
         super().__init__()
-        self.scenes.add(day14sand.Day14Part2Visualisation())
+        self.scenes.add(day5columns.Day5Part1Visualisation())
 
     def update(self):
         for _ in range(self.ticks_per_frame):
             super().update()
+
+    def draw(self, surface: Surface, debug: bool = False):
+        super().draw(surface, debug)
+        text = "\n".join(
+            [
+                f"iterations: {self.tick}",
+                f"ticks per frame: {self.ticks_per_frame}",
+                f"fps: {self.fps}",
+            ]
+        )
+        fonts.cellphone_white.render(surface, text, scale=2)
 
     def read_inputs(self):
         super().read_inputs()

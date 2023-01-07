@@ -164,6 +164,7 @@ def iterate_beam(tasks: list[int], code: list[str]) -> int:
                 tasks.append(int(amount_string))
     return amount
 
+
 @utils.profile
 def part1():
     input = utils.load_puzzle_input("2022/day10")

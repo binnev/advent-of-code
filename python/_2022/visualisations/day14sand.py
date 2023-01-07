@@ -1,5 +1,3 @@
-import time
-
 from pygame import Surface, Color
 from robingame.image import scale_image
 from robingame.objects import Entity
@@ -63,7 +61,8 @@ class Day14Part1Visualisation(Entity):
         y_scale = surface.get_height() / image.get_height()
         scale = min(x_scale, y_scale)
         image = scale_image(image, scale)
-        surface.blit(image, (0, 0))
+        x = (surface.get_width() - image.get_width()) / 2
+        surface.blit(image, (x, 0))
 
 
 class Day14Part2Visualisation(Day14Part1Visualisation):
