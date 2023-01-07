@@ -3,4 +3,4 @@ black
 numpy
 matplotlib
 redbreast
-robingame
+robingame>=0.0.12
