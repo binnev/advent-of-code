@@ -18,7 +18,7 @@ class Advent2022Visualisations(Game):
 
     def __init__(self):
         super().__init__()
-        self.scenes.add(day5columns.Day5Part1Visualisation())
+        self.scenes.add(day5columns.Day5Part2Visualisation())
 
     def update(self):
         for _ in range(self.ticks_per_frame):

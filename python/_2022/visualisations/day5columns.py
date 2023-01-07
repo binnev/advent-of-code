@@ -62,7 +62,8 @@ class Day5Part1Visualisation(Entity):
             amount, origin, destination = self.instructions[self.ii]
             text = f"move {amount} from {origin} to {destination}"
         except IndexError:
-            text = "done."
+            result = "".join(self.columns[key][-1] for key in sorted(self.columns.keys()))
+            text = f"done.\n{result=}"
 
         fonts.cellphone_black.render(
             surf=image,
@@ -73,3 +74,14 @@ class Day5Part1Visualisation(Entity):
         )
         x = (surface.get_width() - image.get_width()) / 2
         surface.blit(image, (x, 0))
+
+
+class Day5Part2Visualisation(Day5Part1Visualisation):
+    def state_main(self):
+        try:
+            amount, origin, destination = self.instructions[self.ii]
+        except IndexError:
+            self.state = self.state_idle
+            return
+        move(origin, destination, self.columns, amount=amount)
+        self.ii += 1
