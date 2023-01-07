@@ -7,63 +7,45 @@ import (
 	"advent/utils"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
+type AdventTestCase struct {
+	f        func() string
+	expected string
+}
+
 func Test2020(t *testing.T) {
-	cases := []struct {
-		f        func() string
-		expected string
-	}{
+	cases := []AdventTestCase{
 		{_2020.Day1Part1, "145875"},
 		{_2020.Day1Part2, "69596112"},
 		{_2020.Day2Part1, "628"},
 		{_2020.Day2Part2, "705"},
 	}
-
 	for _, tc := range cases {
 		t.Run(utils.GetFuncName(tc.f), func(t *testing.T) {
-			result := tc.f()
-			if result != tc.expected {
-				t.Fatalf("%v failed; got %v; expected %v",
-					utils.GetFuncName(tc.f),
-					result,
-					tc.expected,
-				)
-			}
+			result := utils.Profile(tc.f)
+			assert.Equal(t, tc.expected, result)
 		})
-
 	}
 }
 
 func Test2021(t *testing.T) {
-	cases := []struct {
-		f        func() string
-		expected string
-	}{
+	cases := []AdventTestCase{
 		{_2021.Day1Part1, "1482"},
 		{_2021.Day1Part2, "1518"},
 	}
-
 	for _, tc := range cases {
 		t.Run(utils.GetFuncName(tc.f), func(t *testing.T) {
-			result := tc.f()
-			if result != tc.expected {
-				t.Fatalf("%v failed; got %v; expected %v",
-					utils.GetFuncName(tc.f),
-					result,
-					tc.expected,
-				)
-			}
+			result := utils.Profile(tc.f)
+			assert.Equal(t, tc.expected, result)
 		})
-
 	}
 }
 
 func Test2022(t *testing.T) {
-	cases := []struct {
-		f        func() string
-		expected string
-	}{
+	cases := []AdventTestCase{
 		{_2022.Day1Part1, "66186"},
 		{_2022.Day1Part2, "196804"},
 		{_2022.Day2Part1, "14264"},
@@ -95,20 +77,15 @@ func Test2022(t *testing.T) {
 		{_2022.Day11Part2, "12729522272"},
 		{_2022.Day12Part1, "440"},
 		{_2022.Day12Part2, "439"},
+		{_2022.Day13Part1, "6420"},
+		{_2022.Day13Part2, "22000"},
 		{_2022.Day14Part1, "755"},
 		{_2022.Day14Part2, "29805"},
 	}
-
 	for _, tc := range cases {
 		t.Run(utils.GetFuncName(tc.f), func(t *testing.T) {
-			result := tc.f()
-			if result != tc.expected {
-				t.Fatalf("%v failed; got %v; expected %v",
-					utils.GetFuncName(tc.f),
-					result,
-					tc.expected,
-				)
-			}
+			result := utils.Profile(tc.f)
+			assert.Equal(t, tc.expected, result)
 		})
 	}
 }
