@@ -3,3 +3,4 @@ black
 numpy
 matplotlib
 redbreast
+robingame

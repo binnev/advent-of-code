@@ -7,6 +7,8 @@ example = """498,4 -> 498,6 -> 496,6
 FALLING = 0
 RESTING = 1
 DESTROYED = 2
+WALL = "█"
+SAND = "░"
 
 
 def draw_line(start: Coord, end: Coord, grid: SparseMatrix):
@@ -18,10 +20,10 @@ def draw_line(start: Coord, end: Coord, grid: SparseMatrix):
 
     if dy == 0:
         for x in range(start_x, end_x + 1):
-            grid[(x, start_y)] = "#"
+            grid[(x, start_y)] = WALL
     else:
         for y in range(start_y, end_y + 1):
-            grid[(start_x, y)] = "#"
+            grid[(start_x, y)] = WALL
 
 
 def parse_input(input: str) -> SparseMatrix:
@@ -66,7 +68,7 @@ def sand_trace(origin: Coord, grid: SparseMatrix, floor: int, solid_floor: bool)
         pos = new_pos
 
     if status == RESTING:
-        grid[pos] = "o"
+        grid[pos] = SAND
     return status
 
 
