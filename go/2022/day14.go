@@ -10,6 +10,8 @@ const (
 	FALLING   = 0
 	RESTING   = 1
 	DESTROYED = 2
+	WALL      = '█'
+	SAND      = '░'
 )
 
 func drawLine(start, end Coord, grid SparseMatrix) {
@@ -25,12 +27,12 @@ func drawLine(start, end Coord, grid SparseMatrix) {
 	if dy == 0 {
 		for x := startX; x < endX+1; x++ {
 			coord := Coord{x, startY}
-			grid[coord] = '#'
+			grid[coord] = WALL
 		}
 	} else {
 		for y := startY; y < endY+1; y++ {
 			coord := Coord{startX, y}
-			grid[coord] = '#'
+			grid[coord] = WALL
 		}
 	}
 }
@@ -93,7 +95,7 @@ func sandTrace(origin Coord, grid SparseMatrix, floor int, solidFloor bool) int 
 		pos, status = sandStep(pos, grid, floor, solidFloor)
 	}
 	if status == RESTING {
-		grid[pos] = 'o'
+		grid[pos] = SAND
 	}
 	return status
 }
@@ -132,5 +134,6 @@ func Day14Part2() string {
 			break
 		}
 	}
+	grid.Print(false, 2, ' ')
 	return fmt.Sprint(ii)
 }
