@@ -6,7 +6,7 @@ from robingame.input import EventQueue
 from robingame.objects import Game
 from robingame.text.font import fonts
 
-from python._2022.visualisations import day14sand, day5columns
+from python._2022.visualisations.menu import AdventVizMenu
 
 
 class Advent2022Visualisations(Game):
@@ -18,7 +18,7 @@ class Advent2022Visualisations(Game):
 
     def __init__(self):
         super().__init__()
-        self.scenes.add(day5columns.Day5Part2Visualisation())
+        self.add_scene(AdventVizMenu())
 
     def update(self):
         for _ in range(self.ticks_per_frame):

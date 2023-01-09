@@ -63,7 +63,7 @@ class State(NamedTuple):
     pos: Coord  # current position
 
 
-def parse_input(input: str) -> (SparseMatrix, Blizzards):
+def parse_input(input: str) -> tuple[SparseMatrix, Blizzards]:
     blizzards = Blizzards()
     grid = SparseMatrix()
     blizz_id = 0
