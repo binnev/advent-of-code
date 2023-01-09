@@ -15,8 +15,8 @@ example = """2,2,2
 2,1,5
 2,3,5"""
 
-LAVA = "░"
-STEAM = "s"
+LAVA = "█"
+STEAM = "░"
 
 
 def parse_input(input: str) -> SparseMatrix3:
@@ -105,6 +105,7 @@ def part2():
         for neighbour in get_3d_neighbours(cube):
             if grid.get(neighbour) == STEAM:
                 surface_area += 1
+    # grid.print(empty_char=" ")
     return surface_area
 
 
