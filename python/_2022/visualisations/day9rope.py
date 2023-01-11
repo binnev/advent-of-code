@@ -60,8 +60,8 @@ class Day9Part1Visualisation(Entity):
         grid = SparseMatrix()
         for coord in self.tail_history:
             grid[coord] = 0
-        grid[self.tail] = 1
-        grid[self.head] = 2
+        grid[self.tail] = 2
+        grid[self.head] = 1
 
         xmin, xmax = grid.get_xlim()
         ymin, ymax = grid.get_ylim()
@@ -73,7 +73,7 @@ class Day9Part1Visualisation(Entity):
         image.fill(Color("white"))
         for (x, y), value in grid.items():
             coord = (x + x_offset, y + y_offset)
-            color = self.colours[value]
+            color = self.colours[value] if value else Color("grey")
             image.set_at(coord, color)
         x_scale = surface.get_width() / image.get_width()
         y_scale = surface.get_height() / image.get_height()
@@ -82,7 +82,74 @@ class Day9Part1Visualisation(Entity):
         fonts.cellphone_black.render(
             surf=image,
             text=f"tail history = {len(self.tail_history)}",
-            wrap=width*scale,
+            wrap=width * scale,
+            align=0,
+            scale=2,
+        )
+        x = (surface.get_width() - image.get_width()) / 2
+        surface.blit(image, (x, 0))
+
+
+class Day9Part2Visualisation(Day9Part1Visualisation):
+    def __init__(self):
+        super().__init__()
+        num_colours = 11
+        samples = numpy.linspace(0, 1, num_colours)
+        self.colours = {
+            ii: tuple(map(int, color[:3]))
+            for ii, color in enumerate(matplotlib.cm.viridis(samples) * 256)
+        }
+        self.snake = [(0, 0)] * 10
+        self.tail_history = {self.snake[-1]}
+
+    def state_main(self):
+        try:
+            instruction = self.instructions[self.ii]
+        except IndexError:
+            self.state = self.state_idle
+            return
+
+        direction, amount = instruction.split()
+        amount = int(amount)
+        for _ in range(amount):
+            self.snake[0] = move_head(self.snake[0], direction)
+            for ii, part in enumerate(self.snake[1:], start=1):
+                self.snake[ii] = move_tail(head=self.snake[ii - 1], tail=self.snake[ii])
+            self.tail_history.add(self.snake[-1])
+        self.ii += 1
+
+    def state_idle(self):
+        pass
+
+    def draw(self, surface: Surface, debug: bool = False):
+        super().draw(surface, debug)
+        grid = SparseMatrix()
+
+        for coord in self.tail_history:
+            grid[coord] = 0
+        for ii, coord in enumerate(reversed(self.snake)):
+            grid[coord] = ii
+
+        xmin, xmax = grid.get_xlim()
+        ymin, ymax = grid.get_ylim()
+        width = xmax - xmin + 1 + 20
+        height = ymax - ymin + 1 + 20
+        x_offset = -xmin + 10
+        y_offset = -ymin + 10
+        image = Surface((width, height))
+        image.fill(Color("white"))
+        for (x, y), value in grid.items():
+            coord = (x + x_offset, y + y_offset)
+            color = self.colours[value] if value else Color("grey")
+            image.set_at(coord, color)
+        x_scale = surface.get_width() / image.get_width()
+        y_scale = surface.get_height() / image.get_height()
+        scale = min(x_scale, y_scale)
+        image = scale_image(image, scale)
+        fonts.cellphone_black.render(
+            surf=image,
+            text=f"tail history = {len(self.tail_history)}",
+            wrap=width * scale,
             align=0,
             scale=2,
         )

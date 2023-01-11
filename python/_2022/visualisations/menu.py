@@ -77,7 +77,8 @@ class AdventVizMenu(Menu):
             "day5 (columns) part 2": day5columns.Day5Part2Visualisation,
             "day8 (trees) part 1": day8trees.Day8Part1Visualisation,
             "day8 (trees) part 2": day8trees.Day8Part2Visualisation,
-            "day9 (rope) part 2": day9rope.Day9Part1Visualisation,
+            "day9 (rope) part 1": day9rope.Day9Part1Visualisation,
+            "day9 (rope) part 2": day9rope.Day9Part2Visualisation,
             "day14 (sand) part 1": day14sand.Day14Part1Visualisation,
             "day14 (sand) part 2": day14sand.Day14Part2Visualisation,
         }
