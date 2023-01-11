@@ -7,7 +7,7 @@ from robingame.gui import Button, Menu
 from robingame.objects import Entity, Group
 from robingame.text.font import fonts
 
-from python._2022.visualisations import day14sand, day5columns
+from python._2022.visualisations import day14sand, day5columns, day8trees
 
 if TYPE_CHECKING:
     from python._2022.visualisations.game import Advent2022Visualisations
@@ -75,6 +75,7 @@ class AdventVizMenu(Menu):
         visualisations = {
             "day5 (columns) part 1": day5columns.Day5Part1Visualisation,
             "day5 (columns) part 2": day5columns.Day5Part2Visualisation,
+            "day8 (trees) part 1": day8trees.Day8Part1Visualisation,
             "day14 (sand) part 1": day14sand.Day14Part1Visualisation,
             "day14 (sand) part 2": day14sand.Day14Part2Visualisation,
         }
