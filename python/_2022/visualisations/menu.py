@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable
 
 from pygame import Color
 from pygame.surface import Surface
@@ -80,22 +80,22 @@ class AdventVizMenu(Menu):
         }
         for ii, (label, entity) in enumerate(visualisations.items()):
             y_spacing = 100
-
-
-            # todo: this gets overwritten so all buttons trigger the sand part 2 viz...
-            def on_press(button):
-                self.exit()
-                self.game.scenes.add(entity())
-                print(f"clicked for {label}")
-
             self.buttons.add(
                 Button(
                     x=200,
                     y=y_spacing * ii + 100,
                     text=label,
-                    on_press=on_press,
+                    on_press=self.create_on_press(entity, label),
                 )
             )
+
+    def create_on_press(self, entity: type[Entity], label: str) -> Callable:
+        def on_press(button):
+            self.exit()
+            self.game.scenes.add(entity())
+            print(f"clicked for {label}")
+
+        return on_press
 
     def exit(self):
         for group in self.child_groups:
