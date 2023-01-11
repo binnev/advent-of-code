@@ -77,3 +77,56 @@ class Day8Part1Visualisation(Entity):
         )
         x = (surface.get_width() - image.get_width()) / 2
         surface.blit(image, (x, 0))
+
+
+class Day8Part2Visualisation(Day8Part1Visualisation):
+    def __init__(self):
+        super().__init__()
+        self.record_holder = (0, 0)
+
+    def state_main(self):
+        w, h = self.grid.shape
+        if self.ii == w * h:
+            self.state = self.state_idle
+            return
+
+        self.x, self.y = divmod(self.ii, len(self.grid))
+        score = scenic_score(self.x, self.y, self.grid)
+        if score > self.score:
+            self.score = score
+            self.record_holder = (self.x, self.y)
+
+        self.ii += 1
+
+    def state_idle(self):
+        pass
+
+    def draw(self, surface: Surface, debug: bool = False):
+        super().draw(surface, debug)
+        width, height = self.grid.shape
+        image = Surface((width, height))
+        image.fill(Color("white"))
+        rec_x, rec_y = self.record_holder
+        for y, row in enumerate(self.grid):
+            for x, value in enumerate(row):
+                color = self.colours[value]
+                if x == rec_x or y == rec_y:
+                    color = Color("orange")
+                image.set_at((x, y), color)
+
+        image.set_at((self.x, self.y), Color("white"))
+        image.set_at(self.record_holder, Color("red"))
+
+        x_scale = surface.get_width() / image.get_width()
+        y_scale = surface.get_height() / image.get_height()
+        scale = min(x_scale, y_scale)
+        image = scale_image(image, scale)
+        fonts.cellphone_black.render(
+            surf=image,
+            text=f"most scenic tree score = {self.score}",
+            wrap=width * scale,
+            align=0,
+            scale=4,
+        )
+        x = (surface.get_width() - image.get_width()) / 2
+        surface.blit(image, (x, 0))
