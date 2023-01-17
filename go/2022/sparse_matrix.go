@@ -1,8 +1,8 @@
 package _2022
 
 import (
+	"advent/utils"
 	"fmt"
-	"math"
 	"strings"
 )
 
@@ -11,34 +11,30 @@ type Coord3 [3]int
 type SparseMatrix map[Coord]rune
 type SparseMatrix3 map[Coord3]rune
 
-func (grid SparseMatrix) Xlim() (int, int) {
-	min := math.Inf(1)
-	max := math.Inf(-1)
+func (grid SparseMatrix) xs() []int {
+	xs := []int{}
 	for coord, _ := range grid {
-		x := float64(coord[0])
-		if x < min {
-			min = x
-		}
-		if x > max {
-			max = x
-		}
+		xs = append(xs, coord[0])
 	}
-	return int(min), int(max)
+	return xs
+}
+
+func (grid SparseMatrix) ys() []int {
+	ys := []int{}
+	for coord, _ := range grid {
+		ys = append(ys, coord[1])
+	}
+	return ys
+}
+
+func (grid SparseMatrix) Xlim() (int, int) {
+	xs := grid.xs()
+	return utils.Min(xs), utils.Max(xs)
 }
 
 func (grid SparseMatrix) Ylim() (int, int) {
-	min := math.Inf(1)
-	max := math.Inf(-1)
-	for coord, _ := range grid {
-		x := float64(coord[1])
-		if x < min {
-			min = x
-		}
-		if x > max {
-			max = x
-		}
-	}
-	return int(min), int(max)
+	ys := grid.ys()
+	return utils.Min(ys), utils.Max(ys)
 }
 
 func (grid SparseMatrix) ToString(flipY bool, pad int, emptyChar rune) string {

@@ -1,11 +1,26 @@
 package _2022
 
 import (
+	"sort"
 	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
+
+func TestSparseMatrixXsYs(t *testing.T) {
+	grid := SparseMatrix{
+		Coord{69, 420}:  '#',
+		Coord{666, 888}: '#',
+		Coord{777, 999}: '#',
+	}
+	xs := grid.xs()
+	ys := grid.ys()
+	sort.Ints(xs)
+	sort.Ints(ys)
+	assert.Equal(t, []int{69, 666, 777}, xs)
+	assert.Equal(t, []int{420, 888, 999}, ys)
+}
 
 func TestSparseMatrixLimits(t *testing.T) {
 	grid := SparseMatrix{
