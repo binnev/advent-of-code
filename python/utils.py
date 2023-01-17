@@ -142,8 +142,6 @@ def sparse_matrix_string(grid: SparseMatrix, flip_y=False, pad=0, empty_char="."
     if grid:
         min_x, max_x = get_sparse_matrix_xlim(grid)
         min_y, max_y = get_sparse_matrix_ylim(grid)
-    if flip_y:
-        min_y, max_y = -max_y, -min_y
 
     lines = list[str]()
     y_start = min_y - pad
@@ -152,11 +150,12 @@ def sparse_matrix_string(grid: SparseMatrix, flip_y=False, pad=0, empty_char="."
     x_stop = max_x + 1 + pad
     for y in range(y_start, y_stop):
         line = ""
-        if flip_y:
-            y = -y
         for x in range(x_start, x_stop):
             line += grid.get((x, y), empty_char)
-        lines.append(line)
+        if flip_y:
+            lines.insert(0, line)
+        else:
+            lines.append(line)
     return "\n".join(lines)
 
 
