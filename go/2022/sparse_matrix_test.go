@@ -38,35 +38,197 @@ func TestSparseMatrixLimits(t *testing.T) {
 }
 
 func TestSparseMatrixToString(t *testing.T) {
-	grid := SparseMatrix{
-		Coord{0, 0}: 'A',
-		Coord{2, 3}: 'B',
+	type TestCase struct {
+		description string
+		grid        SparseMatrix
+		flipY       bool
+		pad         int
+		emptyChar   rune
+		expected    string
 	}
-	expected := strings.Join([]string{
-		"A..",
-		"...",
-		"...",
-		"..B",
-	}, "\n")
-	result := grid.ToString(false, 0, '.')
-	assert.Equal(t, expected, result)
+	cases := []TestCase{
+		{
+			description: "Empty default behaviour",
+			grid:        SparseMatrix{},
+			flipY:       false,
+			pad:         0,
+			emptyChar:   '.',
+			expected:    ".",
+		},
+		{
+			description: "Empty with flip",
+			grid:        SparseMatrix{},
+			flipY:       true,
+			pad:         0,
+			emptyChar:   '.',
+			expected:    ".",
+		},
+		{
+			description: "Empty with pad",
+			grid:        SparseMatrix{},
+			flipY:       false,
+			pad:         1,
+			emptyChar:   '.',
+			expected: strings.Join([]string{
+				"...",
+				"...",
+				"...",
+			}, "\n"),
+		},
+		{
+			description: "Empty with pad and flip",
+			grid:        SparseMatrix{},
+			flipY:       true,
+			pad:         1,
+			emptyChar:   '.',
+			expected: strings.Join([]string{
+				"...",
+				"...",
+				"...",
+			}, "\n"),
+		},
+		{
+			description: "Single entry default behaviour",
+			grid:        SparseMatrix{Coord{0, 0}: 'A'},
+			flipY:       false,
+			pad:         0,
+			emptyChar:   '.',
+			expected:    "A",
+		},
+		{
+			description: "Single entry with flip",
+			grid:        SparseMatrix{Coord{0, 0}: 'A'},
+			flipY:       true,
+			pad:         0,
+			emptyChar:   '.',
+			expected:    "A",
+		},
+		{
+			description: "Single entry with pad",
+			grid:        SparseMatrix{Coord{0, 0}: 'A'},
+			flipY:       false,
+			pad:         1,
+			emptyChar:   '.',
+			expected: strings.Join([]string{
+				"...",
+				".A.",
+				"...",
+			}, "\n"),
+		},
+		{
+			description: "Single entry with pad and flip",
+			grid:        SparseMatrix{Coord{0, 0}: 'A'},
+			flipY:       true,
+			pad:         1,
+			emptyChar:   '.',
+			expected: strings.Join([]string{
+				"...",
+				".A.",
+				"...",
+			}, "\n"),
+		},
+		{
+			description: "Non-empty default behaviour",
+			grid: SparseMatrix{
+				Coord{0, 0}: 'A',
+				Coord{2, 3}: 'B',
+			},
+			flipY:     false,
+			pad:       0,
+			emptyChar: '.',
+			expected: strings.Join([]string{
+				"A..",
+				"...",
+				"...",
+				"..B",
+			}, "\n"),
+		},
+		{
+			description: "Non-empty with flip",
+			grid: SparseMatrix{
+				Coord{0, 0}: 'A',
+				Coord{2, 3}: 'B',
+			},
+			flipY:     true,
+			pad:       0,
+			emptyChar: '.',
+			expected: strings.Join([]string{
+				"..B",
+				"...",
+				"...",
+				"A..",
+			}, "\n"),
+		},
+		{
+			description: "Non-empty with pad",
+			grid: SparseMatrix{
+				Coord{0, 0}: 'A',
+				Coord{2, 3}: 'B',
+			},
+			flipY:     false,
+			pad:       2,
+			emptyChar: '.',
+			expected: strings.Join([]string{
+				".......",
+				".......",
+				"..A....",
+				".......",
+				".......",
+				"....B..",
+				".......",
+				".......",
+			}, "\n"),
+		},
+		{
+			description: "Non-empty with pad and flip",
+			grid: SparseMatrix{
+				Coord{0, 0}: 'A',
+				Coord{2, 3}: 'B',
+			},
+			flipY:     true,
+			pad:       2,
+			emptyChar: '.',
+			expected: strings.Join([]string{
+				".......",
+				".......",
+				"....B..",
+				".......",
+				".......",
+				"..A....",
+				".......",
+				".......",
+			}, "\n"),
+		},
+	}
+	for _, tc := range cases {
+		t.Run(tc.description, func(t *testing.T) {
+			result := tc.grid.ToString(
+				tc.flipY,
+				tc.pad,
+				tc.emptyChar,
+			)
+			assert.Equal(t, tc.expected, result)
+		})
+	}
 }
 
-const FOO = `......#.....
-..........#.
-.#.#..#.....
-.....#......
-..#.....#..#
-#......##...
-....##......
-.#........#.
-...#.#..#...
-............
-...#..#..#..`
-
 func TestSparseMatrixConstruct(t *testing.T) {
+	EXPECTED := strings.Join([]string{
+		"......#.....",
+		"..........#.",
+		".#.#..#.....",
+		".....#......",
+		"..#.....#..#",
+		"#......##...",
+		"....##......",
+		".#........#.",
+		"...#.#..#...",
+		"............",
+		"...#..#..#..",
+	}, "\n")
+
 	grid := SparseMatrix{}
-	for y, line := range strings.Split(FOO, "\n") {
+	for y, line := range strings.Split(EXPECTED, "\n") {
 		for x, value := range line {
 			if value != '.' {
 				grid[Coord{x, y}] = value
@@ -75,5 +237,5 @@ func TestSparseMatrixConstruct(t *testing.T) {
 	}
 
 	printed := grid.ToString(false, 0, '.')
-	assert.Equal(t, printed, FOO)
+	assert.Equal(t, EXPECTED, printed)
 }

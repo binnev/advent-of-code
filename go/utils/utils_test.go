@@ -66,3 +66,38 @@ func TestSumFloatHappy(t *testing.T) {
 	assert.Equal(t, Sum([]float64{0.0}), 0.0)
 	assert.Equal(t, Sum([]float64{}), 0.0)
 }
+
+func TestReverse(t *testing.T) {
+	type TestCase struct {
+		description string
+		input       []string
+		expected    []string
+	}
+	cases := []TestCase{
+		{
+			description: "empty",
+			input:       []string{},
+			expected:    []string{},
+		},
+		{
+			description: "single entry",
+			input:       []string{"a"},
+			expected:    []string{"a"},
+		},
+		{
+			description: "populated",
+			input:       []string{"a", "b", "c"},
+			expected:    []string{"c", "b", "a"},
+		},
+	}
+	for _, tc := range cases {
+		t.Run(tc.description, func(t *testing.T) {
+			reversed := make([]string, len(tc.input))
+			for ii, value := range tc.input {
+				reversed[ii] = value
+			}
+			Reverse(reversed)
+			assert.Equal(t, tc.expected, reversed)
+		})
+	}
+}

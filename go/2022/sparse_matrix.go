@@ -43,28 +43,22 @@ func (grid SparseMatrix) ToString(flipY bool, pad int, emptyChar rune) string {
 		minX, maxX = grid.Xlim()
 		minY, maxY = grid.Ylim()
 	}
-	if flipY {
-		minY, maxY = -maxY, -minY
-	}
-
-	outputLines := []string{}
+	lines := []string{}
 	for y := minY - pad; y < maxY+1+pad; y++ {
-		lineRunes := []rune{}
+		runes := []rune{}
 		for x := minX - pad; x < maxX+1+pad; x++ {
-			if flipY {
-				y = -y
-			}
 			value, found := grid[Coord{x, y}]
 			if !found {
 				value = emptyChar
 			}
-			lineRunes = append(lineRunes, value)
+			runes = append(runes, value)
 		}
-		line := string(lineRunes)
-		outputLines = append(outputLines, line)
+		lines = append(lines, string(runes))
 	}
-	output := strings.Join(outputLines, "\n")
-	return output
+	if flipY {
+		utils.Reverse(lines)
+	}
+	return strings.Join(lines, "\n")
 }
 
 func (grid SparseMatrix) Print(flipY bool, pad int, emptyChar rune) {
