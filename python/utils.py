@@ -152,10 +152,9 @@ def sparse_matrix_string(grid: SparseMatrix, flip_y=False, pad=0, empty_char="."
         line = ""
         for x in range(x_start, x_stop):
             line += grid.get((x, y), empty_char)
-        if flip_y:
-            lines.insert(0, line)
-        else:
-            lines.append(line)
+        lines.append(line)
+    if flip_y:
+        lines = reversed(lines)
     return "\n".join(lines)
 
 
