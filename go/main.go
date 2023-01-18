@@ -6,5 +6,5 @@ import (
 )
 
 func main() {
-	utils.Profile(_2022.Day14Part2)
+	utils.Profile(_2022.Day17Part1)
 }

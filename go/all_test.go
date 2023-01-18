@@ -81,6 +81,8 @@ func Test2022(t *testing.T) {
 		{_2022.Day13Part2, "22000"},
 		{_2022.Day14Part1, "755"},
 		{_2022.Day14Part2, "29805"},
+		{_2022.Day17Part1, "3109"},
+		// {_2022.Day17Part2, "1541449275365"},
 	}
 	for _, tc := range cases {
 		t.Run(utils.GetFuncName(tc.f), func(t *testing.T) {

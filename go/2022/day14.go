@@ -134,6 +134,5 @@ func Day14Part2() string {
 			break
 		}
 	}
-	grid.Print(false, 2, ' ')
 	return fmt.Sprint(ii)
 }
