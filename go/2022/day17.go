@@ -50,6 +50,15 @@ func copyShape(shape Shape) Shape {
 	return newShape
 }
 
+func spawnShape(index, x, y int) Shape {
+	shape := copyShape(SHAPES[index])
+	for ii := range shape {
+		shape[ii][0] += x
+		shape[ii][1] += y
+	}
+	return shape
+}
+
 func moveLeft(shape Shape, grid SparseMatrix) Shape {
 	newShape := copyShape(shape)
 	for ii := range newShape {
@@ -97,18 +106,6 @@ func fall(shape Shape, grid SparseMatrix) (Shape, bool) {
 	return newShape, collision
 }
 
-func addShapeForPrint(shape Shape, grid SparseMatrix) {
-	for _, coord := range shape {
-		grid[coord] = '@'
-	}
-}
-
-func removeShapeForPrint(shape Shape, grid SparseMatrix) {
-	for _, coord := range shape {
-		delete(grid, coord)
-	}
-}
-
 func addShapeToTower(ii, jet_ii int, grid SparseMatrix, jets string) (int, Shape) {
 	// spawn rock at correct x/y
 	towerHeight := 0
@@ -118,11 +115,7 @@ func addShapeToTower(ii, jet_ii int, grid SparseMatrix, jets string) (int, Shape
 	x := 2
 	y := 4 + towerHeight
 	shape_ii := ii % len(SHAPES)
-	shape := copyShape(SHAPES[shape_ii])
-	for ii := range shape {
-		shape[ii][0] += x
-		shape[ii][1] += y
-	}
+	shape := spawnShape(shape_ii, x, y)
 
 	// move rock
 	collision := false
