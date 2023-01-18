@@ -6,7 +6,6 @@ import (
 	"os"
 	"reflect"
 	"runtime"
-	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -107,5 +106,10 @@ func Contains[V int | string](arr []V, value V) bool {
 }
 
 func Reverse[AnySlice ~[]A, A any](arr AnySlice) {
-	sort.Slice(arr, func(i, j int) bool { return j < i })
+	reversed := make(AnySlice, len(arr))
+	length := len(arr)
+	for ii, value := range arr {
+		reversed[length-1-ii] = value
+	}
+	copy(arr, reversed)
 }

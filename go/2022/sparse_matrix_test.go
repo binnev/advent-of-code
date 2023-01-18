@@ -24,17 +24,17 @@ func TestSparseMatrixXsYs(t *testing.T) {
 
 func TestSparseMatrixLimits(t *testing.T) {
 	grid := SparseMatrix{
-		Coord{69, 420}:  '#',
-		Coord{666, 888}: '#',
-		Coord{777, 999}: '#',
+		Coord{666, 888}:  '#',
+		Coord{-69, -420}: '#',
+		Coord{777, 999}:  '#',
 	}
 	min, max := grid.Xlim()
-	assert.Equal(t, min, 69)
-	assert.Equal(t, max, 777)
+	assert.Equal(t, -69, min)
+	assert.Equal(t, 777, max)
 
 	min, max = grid.Ylim()
-	assert.Equal(t, min, 420)
-	assert.Equal(t, max, 999)
+	assert.Equal(t, -420, min)
+	assert.Equal(t, 999, max)
 }
 
 func TestSparseMatrixToString(t *testing.T) {
@@ -197,6 +197,131 @@ func TestSparseMatrixToString(t *testing.T) {
 				"..A....",
 				".......",
 				".......",
+			}, "\n"),
+		},
+		{
+			description: "tall 6",
+			grid: SparseMatrix{
+				Coord{0, 0}: 'A',
+				Coord{0, 6}: 'B',
+			},
+			flipY:     true,
+			pad:       2,
+			emptyChar: '.',
+			expected: strings.Join([]string{
+				".....",
+				".....",
+				"..B..",
+				".....",
+				".....",
+				".....",
+				".....",
+				".....",
+				"..A..",
+				".....",
+				".....",
+			}, "\n"),
+		},
+		{
+			description: "tall 7",
+			grid: SparseMatrix{
+				Coord{0, 0}: 'A',
+				Coord{0, 7}: 'B',
+			},
+			flipY:     true,
+			pad:       2,
+			emptyChar: '.',
+			expected: strings.Join([]string{
+				".....",
+				".....",
+				"..B..",
+				".....",
+				".....",
+				".....",
+				".....",
+				".....",
+				".....",
+				"..A..",
+				".....",
+				".....",
+			}, "\n"),
+		},
+		{
+			description: "tall 8",
+			grid: SparseMatrix{
+				Coord{0, 0}: 'A',
+				Coord{0, 8}: 'B',
+			},
+			flipY:     true,
+			pad:       2,
+			emptyChar: '.',
+			expected: strings.Join([]string{
+				".....",
+				".....",
+				"..B..",
+				".....",
+				".....",
+				".....",
+				".....",
+				".....",
+				".....",
+				".....",
+				"..A..",
+				".....",
+				".....",
+			}, "\n"),
+		},
+		{
+			description: "tall 9",
+			grid: SparseMatrix{
+				Coord{0, 0}: 'A',
+				Coord{0, 9}: 'B',
+			},
+			flipY:     true,
+			pad:       2,
+			emptyChar: '.',
+			expected: strings.Join([]string{
+				".....",
+				".....",
+				"..B..",
+				".....",
+				".....",
+				".....",
+				".....",
+				".....",
+				".....",
+				".....",
+				".....",
+				"..A..",
+				".....",
+				".....",
+			}, "\n"),
+		},
+		{
+			description: "tall 10",
+			grid: SparseMatrix{
+				Coord{0, 0}:  'A',
+				Coord{0, 10}: 'B',
+			},
+			flipY:     true,
+			pad:       2,
+			emptyChar: '.',
+			expected: strings.Join([]string{
+				".....",
+				".....",
+				"..B..",
+				".....",
+				".....",
+				".....",
+				".....",
+				".....",
+				".....",
+				".....",
+				".....",
+				".....",
+				"..A..",
+				".....",
+				".....",
 			}, "\n"),
 		},
 	}

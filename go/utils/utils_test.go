@@ -12,6 +12,7 @@ func TestMaxIntHappy(t *testing.T) {
 	assert.Equal(t, Max([]int{-1, 2, -3}), 2)
 	assert.Equal(t, Max([]int{0}), 0)
 	assert.Equal(t, Max([]int{1, 0, 0, 0, -1}), 1)
+	assert.Equal(t, Max([]int{0, 0, 1000, 0, -1000}), 1000)
 }
 
 func TestMaxFloatHappy(t *testing.T) {
@@ -33,7 +34,9 @@ func TestMinIntHappy(t *testing.T) {
 	assert.Equal(t, Min([]int{-1, 2, -3}), -3)
 	assert.Equal(t, Min([]int{0}), 0)
 	assert.Equal(t, Min([]int{1, 0, 0, 0, -1}), -1)
+	assert.Equal(t, Min([]int{0, 0, 1000, 0, -1000}), -1000)
 }
+
 func TestMinFloatHappy(t *testing.T) {
 	assert.Equal(t, Min([]float64{4, 5, 7}), 4.0)
 	assert.Equal(t, Min([]float64{4.0, 5.0, 7.0}), 4.0)
@@ -85,9 +88,49 @@ func TestReverse(t *testing.T) {
 			expected:    []string{"a"},
 		},
 		{
-			description: "populated",
+			description: "populated odd",
 			input:       []string{"a", "b", "c"},
 			expected:    []string{"c", "b", "a"},
+		},
+		{
+			description: "populated even",
+			input:       []string{"...", "aaa", "...", "bbb"},
+			expected:    []string{"bbb", "...", "aaa", "..."},
+		},
+		{
+			description: "short",
+			input:       []string{"A", ".", "B"},
+			expected:    []string{"B", ".", "A"},
+		},
+		{
+			description: "medium",
+			input:       []string{"A", ".", ".", "B"},
+			expected:    []string{"B", ".", ".", "A"},
+		},
+		{
+			description: "long",
+			input:       []string{"A", ".", ".", ".", ".", ".", "B"},
+			expected:    []string{"B", ".", ".", ".", ".", ".", "A"},
+		},
+		{
+			description: "len=9",
+			input:       []string{"A", ".", ".", ".", ".", ".", ".", ".", ".", "B"},
+			expected:    []string{"B", ".", ".", ".", ".", ".", ".", ".", ".", "A"},
+		},
+		{
+			description: "len=10",
+			input:       []string{"A", ".", ".", ".", ".", ".", ".", ".", ".", ".", "B"},
+			expected:    []string{"B", ".", ".", ".", ".", ".", ".", ".", ".", ".", "A"},
+		},
+		{
+			description: "len=11",
+			input:       []string{"A", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "B"},
+			expected:    []string{"B", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "A"},
+		},
+		{
+			description: "len=12",
+			input:       []string{"A", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "B"},
+			expected:    []string{"B", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", "A"},
 		},
 	}
 	for _, tc := range cases {
