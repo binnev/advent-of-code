@@ -8,7 +8,7 @@ from robingame.objects import Entity
 from robingame.text.font import fonts
 
 import utils
-from solutions._2022.day8 import parse_input, scenic_score, is_visible_2d
+from puzzles._2022.day8 import parse_input, scenic_score, is_visible_2d
 
 
 class Day8Part1Visualisation(Entity):

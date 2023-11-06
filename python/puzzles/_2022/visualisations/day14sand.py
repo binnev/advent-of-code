@@ -4,7 +4,7 @@ from robingame.objects import Entity
 from robingame.text.font import fonts
 
 import utils
-from solutions._2022.day14 import parse_input, DESTROYED, sand_trace, SAND, WALL
+from puzzles._2022.day14 import parse_input, DESTROYED, sand_trace, SAND, WALL
 
 
 class Day14Part1Visualisation(Entity):

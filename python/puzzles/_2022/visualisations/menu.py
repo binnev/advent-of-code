@@ -7,10 +7,10 @@ from robingame.gui import Button, Menu
 from robingame.objects import Entity, Group
 from robingame.text.font import fonts
 
-from solutions._2022.visualisations import day14sand, day5columns, day8trees, day9rope
+from puzzles._2022.visualisations import day14sand, day5columns, day8trees, day9rope
 
 if TYPE_CHECKING:
-    from solutions._2022.visualisations.game import Advent2022Visualisations
+    from puzzles._2022.visualisations.game import Advent2022Visualisations
 
 
 class Button(Button):

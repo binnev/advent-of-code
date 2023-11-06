@@ -1,6 +1,6 @@
 import pytest
 
-from solutions import _2020, _2021, _2022
+from puzzles import _2020, _2021, _2022
 
 
 @pytest.mark.parametrize(

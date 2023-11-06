@@ -6,7 +6,7 @@ from robingame.input import EventQueue
 from robingame.objects import Game
 from robingame.text.font import fonts
 
-from solutions._2022.visualisations.menu import AdventVizMenu
+from puzzles._2022.visualisations.menu import AdventVizMenu
 
 
 class Advent2022Visualisations(Game):
