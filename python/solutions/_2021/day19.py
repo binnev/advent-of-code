@@ -38,8 +38,8 @@ def init():
 
 def match_scanners(scanner0, scanner1):
     # loop: try matching every beacon on scanner1 to every beacon in scanner0
-    for (x0, y0, z0) in scanner0:
-        for (x1, y1, z1) in scanner1:
+    for x0, y0, z0 in scanner0:
+        for x1, y1, z1 in scanner1:
             # will need to shift the x,y of all scanner2 to achieve this.
             dx = x0 - x1
             dy = y0 - y1

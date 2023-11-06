@@ -45,7 +45,7 @@ def sand_step(pos: Coord, grid: SparseMatrix, floor: int, solid_floor: bool) -> 
         (x - 1, y + 1),  # down_left
         (x + 1, y + 1),  # down_right
     ]
-    for (x, y) in options:
+    for x, y in options:
         if (x, y) not in grid:
             if y == floor:
                 if solid_floor:

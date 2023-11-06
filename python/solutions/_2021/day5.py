@@ -16,7 +16,7 @@ def init():
 def do_the_thing(skip_diagonals=True):
     coords, size = init()
     sparse_matrix = dict()
-    for ((x1, y1), (x2, y2)) in coords:
+    for (x1, y1), (x2, y2) in coords:
         if skip_diagonals and (x1 != x2) and (y1 != y2):
             continue
         x, y = x1, y1

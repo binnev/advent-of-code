@@ -29,7 +29,6 @@ def explore_folders(input: str) -> dict[str:int]:
     root = cwd = ""
     contents = {"/": 0}
     for line in input.split("\n"):
-
         if line.startswith("$"):
             _, cmd = line.split(" ", maxsplit=1)
             match cmd.split():

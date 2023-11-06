@@ -65,7 +65,7 @@ def move_right(shape: Shape, grid: SparseMatrix) -> Shape:
 def fall(shape: Shape, grid: SparseMatrix) -> (Shape, bool):
     collision = False
     new_shape = tuple((x, y - 1) for (x, y) in shape)
-    for (x, y) in new_shape:
+    for x, y in new_shape:
         if grid.get((x, y)) or y == 0:
             collision = True
             return shape, collision
