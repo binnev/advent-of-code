@@ -4,6 +4,7 @@
 */node_modules
 /rust/target/*
 .vscode
+*/venv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
