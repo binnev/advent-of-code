@@ -1,7 +1,5 @@
 import utils
 
-raw = utils.load_puzzle_input("2021/day4")
-
 
 def parse_board(board):
     return [list(map(int, row.split())) for row in board.splitlines()]
@@ -28,7 +26,7 @@ class Board(list):
                     row[ii] = "x"
 
 
-def init():
+def init(raw: str):
     numbers, *boards = raw.split("\n\n")
     numbers = list(map(int, numbers.split(",")))
     boards = list(map(Board, map(parse_board, boards)))
@@ -36,8 +34,8 @@ def init():
 
 
 @utils.profile
-def part1():
-    numbers, boards = init()
+def part1(raw: str):
+    numbers, boards = init(raw)
     for called_number in numbers:
         for board in boards:
             board.mark(called_number)
@@ -46,8 +44,8 @@ def part1():
 
 
 @utils.profile
-def part2():
-    numbers, boards = init()
+def part2(raw: str):
+    numbers, boards = init(raw)
     for called_number in numbers:
         for board in boards:
             board.mark(called_number)
@@ -59,5 +57,6 @@ def part2():
 
 
 if __name__ == "__main__":
-    assert part1() == 33348
-    assert part2() == 8112
+    raw = utils.load_puzzle_input("2021/day4")
+    assert part1(raw) == 33348
+    assert part2(raw) == 8112

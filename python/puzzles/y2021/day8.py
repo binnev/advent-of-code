@@ -2,10 +2,7 @@ import itertools
 import utils
 
 
-raw = utils.load_puzzle_input("2021/day8")
-
-
-def init():
+def init(raw: str):
     data = [list(map(str.split, line.split(" | "))) for line in raw.splitlines()]
     inputs = [input for input, output in data]
     outputs = [output for input, output in data]
@@ -13,8 +10,8 @@ def init():
 
 
 @utils.profile
-def part1():
-    inputs, outputs = init()
+def part1(raw: str):
+    inputs, outputs = init(raw)
     count = 0
     for output in outputs:
         for digit in output:
@@ -129,8 +126,8 @@ def calculate_result(wire_sequence, mapping) -> int:
 
 
 @utils.profile
-def part2():
-    inputs, outputs = init()
+def part2(raw: str):
+    inputs, outputs = init(raw)
     total = 0
     for input, output in zip(inputs, outputs):
         mapping = deduce_mapping(input)
@@ -140,5 +137,6 @@ def part2():
 
 
 if __name__ == "__main__":
-    assert part1() == 303
-    assert part2() == 961734
+    raw = utils.load_puzzle_input("2021/day8")
+    assert part1(raw) == 303
+    assert part2(raw) == 961734

@@ -2,38 +2,6 @@ import numpy
 
 import utils
 
-raw = utils.load_puzzle_input("2021/day16")
-
-hex_bin_mapping = {
-    "0": "0000",
-    "1": "0001",
-    "2": "0010",
-    "3": "0011",
-    "4": "0100",
-    "5": "0101",
-    "6": "0110",
-    "7": "0111",
-    "8": "1000",
-    "9": "1001",
-    "A": "1010",
-    "B": "1011",
-    "C": "1100",
-    "D": "1101",
-    "E": "1110",
-    "F": "1111",
-}
-
-
-def hex_to_bin(hex_string):
-    return "".join(hex_bin_mapping[char] for char in hex_string)
-
-
-def split(string, index):
-    return string[:index], string[index:]
-
-
-VERSIONS = []
-
 LITERAL = 4
 SUM = 0
 PRODUCT = 1
@@ -42,19 +10,18 @@ MAX = 3
 GREATER = 5
 LESSER = 6
 EQUAL = 7
-TYPES = {
-    LITERAL: "LITERAL",
-    SUM: "SUM",
-    PRODUCT: "PRODUCT",
-    MIN: "MIN",
-    MAX: "MAX",
-    GREATER: "GREATER",
-    LESSER: "LESSER",
-    EQUAL: "EQUAL",
-}
+
+
+def hex_to_bin(hex_string):
+    return "".join(bin(int(char, base=16)).replace("0b", "").rjust(4, "0") for char in hex_string)
+
+
+def split(string, index):
+    return string[:index], string[index:]
 
 
 def parse(string, num_packets=None) -> (list, str):
+    VERSIONS = []
     results = []
     ii = 1
     while "1" in string:
@@ -115,26 +82,8 @@ def parse_operator(string, typ):
     return operator(values), string
 
 
-for hex_string, expected_value in [
-    ("C200B40A82", 3),
-    ("04005AC33890", 54),
-    ("880086C3E88112", 7),
-    ("CE00C43D881120", 9),
-    ("D8005AC2A8F0", 1),
-    ("F600BC2D8F", 0),
-    ("9C005AC2F8F0", 0),
-    ("9C0141080250320F1802104A08", 1),
-    (raw, 912901337844),
-]:
-    print(f"{hex_string}: ", end="")
-    values, remainder = parse(hex_to_bin(hex_string))
-    print(values[0], end="")
-    assert values[0] == expected_value
-    print(" passed")
-
-
 @utils.profile
-def part1():
+def part1(raw: str):
     hex_bin_mapping = {
         "0": "0000",
         "1": "0001",
@@ -232,11 +181,12 @@ def part1():
 
 
 @utils.profile
-def part2():
-    values, remainder = parse(hex_to_bin(hex_string))
+def part2(raw: str):
+    values, remainder = parse(hex_to_bin(raw))
     return values[0]
 
 
 if __name__ == "__main__":
-    assert part1() == 934
-    assert part2() == 912901337844
+    raw = utils.load_puzzle_input("2021/day16")
+    assert part1(raw) == 934
+    assert part2(raw) == 912901337844

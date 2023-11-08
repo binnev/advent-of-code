@@ -1,8 +1,6 @@
 from copy import copy
 import utils
 
-raw = utils.load_puzzle_input("2021/day25")
-
 
 class CucumberField(dict):
     def calculate_size(self):
@@ -76,7 +74,7 @@ def iterate(cucumbers):
 
 
 @utils.profile
-def part1():
+def part1(raw: str):
     cucumbers = init(raw)
     ii = 1
     while True:
@@ -89,4 +87,5 @@ def part1():
 
 
 if __name__ == "__main__":
-    assert part1() == 295
+    raw = utils.load_puzzle_input("2021/day25")
+    assert part1(raw) == 295

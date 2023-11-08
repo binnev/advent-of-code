@@ -1,7 +1,5 @@
 import utils
 
-raw = utils.load_puzzle_input("2021/day11")
-
 
 class Octopus:
     def __init__(self, energy):
@@ -15,8 +13,8 @@ class Octopus:
 
 
 class Board:
-    def __init__(self):
-        self.contents = [list(map(Octopus, row)) for row in init()]
+    def __init__(self, raw: str):
+        self.contents = [list(map(Octopus, row)) for row in init(raw)]
 
     def __repr__(self):
         return "\n".join("".join(map(str, row)) for row in self.contents)
@@ -67,13 +65,13 @@ class Board:
         return [o for row in self.contents for o in row]
 
 
-def init():
+def init(raw: str):
     return [list(map(int, row)) for row in raw.splitlines()]
 
 
 @utils.profile
-def part1():
-    board = Board()
+def part1(raw: str):
+    board = Board(raw)
     num_flashes = 0
     for ii in range(100):
         flashes = board.update()
@@ -82,8 +80,8 @@ def part1():
 
 
 @utils.profile
-def part2():
-    board = Board()
+def part2(raw: str):
+    board = Board(raw)
     ii = 0
     while True:
         ii += 1
@@ -94,5 +92,6 @@ def part2():
 
 
 if __name__ == "__main__":
-    assert part1() == 1721
-    assert part2() == 298
+    raw = utils.load_puzzle_input("2021/day11")
+    assert part1(raw) == 1721
+    assert part2(raw) == 298

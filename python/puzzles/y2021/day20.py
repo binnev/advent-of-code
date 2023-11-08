@@ -1,11 +1,9 @@
-import time
 from math import inf
+
 import utils
 
-raw = utils.load_puzzle_input("2021/day20")
 
-
-def init():
+def init(raw: str):
     algorithm, raw_image = raw.split("\n\n")
     image = dict()
     for y, row in enumerate(raw_image.splitlines()):
@@ -79,8 +77,8 @@ class Image:
 
 
 @utils.profile
-def part1():
-    algorithm, image = init()
+def part1(raw: str):
+    algorithm, image = init(raw)
     image = Image(image, algorithm)
     for _ in range(2):
         image.enhance()
@@ -88,8 +86,8 @@ def part1():
 
 
 @utils.profile
-def part2():
-    algorithm, image = init()
+def part2(raw: str):
+    algorithm, image = init(raw)
     image = Image(image, algorithm)
     for _ in range(50):
         image.enhance()
@@ -97,5 +95,6 @@ def part2():
 
 
 if __name__ == "__main__":
-    assert part1() == 5225
-    assert part2() == 18131
+    raw = utils.load_puzzle_input("2021/day20")
+    assert part1(raw) == 5225
+    assert part2(raw) == 18131

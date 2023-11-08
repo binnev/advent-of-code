@@ -1,9 +1,7 @@
 import utils
 
-raw = utils.load_puzzle_input("2021/day13")
 
-
-def init():
+def init(raw: str):
     coords, folds = raw.split("\n\n")
     matrix = {tuple(map(int, row.split(","))): "#" for row in coords.splitlines()}
     fold_instructions = []
@@ -52,8 +50,8 @@ def fold_left(matrix, fold_x):
 
 
 @utils.profile
-def part1():
-    matrix, fold_instructions = init()
+def part1(raw: str):
+    matrix, fold_instructions = init(raw)
     mapping = {"x": fold_left, "y": fold_up}
     direction, position = fold_instructions[0]
     fold_func = mapping[direction]
@@ -62,16 +60,16 @@ def part1():
 
 
 @utils.profile
-def part2():
-    matrix, fold_instructions = init()
+def part2(raw: str):
+    matrix, fold_instructions = init(raw)
     mapping = {"x": fold_left, "y": fold_up}
     for direction, position in fold_instructions:
         fold_func = mapping[direction]
         matrix = fold_func(matrix, position)
-    # print_matrix(matrix)
     return len(matrix)
 
 
 if __name__ == "__main__":
-    assert part1() == 655
-    assert part2() == 95
+    raw = utils.load_puzzle_input("2021/day13")
+    assert part1(raw) == 655
+    assert part2(raw) == 95

@@ -1,10 +1,7 @@
 import utils
 
 
-raw = utils.load_puzzle_input("2021/day5")
-
-
-def init():
+def init(raw: str):
     lines = raw.splitlines()
     output = [
         [tuple(map(int, coords.split(","))) for coords in line.split(" -> ")] for line in lines
@@ -13,8 +10,8 @@ def init():
     return output, size
 
 
-def do_the_thing(skip_diagonals=True):
-    coords, size = init()
+def do_the_thing(raw: str, skip_diagonals=True):
+    coords, size = init(raw)
     sparse_matrix = dict()
     for (x1, y1), (x2, y2) in coords:
         if skip_diagonals and (x1 != x2) and (y1 != y2):
@@ -33,15 +30,16 @@ def do_the_thing(skip_diagonals=True):
 
 
 @utils.profile
-def part1():
-    return do_the_thing()
+def part1(raw: str):
+    return do_the_thing(raw)
 
 
 @utils.profile
-def part2():
-    return do_the_thing(skip_diagonals=False)
+def part2(raw: str):
+    return do_the_thing(raw, skip_diagonals=False)
 
 
 if __name__ == "__main__":
-    assert part1() == 7644
-    assert part2() == 18627
+    raw = utils.load_puzzle_input("2021/day5")
+    assert part1(raw) == 7644
+    assert part2(raw) == 18627

@@ -1,9 +1,7 @@
 import utils
 
-raw = utils.load_puzzle_input("2021/day17")
 
-
-def init():
+def init(raw: str):
     target_x, target_y = raw.split(", ")
     target_x = target_x.split("x=")[-1]
     target_y = target_y.split("y=")[-1]
@@ -47,7 +45,7 @@ def calc_traj(u, v, target_x, target_y):
 
 
 @utils.profile
-def part1():
+def part1(raw: str):
     """
     x and y are totally independent!
     find the u range that ends in the target x
@@ -55,7 +53,7 @@ def part1():
     then search that space
         :return:
     """
-    things, target_x, target_y = init()
+    things, target_x, target_y = init(raw)
     things[(0, 0)] = "S"
 
     def calc_traj(u, v, things):
@@ -86,7 +84,7 @@ def part1():
 
 
 @utils.profile
-def part2():
+def part2(raw: str):
     """
     x and y are totally independent!
     find the u range that ends in the target x
@@ -94,7 +92,7 @@ def part2():
     then search that space
         :return:
     """
-    things, target_x, target_y = init()
+    things, target_x, target_y = init(raw)
     things[(0, 0)] = "S"
 
     trajectories = []
@@ -111,5 +109,6 @@ def part2():
 
 
 if __name__ == "__main__":
-    assert part1() == 5565
-    assert part2() == 2118
+    raw = utils.load_puzzle_input("2021/day17")
+    assert part1(raw) == 5565
+    assert part2(raw) == 2118

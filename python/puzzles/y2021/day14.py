@@ -3,10 +3,8 @@ from collections import deque, Counter
 
 import utils
 
-raw = utils.load_puzzle_input("2021/day14")
 
-
-def init():
+def init(raw: str):
     polymer, substitutions = raw.split("\n\n")
     substitutions = [line.split(" -> ") for line in substitutions.splitlines()]
     substitutions = {pair: char for pair, char in substitutions}
@@ -57,9 +55,9 @@ def galaxy_brain(polymer, substitutions, depth):
 
 
 @utils.profile
-def part1():
+def part1(raw: str):
     """Brute force; actually calculating the whole expanded string"""
-    polymer, substitutions = init()
+    polymer, substitutions = init(raw)
     for ii in range(10):
         polymer = expand(polymer, substitutions)
     totals = Counter(polymer)
@@ -70,11 +68,12 @@ def part1():
 
 
 @utils.profile
-def part2():
-    polymer, substitutions = init()
+def part2(raw: str):
+    polymer, substitutions = init(raw)
     return galaxy_brain(polymer, substitutions, depth=40)
 
 
 if __name__ == "__main__":
-    assert part1() == 2590
-    assert part2() == 2875665202438
+    raw = utils.load_puzzle_input("2021/day14")
+    assert part1(raw) == 2590
+    assert part2(raw) == 2875665202438

@@ -2,10 +2,8 @@ import numpy
 
 import utils
 
-raw = utils.load_puzzle_input("2021/day9")
 
-
-def init():
+def init(raw: str):
     return [list(map(int, row)) for row in raw.splitlines()]
 
 
@@ -33,8 +31,8 @@ def find_low_points(input):
 
 
 @utils.profile
-def part1():
-    input = init()
+def part1(raw: str):
+    input = init(raw)
     low_points = find_low_points(input)
     risk_level = 0
     for x, y in low_points:
@@ -63,12 +61,12 @@ def breadth_first_search(xy, input):
 
 
 @utils.profile
-def part2():
+def part2(raw: str):
     """
     1. find lowest points
     2. find surrounding basins (breadth first search?)
     """
-    input = init()
+    input = init(raw)
     low_points = find_low_points(input)
     basin_sizes = []
     for low_point in low_points:
@@ -78,5 +76,6 @@ def part2():
 
 
 if __name__ == "__main__":
-    assert part1() == 522
-    assert part2() == 916688
+    raw = utils.load_puzzle_input("2021/day9")
+    assert part1(raw) == 522
+    assert part2(raw) == 916688

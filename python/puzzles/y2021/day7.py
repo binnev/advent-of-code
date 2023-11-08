@@ -2,16 +2,14 @@ import numpy
 
 import utils
 
-raw = utils.load_puzzle_input("2021/day7")
 
-
-def init():
+def init(raw: str):
     return list(map(int, raw.split(",")))
 
 
 @utils.profile
-def part1():
-    crabs = init()
+def part1(raw: str):
+    crabs = init(raw)
     min_x = min(crabs)
     max_x = max(crabs)
     results = {}
@@ -28,8 +26,8 @@ def cost(x, desired_x):
 
 
 @utils.profile
-def part2():
-    crabs = init()
+def part2(raw: str):
+    crabs = init(raw)
     average = int(numpy.mean(crabs))
     min_x = average - 10
     max_x = average + 10
@@ -38,5 +36,6 @@ def part2():
 
 
 if __name__ == "__main__":
-    assert part1() == 333755
-    assert part2() == 94017638
+    raw = utils.load_puzzle_input("2021/day7")
+    assert part1(raw) == 333755
+    assert part2(raw) == 94017638

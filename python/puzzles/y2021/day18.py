@@ -4,10 +4,8 @@ from math import floor, ceil
 
 import utils
 
-raw = utils.load_puzzle_input("2021/day18")
 
-
-def init():
+def init(raw: str):
     return raw.splitlines()
 
 
@@ -102,58 +100,9 @@ def magnitude(number):
         return number
 
 
-def explode_tests():
-    for string, expected in [
-        ("[[[[[9,8],1],2],3],4]", "[[[[0,9],2],3],4]"),
-        ("[7,[6,[5,[4,[3,2]]]]]", "[7,[6,[5,[7,0]]]]"),
-        ("[[6,[5,[4,[3,2]]]],1]", "[[6,[5,[7,0]]],3]"),
-        ("[[3,[2,[1,[7,3]]]],[6,[5,[4,[3,2]]]]]", "[[3,[2,[8,0]]],[9,[5,[4,[3,2]]]]]"),
-        ("[[3,[2,[8,0]]],[9,[5,[4,[3,2]]]]]", "[[3,[2,[8,0]]],[9,[5,[7,0]]]]"),
-        ("[[[[[4,3],4],4],[7,[[8,4],9]]],[1,1]]", "[[[[0,7],4],[7,[[8,4],9]]],[1,1]]"),
-        ("[[[[0,7],4],[7,[[8,4],9]]],[1,1]]", "[[[[0,7],4],[15,[0,13]]],[1,1]]"),
-    ]:
-        result, changed = explode(string)
-        assert result == expected
-
-
-def split_tests():
-    for string, expected in [
-        ("[[[[0,7],4],[15,[0,13]]],[1,1]]", "[[[[0,7],4],[[7,8],[0,13]]],[1,1]]"),
-        ("[[[[0,7],4],[[7,8],[0,13]]],[1,1]]", "[[[[0,7],4],[[7,8],[0,[6,7]]]],[1,1]]"),
-    ]:
-        result, changed = split(string)
-        assert result == expected
-
-
-def add_tests():
-    for left, right, expected in [
-        ("[[[[4,3],4],4],[7,[[8,4],9]]]", "[1,1]", "[[[[0,7],4],[[7,8],[6,0]]],[8,1]]"),
-        (
-            "[[[0,[4,5]],[0,0]],[[[4,5],[2,6]],[9,5]]]",
-            "[7,[[[3,7],[4,3]],[[6,3],[8,8]]]]",
-            "[[[[4,0],[5,4]],[[7,7],[6,0]]],[[8,[7,7]],[[7,9],[5,0]]]]",
-        ),
-    ]:
-        result = add(left, right)
-        assert result == expected
-
-
-def magnitude_tests():
-    for string, expected in [
-        ("[[1,2],[[3,4],5]]", 143),
-        ("[[[[0,7],4],[[7,8],[6,0]]],[8,1]]", 1384),
-        ("[[[[1,1],[2,2]],[3,3]],[4,4]]", 445),
-        ("[[[[3,0],[5,3]],[4,4]],[5,5]]", 791),
-        ("[[[[5,0],[7,4]],[5,5]],[6,6]]", 1137),
-        ("[[[[8,7],[7,7]],[[8,6],[7,7]]],[[[0,7],[6,6]],[8,7]]]", 3488),
-    ]:
-        result = magnitude(string)
-        assert result == expected
-
-
 @utils.profile
-def part1():
-    lines = init()
+def part1(raw: str):
+    lines = init(raw)
     string = lines.pop(0)
     for line in lines:
         string = add(string, line)
@@ -162,8 +111,8 @@ def part1():
 
 
 @utils.profile
-def part2():
-    numbers = init()
+def part2(raw: str):
+    numbers = init(raw)
     combos = list(combinations(numbers, 2))
     highest = 0
     for a, b in combos:
@@ -175,5 +124,6 @@ def part2():
 
 
 if __name__ == "__main__":
-    assert part1() == 4243
-    assert part2() == 4701
+    raw = utils.load_puzzle_input("2021/day18")
+    assert part1(raw) == 4243
+    assert part2(raw) == 4701

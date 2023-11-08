@@ -3,8 +3,6 @@ from itertools import combinations_with_replacement
 
 import utils
 
-raw = utils.load_puzzle_input("2021/day24")
-
 
 def init(raw_string):
     instructions = []
@@ -86,7 +84,7 @@ class Alu:
 
 
 @utils.profile
-def part1():
+def part1(raw: str):
     alu = Alu()
     for ii, guess in enumerate(combinations_with_replacement(list(range(1, 10)), r=14)):
         guess = int("".join(map(str, guess)))
@@ -96,4 +94,5 @@ def part1():
 
 
 if __name__ == "__main__":
-    part1()
+    raw = utils.load_puzzle_input("2021/day24")
+    part1(raw)

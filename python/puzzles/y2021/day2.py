@@ -1,13 +1,13 @@
 import utils
 
-raw = utils.load_puzzle_input("2021/day2")
 
-
-instructions = list(map(str.strip, raw.strip().split("\n")))
+def process_input(raw: str):
+    return list(map(str.strip, raw.strip().split("\n")))
 
 
 @utils.profile
-def part1():
+def part1(raw: str):
+    instructions = process_input(raw)
     depth = 0
     horizontal = 0
 
@@ -26,7 +26,8 @@ def part1():
 
 
 @utils.profile
-def part2():
+def part2(raw: str):
+    instructions = process_input(raw)
     depth = 0
     horizontal = 0
     aim = 0
@@ -47,5 +48,6 @@ def part2():
 
 
 if __name__ == "__main__":
-    assert part1() == 1451208
-    assert part2() == 1620141160
+    raw = utils.load_puzzle_input("2021/day2")
+    assert part1(raw) == 1451208
+    assert part2(raw) == 1620141160

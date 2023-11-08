@@ -1,14 +1,15 @@
 import utils
 
-raw = utils.load_puzzle_input("2021/day12")
 
-links = dict()
-for node1, node2 in [row.split("-") for row in raw.splitlines()]:
-    links.setdefault(node1, []).append(node2)
-    links.setdefault(node2, []).append(node1)
+def init(raw: str):
+    links = dict()
+    for node1, node2 in [row.split("-") for row in raw.splitlines()]:
+        links.setdefault(node1, []).append(node2)
+        links.setdefault(node2, []).append(node1)
+    return links
 
 
-def dfs(path):
+def dfs(path, links):
     node = path[-1]
     new_paths = []
     for neighbour in links[node]:
@@ -21,13 +22,13 @@ def dfs(path):
             continue
 
         # recursive case
-        foo = dfs(path + [neighbour])
+        foo = dfs(path + [neighbour], links)
         new_paths.extend(foo)
 
     return new_paths
 
 
-def dfs2(path):
+def dfs2(path, links):
     node = path[-1]
     new_paths = []
     for neighbour in links[node]:
@@ -42,15 +43,16 @@ def dfs2(path):
             continue
 
         # recursive case
-        foo = dfs2(path + [neighbour])
+        foo = dfs2(path + [neighbour], links)
         new_paths.extend(foo)
 
     return new_paths
 
 
 @utils.profile
-def part1():
-    paths = dfs(["start"])
+def part1(raw: str):
+    links = init(raw)
+    paths = dfs(["start"], links)
     return len(paths)
 
 
@@ -62,11 +64,13 @@ def small_cave_visited_twice(path):
 
 
 @utils.profile
-def part2():
-    paths = dfs2(["start"])
+def part2(raw: str):
+    links = init(raw)
+    paths = dfs2(["start"], links)
     return len(paths)
 
 
 if __name__ == "__main__":
-    assert part1() == 4912
-    assert part2() == 150004
+    raw = utils.load_puzzle_input("2021/day12")
+    assert part1(raw) == 4912
+    assert part2(raw) == 150004

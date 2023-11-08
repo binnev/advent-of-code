@@ -3,8 +3,6 @@ from copy import deepcopy
 from itertools import cycle, combinations, combinations_with_replacement
 import utils
 
-raw = utils.load_puzzle_input("2021/day21")
-
 
 def init(raw_string):
     return [int(re.findall("\d+", line)[-1]) for line in raw_string.splitlines()]
@@ -43,7 +41,7 @@ class Player:
 
 
 @utils.profile
-def part1():
+def part1(raw: str):
     player1, player2 = init(raw)
     player1 = Player(1, player1)
     player2 = Player(2, player2)
@@ -78,7 +76,7 @@ def we_must_go_deeper(players, active_player: int, spaces_to_move: int):
 
 
 @utils.profile
-def part2():
+def part2(raw: str):
     player1, player2 = init(raw)
     player1 = Player(1, player1)
     player2 = Player(2, player2)
@@ -91,4 +89,5 @@ def part2():
 
 
 if __name__ == "__main__":
-    assert part1() == 1073709
+    raw = utils.load_puzzle_input("2021/day21")
+    assert part1(raw) == 1073709

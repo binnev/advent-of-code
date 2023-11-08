@@ -1,10 +1,8 @@
 import numpy
 import utils
 
-raw = utils.load_puzzle_input("2021/day10")
 
-
-def init():
+def init(raw: str):
     return raw.splitlines()
 
 
@@ -41,14 +39,12 @@ def check_line1(line):
         else:
             expected_opener = reverse_mapping[char]
             if stack[-1] != expected_opener:
-                # print(f"line {line}: expected {mapping[stack[-1]]}, but found {char} instead")
                 return illegal_chars[char]
             else:
                 stack.pop()
     if len(stack) == 0:
         return 0
     else:
-        # print(f"Chars still on stack: {stack}")
         return 0
 
 
@@ -74,8 +70,8 @@ def check_line2(line):
 
 
 @utils.profile
-def part1():
-    input = init()
+def part1(raw: str):
+    input = init(raw)
     score = 0
     for line in input:
         score += check_line1(line)
@@ -92,8 +88,8 @@ def calculate_score(chars):
 
 
 @utils.profile
-def part2():
-    input = init()
+def part2(raw: str):
+    input = init(raw)
     scores = []
     for line in input:
         remaining_chars = check_line2(line)
@@ -105,5 +101,6 @@ def part2():
 
 
 if __name__ == "__main__":
-    assert part1() == 168417
-    assert part2() == 2802519786
+    raw = utils.load_puzzle_input("2021/day10")
+    assert part1(raw) == 168417
+    assert part2(raw) == 2802519786

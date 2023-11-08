@@ -1,47 +1,43 @@
 import utils
 
-raw = utils.load_puzzle_input("2021/day6")
+
+School = dict[int:int]
 
 
-def init():
-    return list(map(int, raw.split(",")))
+def init(raw: str) -> School:
+    fish = list(map(int, raw.split(",")))
+    school: School = {n: fish.count(n) for n in range(9)}
+    return school
+
+
+def iterate_fish(fish: School):
+    new_fishies = {ii: 0 for ii in range(9)}
+    for days_till_spawn, count in fish.items():
+        if days_till_spawn == 0:
+            new_fishies[8] += count
+            new_fishies[6] += count
+        else:
+            new_fishies[days_till_spawn - 1] += count
+    return new_fishies
 
 
 @utils.profile
-def part1():
-    fishies = init()
-    num_days = 80
-    for day in range(num_days):
-        fresh_fish = []
-        for ii, fish in enumerate(fishies):
-            if fish == 0:
-                fishies[ii] = 6
-                fresh_fish.append(8)
-            else:
-                fishies[ii] = fish - 1
-        fishies.extend(fresh_fish)
-    return len(fishies)
+def part1(raw: str):
+    fishies = init(raw)
+    for _ in range(80):
+        fishies = iterate_fish(fishies)
+    return sum(fishies.values())
 
 
 @utils.profile
-def part2():
-    initial_fishies = init()
-    fishies = {ii: 0 for ii in range(9)}
-    for fish in initial_fishies:
-        fishies[fish] += 1
-
-    for day in range(256):
-        new_fishies = {ii: 0 for ii in range(9)}
-        for days_till_spawn, count in fishies.items():
-            if days_till_spawn == 0:
-                new_fishies[8] += count
-                new_fishies[6] += count
-            else:
-                new_fishies[days_till_spawn - 1] += count
-        fishies = new_fishies
+def part2(raw: str):
+    fishies = init(raw)
+    for _ in range(256):
+        fishies = iterate_fish(fishies)
     return sum(fishies.values())
 
 
 if __name__ == "__main__":
-    assert part1() == 374927
-    assert part2() == 1687617803407
+    raw = utils.load_puzzle_input("2021/day6")
+    assert part1(raw) == 374927
+    assert part2(raw) == 1687617803407

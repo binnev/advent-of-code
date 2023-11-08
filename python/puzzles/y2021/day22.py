@@ -3,8 +3,6 @@ from itertools import product
 
 import utils
 
-raw = utils.load_puzzle_input("2021/day22")
-
 
 def init(raw_string):
     instructions = []
@@ -36,7 +34,7 @@ def galaxy_brain(instructions):
 
 
 @utils.profile
-def part1():
+def part1(raw: str):
     instructions = [
         (onoff, shape)
         for onoff, shape in init(raw)
@@ -156,11 +154,12 @@ class Shape(tuple):
 
 
 @utils.profile
-def part2():
+def part2(raw: str):
     instructions = init(raw)
     return galaxy_brain(instructions)
 
 
 if __name__ == "__main__":
-    assert part1() == 533863
-    assert part2() == 1261885414840992
+    raw = utils.load_puzzle_input("2021/day22")
+    assert part1(raw) == 533863
+    assert part2(raw) == 1261885414840992

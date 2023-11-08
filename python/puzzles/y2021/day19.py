@@ -5,8 +5,6 @@ from pprint import pprint
 
 import utils
 
-raw = utils.load_puzzle_input("2021/day19")
-
 
 def print_stuff(things):
     xs = [x for x, y in things]
@@ -21,7 +19,7 @@ def print_stuff(things):
         print("")
 
 
-def init():
+def init(raw: str):
     input = raw.split("\n\n")
     scanners = dict()
     for text in input:
@@ -123,8 +121,8 @@ def smart_stuff(scanner0, scanner1):
 
 
 @utils.profile
-def part1():
-    scanners = init()
+def part1(raw: str):
+    scanners = init(raw)
     master = {**scanners.pop(0)}
     scanners = deque([(key, value) for key, value in scanners.items()])
     while scanners:
@@ -148,7 +146,7 @@ def manhattan_distance(xyz1, xyz2):
 
 
 @utils.profile
-def part2():
+def part2(raw: str):
     input = raw.splitlines()
     scanner_positions = {0: (0, 0, 0)}
     for ii, row in enumerate(input):
@@ -170,8 +168,9 @@ def part2():
 
 
 if __name__ == "__main__":
-    assert part1() == 428
-    assert part2() == 12140
+    raw = utils.load_puzzle_input("2021/day19")
+    assert part1(raw) == 428
+    assert part2(raw) == 12140
     # scanners = init()
     # result = smart_stuff(scanners[0], scanners[1])
     # print(result)

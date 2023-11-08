@@ -1,12 +1,13 @@
 import utils
 
-raw = utils.load_puzzle_input("2021/day1")
 
-input = list(map(int, map(str.strip, raw.strip().split("\n"))))
+def process_input(raw: str):
+    return list(map(int, map(str.strip, raw.strip().split("\n"))))
 
 
 @utils.profile
-def part1():
+def part1(raw: str):
+    input = process_input(raw)
     increases = 0
     previous_depth = 0
     for ii, depth in enumerate(input[1:]):
@@ -17,7 +18,8 @@ def part1():
 
 
 @utils.profile
-def part2():
+def part2(raw: str):
+    input = process_input(raw)
     increases = 0
     for ii, depth in enumerate(input):
         current_window = input[ii : ii + 3]
@@ -31,5 +33,6 @@ def part2():
 
 
 if __name__ == "__main__":
-    assert part1() == 1482
-    assert part2() == 1518
+    raw = utils.load_puzzle_input("2021/day1")
+    assert part1(raw) == 1482
+    assert part2(raw) == 1518

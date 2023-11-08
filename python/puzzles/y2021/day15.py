@@ -1,18 +1,16 @@
 import math
 import utils
 
-raw = utils.load_puzzle_input("2021/day15")
 
-
-def init():
+def init(raw: str):
     return {
         (x, y): int(cell) for y, row in enumerate(raw.splitlines()) for x, cell in enumerate(row)
     }
 
 
-def init2():
+def init2(raw: str):
     repeats = 5
-    cave = init()
+    cave = init(raw)
     new_cave = dict()
     width = max([x for x, y in cave]) + 1
     height = max([y for x, y in cave]) + 1
@@ -72,19 +70,20 @@ def dijkstra(cave):
 
 
 @utils.profile
-def part1():
-    cave = init()
+def part1(raw: str):
+    cave = init(raw)
     shortest_path = dijkstra(cave)
     return shortest_path
 
 
 @utils.profile
-def part2():
-    cave = init2()
+def part2(raw: str):
+    cave = init2(raw)
     shortest_path = dijkstra(cave)
     return shortest_path
 
 
 if __name__ == "__main__":
-    assert part1() == 423
-    assert part2() == 2778
+    raw = utils.load_puzzle_input("2021/day15")
+    assert part1(raw) == 423
+    assert part2(raw) == 2778
