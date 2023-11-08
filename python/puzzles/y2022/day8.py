@@ -8,8 +8,8 @@ example = """30373
 35390"""
 
 
-def parse_input(input: str) -> np.ndarray:
-    return np.array([list(map(int, line)) for line in input.split("\n")])
+def parse_input(raw: str) -> np.ndarray:
+    return np.array([list(map(int, line)) for line in raw.split("\n")])
 
 
 def is_visible_1d(x: int, row: np.ndarray) -> bool:
@@ -55,9 +55,8 @@ def scenic_score(x: int, y: int, grid: np.ndarray) -> int:
 
 
 @utils.profile
-def part1() -> int:
-    input = utils.load_puzzle_input("2022/day8")
-    grid = parse_input(input)
+def part1(raw: str) -> int:
+    grid = parse_input(raw)
     count = 0
     for y, row in enumerate(grid):
         for x, _ in enumerate(row):
@@ -67,9 +66,8 @@ def part1() -> int:
 
 
 @utils.profile
-def part2() -> int:
-    input = utils.load_puzzle_input("2022/day8")
-    grid = parse_input(input)
+def part2(raw: str) -> int:
+    grid = parse_input(raw)
     max_score = 0
     for y, row in enumerate(grid):
         for x, _ in enumerate(row):
@@ -80,5 +78,6 @@ def part2() -> int:
 
 
 if __name__ == "__main__":
-    assert part1() == 1698
-    assert part2() == 672280
+    raw = utils.load_puzzle_input("2022/day8")
+    assert part1(raw) == 1698
+    assert part2(raw) == 672280

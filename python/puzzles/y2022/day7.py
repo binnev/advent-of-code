@@ -25,10 +25,10 @@ $ ls
 7214296 k"""
 
 
-def explore_folders(input: str) -> dict[str:int]:
+def explore_folders(raw: str) -> dict[str:int]:
     root = cwd = ""
     contents = {"/": 0}
-    for line in input.split("\n"):
+    for line in raw.split("\n"):
         if line.startswith("$"):
             _, cmd = line.split(" ", maxsplit=1)
             match cmd.split():
@@ -59,9 +59,8 @@ def get_folder_size(contents: dict[str:int], folder_path: str) -> int:
 
 
 @utils.profile
-def part1() -> int:
-    input = utils.load_puzzle_input("2022/day7")
-    contents = explore_folders(input)
+def part1(raw: str) -> int:
+    contents = explore_folders(raw)
     folders = {k for k, v in contents.items() if v == 0}
     total = 0
     for folder in folders:
@@ -71,9 +70,8 @@ def part1() -> int:
 
 
 @utils.profile
-def part2() -> int:
-    input = utils.load_puzzle_input("2022/day7")
-    contents = explore_folders(input)
+def part2(raw: str) -> int:
+    contents = explore_folders(raw)
     TOTAL_SPACE = 70_000_000
     REQUIRED_SPACE = 30_000_000
     occupied_space = get_folder_size(contents, folder_path="/")
@@ -86,5 +84,6 @@ def part2() -> int:
 
 
 if __name__ == "__main__":
-    assert part1() == 1792222
-    assert part2() == 1112963
+    raw = utils.load_puzzle_input("2022/day7")
+    assert part1(raw) == 1792222
+    assert part2(raw) == 1112963

@@ -131,22 +131,20 @@ def find_cycle(input: str) -> tuple[int, int, int, int]:
 
 
 @utils.profile
-def part1():
-    input = utils.load_puzzle_input("2022/day17")
+def part1(raw: str):
     grid1 = SparseMatrix()
     N = 2022
-    build_tower(N, jets=input, grid=grid1)
+    build_tower(N, jets=raw, grid=grid1)
     brute_height = max(y for x, y in grid1)
     return brute_height
 
 
 @utils.profile
-def part2():
+def part2(raw: str):
     """Could probably improve this by detecting cycles on the fly instead of requiring a separate
     simulation for it. But that's a problem for Future Robin"""
-    input = utils.load_puzzle_input("2022/day17")
     N = 1000000000000
-    ii_from, ii_to, height_from, height_to = find_cycle(input)
+    ii_from, ii_to, height_from, height_to = find_cycle(raw)
     cycle_length = ii_to - ii_from
     cycle_height = height_to - height_from
     print(
@@ -158,7 +156,7 @@ def part2():
     shapes_to_simulate = startup + remainder
     print(f"After removing cycles, only need to simulate {shapes_to_simulate} shapes")
     grid2 = SparseMatrix()
-    build_tower(shapes_to_simulate, jets=input, grid=grid2)
+    build_tower(shapes_to_simulate, jets=raw, grid=grid2)
     simulated_height = max(y for x, y in grid2)
     height_from_cycles = cycle_height * num_cycles
     efficient_height = simulated_height + height_from_cycles
@@ -166,5 +164,6 @@ def part2():
 
 
 if __name__ == "__main__":
-    assert part1() == 3109
-    assert part2() == 1541449275365
+    raw = utils.load_puzzle_input("2022/day17")
+    assert part1(raw) == 3109
+    assert part2(raw) == 1541449275365

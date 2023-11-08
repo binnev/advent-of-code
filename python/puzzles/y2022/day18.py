@@ -19,10 +19,10 @@ LAVA = "█"
 STEAM = "░"
 
 
-def parse_input(input: str) -> SparseMatrix3:
+def parse_input(raw: str) -> SparseMatrix3:
     grid = SparseMatrix3()
 
-    for line in input.splitlines():
+    for line in raw.splitlines():
         point = tuple(map(int, line.split(",")))
         grid[point] = LAVA
     return grid
@@ -83,9 +83,8 @@ def surround_with_steam(grid: SparseMatrix3):
 
 
 @utils.profile
-def part1():
-    input = utils.load_puzzle_input("2022/day18")
-    grid = parse_input(input)
+def part1(raw: str):
+    grid = parse_input(raw)
     surface_area = 0
     for cube in grid:
         for neighbour in get_3d_neighbours(cube):
@@ -95,9 +94,8 @@ def part1():
 
 
 @utils.profile
-def part2():
-    input = utils.load_puzzle_input("2022/day18")
-    grid = parse_input(input)
+def part2(raw: str):
+    grid = parse_input(raw)
     droplet = {pt: value for pt, value in grid.items() if value == LAVA}
     surround_with_steam(grid)
     surface_area = 0
@@ -105,10 +103,10 @@ def part2():
         for neighbour in get_3d_neighbours(cube):
             if grid.get(neighbour) == STEAM:
                 surface_area += 1
-    # grid.print(empty_char=" ")
     return surface_area
 
 
 if __name__ == "__main__":
-    assert part1() == 4628
-    assert part2() == 2582
+    raw = utils.load_puzzle_input("2022/day18")
+    assert part1(raw) == 4628
+    assert part2(raw) == 2582

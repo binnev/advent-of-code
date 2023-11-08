@@ -21,10 +21,10 @@ rx_number_shouter = "(\w+): (\d+)"
 rx_calculator = "(\w+): (\w+) [\*/-\+] (\w+)"
 
 
-def parse_monkeys(input: str) -> (dict[str, int], dict[str, tuple]):
+def parse_monkeys(raw: str) -> (dict[str, int], dict[str, tuple]):
     known = dict()
     unknown = dict()
-    for line in input.splitlines():
+    for line in raw.splitlines():
         match line.split():
             case [id, left, op, right]:
                 id = id.replace(":", "")
@@ -57,23 +57,21 @@ def grind_monkeys(unknown: dict[str, tuple], known: dict[str, int]):
 
 
 @utils.profile
-def part1():
+def part1(raw: str):
     # input = example
-    input = utils.load_puzzle_input("2022/day21")
-    known, unknown = parse_monkeys(input)
+    known, unknown = parse_monkeys(raw)
     grind_monkeys(unknown, known)
     return known["root"]
 
 
 @utils.profile
-def part2():
+def part2(raw: str):
     """
     Calculate what we can, and then step down the path of unknowns until we reach "humn",
     updating the target number as we go.
     """
     # input = example
-    input = utils.load_puzzle_input("2022/day21")
-    known, unknown = parse_monkeys(input)
+    known, unknown = parse_monkeys(raw)
     known.pop("humn")
     # crunch the known side of the tree
     try:
@@ -119,5 +117,6 @@ def part2():
 
 
 if __name__ == "__main__":
-    assert part1() == 142707821472432
-    assert part2() == 3587647562851
+    raw = utils.load_puzzle_input("2022/day21")
+    assert part1(raw) == 142707821472432
+    assert part2(raw) == 3587647562851

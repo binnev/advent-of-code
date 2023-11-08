@@ -15,9 +15,9 @@ ResourceDict = dict[str, int]  # e.g. {ORE: 3, CLAY: 4, ...}
 BluePrint = dict[str, ResourceDict]
 
 
-def parse_input(input: str) -> dict[int, BluePrint]:
+def parse_input(raw: str) -> dict[int, BluePrint]:
     blueprints = dict()
-    for line in input.splitlines():
+    for line in raw.splitlines():
         number = int(re.search("Blueprint (\d+):", line).groups()[0])
         blueprint = BluePrint()
         blueprints[number] = blueprint
@@ -265,13 +265,12 @@ def calculate_max_geodes(blueprint: BluePrint, minutes: int) -> int:
 
 
 @utils.profile
-def part1():
+def part1(raw: str):
     """
     Which blueprint maximises the number of opened geodes after 24 minutes?
     """
     # input = example
-    input = utils.load_puzzle_input("2022/day19")
-    blueprints = parse_input(input)
+    blueprints = parse_input(raw)
     result = 0
     for id, blueprint in blueprints.items():
         max_geodes = calculate_max_geodes(blueprint, 24)
@@ -281,10 +280,8 @@ def part1():
 
 
 @utils.profile
-def part2():
-    # input = example
-    input = utils.load_puzzle_input("2022/day19")
-    blueprints = parse_input(input)
+def part2(raw: str):
+    blueprints = parse_input(raw)
     result = 1
     for id, blueprint in blueprints.items():
         if id > 3:
@@ -296,5 +293,6 @@ def part2():
 
 
 if __name__ == "__main__":
-    assert part1() == 1766
-    assert part2() == 30780
+    raw = utils.load_puzzle_input("2022/day19")
+    assert part1(raw) == 1766
+    assert part2(raw) == 30780

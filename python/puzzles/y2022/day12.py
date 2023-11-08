@@ -3,7 +3,6 @@ import string
 from typing import Callable
 
 import numpy
-from matplotlib.axes import Axes
 
 import utils
 from utils import Coord, SparseMatrix
@@ -115,22 +114,20 @@ def plot_grid(grid: SparseMatrix):
 
 
 @utils.profile
-def part1():
-    input = utils.load_puzzle_input("2022/day12")
-    grid, start, target = get_heightmap(input)
+def part1(raw: str):
+    grid, start, target = get_heightmap(raw)
     distances = bfs(grid, start=start, get_neighbours_func=get_neighbours_uphill)
     # plot_grid(SparseMatrix(distances))
     return distances[target]
 
 
 @utils.profile
-def part2():
+def part2(raw: str):
     """
     Flip it round; use the target as the start square, and find the distances of all points from
     that.
     """
-    input = utils.load_puzzle_input("2022/day12")
-    map, _, target = get_heightmap(input)
+    map, _, target = get_heightmap(raw)
     distances = bfs(map, start=target, get_neighbours_func=get_neighbours_downhill)
 
     low_points = []
@@ -146,5 +143,6 @@ def part2():
 
 
 if __name__ == "__main__":
-    assert part1() == 440
-    assert part2() == 439
+    raw = utils.load_puzzle_input("2022/day12")
+    assert part1(raw) == 440
+    assert part2(raw) == 439

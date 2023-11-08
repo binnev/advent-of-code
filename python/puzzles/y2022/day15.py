@@ -79,11 +79,11 @@ class Range:
         return self.start < other.start
 
 
-def parse_input(input: str) -> (SparseMatrix, SensorList):
+def parse_input(raw: str) -> (SparseMatrix, SensorList):
     rx = re.compile("Sensor at x=(-?\d+), y=(-?\d+): closest beacon is at x=(-?\d+), y=(-?\d+)")
     sensor_list: SensorList = []
     grid = SparseMatrix()
-    for line in input.splitlines():
+    for line in raw.splitlines():
         match = rx.search(line)
         sensor_x, sensor_y, beacon_x, beacon_y = map(int, match.groups())
         sensor = (sensor_x, sensor_y)
@@ -163,7 +163,7 @@ def get_x_ranges(sensor_list: SensorList, y_value: int) -> list[Range]:
 
 
 @utils.profile
-def part1():
+def part1(raw: str):
     """
     1) find the min/max x values of where the horizontal line intersects each sensor's range
        polygon.
@@ -173,8 +173,8 @@ def part1():
     4) for all known beacons that are inside any sensor's range, reduce the count of beacon-free
        squares
     """
-    input, row_y = utils.load_puzzle_input("2022/day15"), 2000000
-    grid, sensor_list = parse_input(input)
+    row_y = 2000000
+    grid, sensor_list = parse_input(raw)
     ranges = get_x_ranges(sensor_list, y_value=row_y)
     ranges = reduce_ranges(ranges)
     beacon_free_squares = sum(len(r) for r in ranges)
@@ -191,11 +191,10 @@ def tuning_freq(x: int, y: int) -> int:
 
 
 @utils.profile
-def part2():
+def part2(raw: str):
     min_y = 0
-    # input, max_x, max_y = example, 20, 20
-    input, max_x, max_y = utils.load_puzzle_input("2022/day15"), 4000000, 4000000
-    grid, sensor_list = parse_input(input)
+    max_x, max_y = 4000000, 4000000
+    grid, sensor_list = parse_input(raw)
     search_space = max_y - min_y
     print(f"{search_space=}")
     ii = 0
@@ -216,5 +215,6 @@ def part2():
 
 
 if __name__ == "__main__":
-    assert part1() == 5716881
-    assert part2() == 10852583132904
+    raw = utils.load_puzzle_input("2022/day15")
+    assert part1(raw) == 5716881
+    assert part2(raw) == 10852583132904

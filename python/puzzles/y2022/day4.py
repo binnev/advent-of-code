@@ -3,9 +3,8 @@ import utils
 ElfRange = (int, int)
 
 
-def parse_input() -> list[list[ElfRange, ElfRange]]:
-    input = utils.load_puzzle_input("2022/day4")
-    rows = input.split("\n")
+def parse_input(raw: str) -> list[list[ElfRange, ElfRange]]:
+    rows = raw.split("\n")
     elves = []
     for row in rows:
         str1, str2 = row.split(",")
@@ -26,17 +25,18 @@ def overlaps(range1: ElfRange, range2: ElfRange) -> bool:
 
 
 @utils.profile
-def part1():
+def part1(raw: str):
     # abusing the fact that True == 1 and False == 0 for style points (or maybe negative style
     # points; you decide...)
-    return sum(contains(elf1, elf2) for elf1, elf2 in parse_input())
+    return sum(contains(elf1, elf2) for elf1, elf2 in parse_input(raw))
 
 
 @utils.profile
-def part2():
-    return sum(overlaps(elf1, elf2) for elf1, elf2 in parse_input())
+def part2(raw: str):
+    return sum(overlaps(elf1, elf2) for elf1, elf2 in parse_input(raw))
 
 
 if __name__ == "__main__":
-    assert part1() == 567
-    assert part2() == 907
+    raw = utils.load_puzzle_input("2022/day4")
+    assert part1(raw) == 567
+    assert part2(raw) == 907

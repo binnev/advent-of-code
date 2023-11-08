@@ -166,9 +166,8 @@ def iterate_beam(tasks: list[int], code: list[str]) -> int:
 
 
 @utils.profile
-def part1():
-    input = utils.load_puzzle_input("2022/day10")
-    code = input.split("\n")
+def part1(raw: str):
+    code = raw.split("\n")
     tasks = list[int]()
     x = 1
     signal_strength = 0
@@ -180,9 +179,8 @@ def part1():
 
 
 @utils.profile
-def part2():
-    input = utils.load_puzzle_input("2022/day10")
-    code = input.split("\n")
+def part2(raw: str):
+    code = raw.split("\n")
     tasks = list[int]()
     x = 1
     screen = SparseMatrix()
@@ -195,8 +193,9 @@ def part2():
 
 
 if __name__ == "__main__":
-    assert part1() == 13440
-    assert part2() == (
+    raw = utils.load_puzzle_input("2022/day10")
+    assert part1(raw) == 13440
+    assert part2(raw) == (
         "###  ###  ####  ##  ###   ##  ####  ##  \n"
         "#  # #  #    # #  # #  # #  #    # #  # \n"
         "#  # ###    #  #    #  # #  #   #  #  # \n"

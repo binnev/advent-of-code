@@ -1,5 +1,3 @@
-import pytest
-
 import utils
 
 example = """1=-0-2
@@ -72,20 +70,19 @@ def decimal_to_snafu(decimal: str) -> str:
 
 
 @utils.profile
-def part1():
-    # input = example
-    input = utils.load_puzzle_input("2022/day25")
+def part1(raw: str):
     result = 0
-    for snafu in input.splitlines():
+    for snafu in raw.splitlines():
         result += snafu_to_decimal(snafu)
     return decimal_to_snafu(result)
 
 
 @utils.profile
-def part2():
+def part2(raw: str):
     ...
 
 
 if __name__ == "__main__":
-    assert part1() == "20-1-0=-2=-2220=0011"
-    part2()
+    raw = utils.load_puzzle_input("2022/day25")
+    assert part1(raw) == "20-1-0=-2=-2220=0011"
+    part2(raw)

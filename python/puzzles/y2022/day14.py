@@ -26,8 +26,8 @@ def draw_line(start: Coord, end: Coord, grid: SparseMatrix):
             grid[(start_x, y)] = WALL
 
 
-def parse_input(input: str) -> SparseMatrix:
-    instructions = input.splitlines()
+def parse_input(raw: str) -> SparseMatrix:
+    instructions = raw.splitlines()
     grid = SparseMatrix()
     for ins in instructions:
         points = [tuple(map(int, pair.split(","))) for pair in ins.split(" -> ")]
@@ -73,9 +73,8 @@ def sand_trace(origin: Coord, grid: SparseMatrix, floor: int, solid_floor: bool)
 
 
 @utils.profile
-def part1():
-    input = utils.load_puzzle_input("2022/day14")
-    grid = parse_input(input)
+def part1(raw: str):
+    grid = parse_input(raw)
     origin = (500, 0)
     floor = max(y for x, y in grid)
     ii = 0
@@ -88,11 +87,10 @@ def part1():
 
 
 @utils.profile
-def part2():
+def part2(raw: str):
     # todo: speed this up by ignoring any sand particles that get further left/right than the l/r
     #  bounds of the platforms.
-    input = utils.load_puzzle_input("2022/day14")
-    grid = parse_input(input)
+    grid = parse_input(raw)
     origin = (500, 0)
     floor = 2 + max(y for x, y in grid)
     ii = 0
@@ -105,5 +103,6 @@ def part2():
 
 
 if __name__ == "__main__":
-    assert part1() == 755
-    assert part2() == 29805
+    raw = utils.load_puzzle_input("2022/day14")
+    assert part1(raw) == 755
+    assert part2(raw) == 29805

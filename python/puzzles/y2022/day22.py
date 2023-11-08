@@ -47,8 +47,8 @@ def parse_instructions(instructions_str: str) -> list[str]:
     return instructions
 
 
-def parse_input(input: str) -> (SparseMatrix, list[str]):
-    map_str, instructions_str = input.split("\n\n")
+def parse_input(raw: str) -> (SparseMatrix, list[str]):
+    map_str, instructions_str = raw.split("\n\n")
     grid = parse_map(map_str)
     instructions = parse_instructions(instructions_str)
     return grid, instructions
@@ -201,9 +201,8 @@ def get_edge_nodes(face_id: int, edge: int, faces: SparseMatrix) -> list[Coord]:
 
 
 @utils.profile
-def part1():
-    input = utils.load_puzzle_input("2022/day22")
-    grid, instructions = parse_input(input)
+def part1(raw: str):
+    grid, instructions = parse_input(raw)
     start_x = min(x for x, y in grid if y == 0)
     pos = (start_x, 0)
     facing = RIGHT
@@ -235,9 +234,8 @@ def part1():
 
 
 @utils.profile
-def part2():
-    input = utils.load_puzzle_input("2022/day22")
-    grid, instructions = parse_input(input)
+def part2(raw: str):
+    grid, instructions = parse_input(raw)
     faces = get_faces(grid, face_size=get_cube_face_size(grid))
     start_x = min(x for x, y in grid if y == 0)
     pos = (start_x, 0)
@@ -300,5 +298,6 @@ def part2():
 
 
 if __name__ == "__main__":
-    assert part1() == 65368
-    assert part2() == 156166
+    raw = utils.load_puzzle_input("2022/day22")
+    assert part1(raw) == 65368
+    assert part2(raw) == 156166

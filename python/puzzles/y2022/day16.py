@@ -1,7 +1,5 @@
-import itertools
 import math
 import re
-
 from typing import NamedTuple
 
 import utils
@@ -48,11 +46,11 @@ class State2(NamedTuple):
         return (self.nodes, self.release_rate, self.open_valves)
 
 
-def parse_input(input: str) -> tuple[Adjacency, FlowRates]:
+def parse_input(raw: str) -> tuple[Adjacency, FlowRates]:
     rx = re.compile("Valve (\w+) has flow rate=(\d+); tunnels? leads? to valves? (.*)")
     adjacency = dict()
     flow_rates = dict()
-    for line in input.splitlines():
+    for line in raw.splitlines():
         id, flow_rate, neighbours = rx.search(line).groups()
         flow_rate = int(flow_rate)
         neighbours = set(neighbours.split(", "))
@@ -195,12 +193,11 @@ def get_next_states_with_elephant(
 
 
 @utils.profile
-def part1():
+def part1(raw: str):
     """
     This is still really inefficient.
     """
-    input = utils.load_puzzle_input("2022/day16")
-    adjacency, flow_rates = parse_input(input)
+    adjacency, flow_rates = parse_input(raw)
     nonzero_nodes = {node for node, flow in flow_rates.items() if flow > 0}
     start = State(
         description="Initial state.",
@@ -238,15 +235,14 @@ def part1():
 
 
 @utils.profile
-def part2():
+def part2(raw: str):
     """
     todo:
     halve the search space by not considering mirror options.
     represent open valves with one binary number: for valves ABCD, 0010 means valve C is open.
     """
     # input = example
-    input = utils.load_puzzle_input("2022/day16")
-    adjacency, flow_rates = parse_input(input)
+    adjacency, flow_rates = parse_input(raw)
     nonzero_nodes = {node for node, flow in flow_rates.items() if flow > 0}
     start = State2(
         description="Initial state.",
@@ -284,5 +280,6 @@ def part2():
 
 
 if __name__ == "__main__":
-    assert part1() == 2056
-    assert part2() == 2513
+    raw = utils.load_puzzle_input("2022/day16")
+    assert part1(raw) == 2056
+    assert part2(raw) == 2513

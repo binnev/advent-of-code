@@ -27,9 +27,9 @@ example = """[1,1,3,1,1]
 [1,[2,[3,[4,[5,6,0]]]],8,9]"""
 
 
-def parse_input(input: str) -> list[tuple[str, str]]:
+def parse_input(raw: str) -> list[tuple[str, str]]:
     output = []
-    for packet_pair in input.split("\n\n"):
+    for packet_pair in raw.split("\n\n"):
         left, right = packet_pair.splitlines()
         output.append((left, right))
     return output
@@ -113,9 +113,8 @@ def are_packets_ordered(left: str, right: str, depth=0) -> bool | None:
 
 
 @utils.profile
-def part1():
-    input = utils.load_puzzle_input("2022/day13")
-    packets = parse_input(input)
+def part1(raw: str):
+    packets = parse_input(raw)
     score = 0
     for ii, (left, right) in enumerate(packets, start=1):
         ordered = are_packets_ordered(left, right)
@@ -133,9 +132,8 @@ class Packet:
 
 
 @utils.profile
-def part2():
-    input = utils.load_puzzle_input("2022/day13")
-    spaces_removed = input.replace("\n\n", "\n")
+def part2(raw: str):
+    spaces_removed = raw.replace("\n\n", "\n")
     spaces_removed += "\n[[2]]\n[[6]]"
     packets = [Packet(packet) for packet in spaces_removed.splitlines()]
     s = [p.contents for p in sorted(packets)]
@@ -145,5 +143,6 @@ def part2():
 
 
 if __name__ == "__main__":
-    assert part1() == 6420
-    assert part2() == 22000
+    raw = utils.load_puzzle_input("2022/day13")
+    assert part1(raw) == 6420
+    assert part2(raw) == 22000

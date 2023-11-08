@@ -83,8 +83,8 @@ def parse_monkey(monkey_str: str) -> Monkey:
     )
 
 
-def parse_input(input: str) -> MonkeyBunch:
-    return {ii: parse_monkey(monkey_str) for ii, monkey_str in enumerate(input.split("\n\n"))}
+def parse_input(raw: str) -> MonkeyBunch:
+    return {ii: parse_monkey(monkey_str) for ii, monkey_str in enumerate(raw.split("\n\n"))}
 
 
 def throw(monkey: Monkey, item: int, monkey_bunch: MonkeyBunch, decrease_worry: Callable):
@@ -104,9 +104,8 @@ def throw(monkey: Monkey, item: int, monkey_bunch: MonkeyBunch, decrease_worry: 
 
 
 @utils.profile
-def part1():
-    input = utils.load_puzzle_input("2022/day11")
-    monkey_bunch = parse_input(input)
+def part1(raw: str):
+    monkey_bunch = parse_input(raw)
     for round in range(20):
         for monkey in monkey_bunch.values():
             for item in monkey.inventory:
@@ -123,7 +122,7 @@ def part1():
 
 
 @utils.profile
-def part2():
+def part2(raw: str):
     """
     Use clock arithmetic to keep the worry numbers low, while still allowing the "is divisible by
     x" calculations to give the same result. For all monkeys' calculations to be unaffected,
@@ -131,8 +130,7 @@ def part2():
     Because the divisors are all prime, the lowest common multiple is simply the product.
     """
 
-    input = utils.load_puzzle_input("2022/day11")
-    monkey_bunch = parse_input(input)
+    monkey_bunch = parse_input(raw)
     modulus = reduce(lambda a, b: a * b, (m.divisor for m in monkey_bunch.values()))
     for round in range(10000):
         for monkey in monkey_bunch.values():
@@ -150,5 +148,6 @@ def part2():
 
 
 if __name__ == "__main__":
-    assert part1() == 64032
-    assert part2() == 12729522272
+    raw = utils.load_puzzle_input("2022/day11")
+    assert part1(raw) == 64032
+    assert part2(raw) == 12729522272

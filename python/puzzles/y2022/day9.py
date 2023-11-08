@@ -90,13 +90,12 @@ def plot_path(tail_history: set[Coord]):
 
 
 @utils.profile
-def part1():
+def part1(raw: str):
     head = (0, 0)
     tail = (0, 0)
 
-    input = utils.load_puzzle_input("2022/day9")
     tail_history = {tail}
-    for line in input.split("\n"):
+    for line in raw.split("\n"):
         direction, amount = line.split()
         amount = int(amount)
         for _ in range(amount):
@@ -108,11 +107,10 @@ def part1():
 
 
 @utils.profile
-def part2():
+def part2(raw: str):
     snake = [(0, 0)] * 10
-    input = utils.load_puzzle_input("2022/day9")
     tail_history = {snake[-1]}
-    for line in input.split("\n"):
+    for line in raw.split("\n"):
         direction, amount = line.split()
         amount = int(amount)
         for _ in range(amount):
@@ -124,5 +122,6 @@ def part2():
 
 
 if __name__ == "__main__":
-    assert part1() == 6494
-    assert part2() == 2691
+    raw = utils.load_puzzle_input("2022/day9")
+    assert part1(raw) == 6494
+    assert part2(raw) == 2691

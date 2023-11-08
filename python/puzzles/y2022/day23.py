@@ -67,9 +67,9 @@ def get_neighbours(pos: Coord, direction: int) -> list[Coord]:
     return neighbours
 
 
-def parse_input(input: str) -> SparseMatrix:
+def parse_input(raw: str) -> SparseMatrix:
     grid = SparseMatrix()
-    for y, line in enumerate(input.splitlines()):
+    for y, line in enumerate(raw.splitlines()):
         for x, value in enumerate(line):
             if value == "#":
                 grid[(x, y)] = value
@@ -101,11 +101,8 @@ def empty_ground(grid: SparseMatrix) -> int:
 
 
 @utils.profile
-def part1():
-    # input = example
-    input = utils.load_puzzle_input("2022/day23")
-    grid = parse_input(input)
-
+def part1(raw: str):
+    grid = parse_input(raw)
     direction_counter = NORTH
     for iteration in range(10):
         proposals = dict[Coord, list[Coord]]()
@@ -136,11 +133,8 @@ def part1():
 
 
 @utils.profile
-def part2():
-    # input = example
-    input = utils.load_puzzle_input("2022/day23")
-    grid = parse_input(input)
-
+def part2(raw: str):
+    grid = parse_input(raw)
     direction_counter = NORTH
     iteration = 0
     proposals = True
@@ -170,10 +164,10 @@ def part2():
         iteration += 1
         if not proposals:
             break
-    grid.print()
     return iteration
 
 
 if __name__ == "__main__":
-    assert part1() == 4236
-    assert part2() == 1023
+    raw = utils.load_puzzle_input("2022/day23")
+    assert part1(raw) == 4236
+    assert part2(raw) == 1023

@@ -4,7 +4,7 @@ import numpy
 
 import utils
 from utils import SparseMatrix, Coord
-from .day23 import get_next_square
+from puzzles.y2022.day23 import get_next_square
 
 example = """#.#####
 #.....#
@@ -48,10 +48,6 @@ NUMBER_TO_BLIZZARD = {
 BLIZZARD_TO_NUMBER = {v: k for k, v in NUMBER_TO_BLIZZARD.items()}
 WALL = "#"
 EMPTY = " "
-ELF = "░"
-ELF = "▒"
-ELF = "▓"
-ELF = "█"
 ELF = "e"
 
 Blizzards = dict[int, tuple[Coord, Heading]]
@@ -63,11 +59,11 @@ class State(NamedTuple):
     pos: Coord  # current position
 
 
-def parse_input(input: str) -> tuple[SparseMatrix, Blizzards]:
+def parse_input(raw: str) -> tuple[SparseMatrix, Blizzards]:
     blizzards = Blizzards()
     grid = SparseMatrix()
     blizz_id = 0
-    for y, line in enumerate(input.splitlines()):
+    for y, line in enumerate(raw.splitlines()):
         for x, value in enumerate(line):
             if value == "#":
                 grid[(x, y)] = WALL
@@ -182,10 +178,8 @@ def run_the_gauntlet(
 
 
 @utils.profile
-def part1():
-    # input = larger_example
-    input = utils.load_puzzle_input("2022/day24")
-    grid, blizzards = parse_input(input)
+def part1(raw: str):
+    grid, blizzards = parse_input(raw)
     START = (1, 0)
     target_y = max(y for x, y in grid)
     TARGET = next((x, y) for (x, y), value in grid.items() if y == target_y and value == EMPTY)
@@ -193,10 +187,8 @@ def part1():
 
 
 @utils.profile
-def part2():
-    # input = larger_example
-    input = utils.load_puzzle_input("2022/day24")
-    grid, blizzards = parse_input(input)
+def part2(raw: str):
+    grid, blizzards = parse_input(raw)
     START = (1, 0)
     target_y = max(y for x, y in grid)
     TARGET = next((x, y) for (x, y), value in grid.items() if y == target_y and value == EMPTY)
@@ -208,5 +200,6 @@ def part2():
 
 
 if __name__ == "__main__":
-    assert part1() == 228
-    assert part2() == 723
+    raw = utils.load_puzzle_input("2022/day24")
+    assert part1(raw) == 228
+    assert part2(raw) == 723

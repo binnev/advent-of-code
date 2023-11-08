@@ -36,9 +36,8 @@ def shift_number(mutable: list[int], item, move: int, length: int) -> list[int]:
 
 
 @utils.profile
-def part1():
-    input = utils.load_puzzle_input("2022/day20")
-    original_ordering = tuple(map(int, input.splitlines()))
+def part1(raw: str):
+    original_ordering = tuple(map(int, raw.splitlines()))
     unique = tuple((salt, num) for salt, num in enumerate(original_ordering))
     assert len(set(unique)) == len(original_ordering)
     length = len(unique)
@@ -58,10 +57,9 @@ def part1():
 
 
 @utils.profile
-def part2():
+def part2(raw: str):
     encryption_key = 811589153
-    input = utils.load_puzzle_input("2022/day20")
-    original_ordering = tuple(map(int, input.splitlines()))
+    original_ordering = tuple(map(int, raw.splitlines()))
     original_ordering = tuple(n * encryption_key for n in original_ordering)
     unique = tuple((salt, num) for salt, num in enumerate(original_ordering))
     assert len(set(unique)) == len(original_ordering)
@@ -83,5 +81,6 @@ def part2():
 
 
 if __name__ == "__main__":
-    assert part1() == 14888
-    assert part2() == 3760092545849
+    raw = utils.load_puzzle_input("2022/day20")
+    assert part1(raw) == 14888
+    assert part2(raw) == 3760092545849

@@ -13,9 +13,8 @@ mapping = dict(
 )
 
 
-def parse_input() -> list[list[int, int]]:
-    input = utils.load_puzzle_input("2022/day2")
-    lines = input.split("\n")
+def parse_input(raw: str) -> list[list[int, int]]:
+    lines = raw.split("\n")
     moves = [[mapping[l] for l in line.split()] for line in lines]
     return moves
 
@@ -54,12 +53,12 @@ def score_round(opponent, you) -> int:
 
 
 @utils.profile
-def part1() -> int:
+def part1(raw: str) -> int:
     """
     The winner of the whole tournament is the player with the highest score. Your total score is
     the sum of your scores for each round.
     """
-    rounds = parse_input()
+    rounds = parse_input(raw)
     score = 0
     for opponent, you in rounds:
         score += score_round(opponent=opponent, you=you)
@@ -78,8 +77,8 @@ def select_move(opponent, objective) -> int:
 
 
 @utils.profile
-def part2() -> int:
-    rounds = parse_input()
+def part2(raw: str) -> int:
+    rounds = parse_input(raw)
     score = 0
     for opponent, objective in rounds:
         you = select_move(opponent=opponent, objective=objective)
@@ -88,5 +87,6 @@ def part2() -> int:
 
 
 if __name__ == "__main__":
-    assert part1() == 14264
-    assert part2() == 12382
+    raw = utils.load_puzzle_input("2022/day2")
+    assert part1(raw) == 14264
+    assert part2(raw) == 12382
