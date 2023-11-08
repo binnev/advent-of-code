@@ -8,7 +8,7 @@ from robingame.objects import Entity
 from robingame.text.font import fonts
 
 import utils
-from puzzles._2022.day9 import move_head, move_tail
+from puzzles.y2022.day9 import move_head, move_tail
 from utils import SparseMatrix
 
 

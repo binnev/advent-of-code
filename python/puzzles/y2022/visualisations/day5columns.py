@@ -6,7 +6,7 @@ from robingame.objects import Entity
 from robingame.text.font import fonts
 
 import utils
-from puzzles._2022.day5 import parse_input, move
+from puzzles.y2022.day5 import parse_input, move
 
 
 class Day5Part1Visualisation(Entity):
