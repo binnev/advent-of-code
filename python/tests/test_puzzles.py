@@ -3,6 +3,8 @@ import pytest
 from puzzles import y2020, y2021, y2022
 from utils import load_puzzle_input
 
+pytestmark = pytest.mark.timeout(1)
+
 
 @pytest.mark.parametrize(
     "func, input, expected_output",
