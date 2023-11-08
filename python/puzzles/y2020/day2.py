@@ -9,9 +9,9 @@ def parse_line(line: str) -> tuple[int, int, str, str]:
 
 
 @profile
-def part1(input: str):
+def part1(raw: str):
     num_valid = 0
-    for line in input.split("\n"):
+    for line in raw.split("\n"):
         _min, _max, letter, password = parse_line(line)
         if _min <= password.count(letter) <= _max:
             num_valid += 1
@@ -19,9 +19,9 @@ def part1(input: str):
 
 
 @profile
-def part2(input: str):
+def part2(raw: str):
     num_valid = 0
-    for line in input.split("\n"):
+    for line in raw.split("\n"):
         index1, index2, letter, password = parse_line(line)
         if (password[index1 - 1] == letter) ^ (password[index2 - 1] == letter):
             num_valid += 1
@@ -29,6 +29,6 @@ def part2(input: str):
 
 
 if __name__ == "__main__":
-    input = load_puzzle_input("2020/day2")
-    part1(input)
-    part2(input)
+    raw = load_puzzle_input("2020/day2")
+    part1(raw)
+    part2(raw)
