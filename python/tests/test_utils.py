@@ -1,6 +1,7 @@
 from redbreast.testing import parametrize, testparams
 
-from utils import SparseMatrix, sparse_matrix_string
+from utils import SparseMatrix
+from utils.data_structures import sparse_matrix_string
 
 
 @parametrize(
