@@ -143,7 +143,6 @@ def test_2021(day, func, expected_output):
         ("2022/day24", y2022.day24.part1, 228),
         ("2022/day24", y2022.day24.part2, 723),
         ("2022/day25", y2022.day25.part1, "20-1-0=-2=-2220=0011"),
-        # ("2022/day25", y2022.day25.part1, None),
     ],
 )
 def test_2022(day, func, expected_output):
