@@ -1,7 +1,5 @@
 from utils import load_puzzle_input, profile
 
-puzzle_input = load_puzzle_input("2020/day2")
-
 
 def parse_line(line: str) -> tuple[int, int, str, str]:
     policy, password = line.split(": ")
@@ -11,9 +9,9 @@ def parse_line(line: str) -> tuple[int, int, str, str]:
 
 
 @profile
-def part1():
+def part1(input: str):
     num_valid = 0
-    for line in puzzle_input.split("\n"):
+    for line in input.split("\n"):
         _min, _max, letter, password = parse_line(line)
         if _min <= password.count(letter) <= _max:
             num_valid += 1
@@ -21,9 +19,9 @@ def part1():
 
 
 @profile
-def part2():
+def part2(input: str):
     num_valid = 0
-    for line in puzzle_input.split("\n"):
+    for line in input.split("\n"):
         index1, index2, letter, password = parse_line(line)
         if (password[index1 - 1] == letter) ^ (password[index2 - 1] == letter):
             num_valid += 1
@@ -31,5 +29,6 @@ def part2():
 
 
 if __name__ == "__main__":
-    part1()
-    part2()
+    input = load_puzzle_input("2020/day2")
+    part1(input)
+    part2(input)

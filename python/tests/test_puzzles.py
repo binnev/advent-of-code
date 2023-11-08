@@ -1,19 +1,20 @@
 import pytest
 
 from puzzles import y2020, y2021, y2022
+from utils import load_puzzle_input
 
 
 @pytest.mark.parametrize(
-    "func, expected_output",
+    "func, input, expected_output",
     [
-        (y2020.day1.part1, 145875),
-        (y2020.day1.part2, 69596112),
-        (y2020.day2.part1, 628),
-        (y2020.day2.part2, 705),
+        (y2020.day1.part1, load_puzzle_input("2020/day1"), 145875),
+        (y2020.day1.part2, load_puzzle_input("2020/day1"), 69596112),
+        (y2020.day2.part1, load_puzzle_input("2020/day2"), 628),
+        (y2020.day2.part2, load_puzzle_input("2020/day2"), 705),
     ],
 )
-def test_2020(func, expected_output):
-    assert func() == expected_output
+def test_2020(func, input, expected_output):
+    assert func(input) == expected_output
 
 
 @pytest.mark.parametrize(
