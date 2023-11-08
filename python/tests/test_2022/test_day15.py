@@ -1,6 +1,6 @@
 import pytest
 
-from .day15 import Range
+from puzzles.y2022.day15 import Range
 
 
 @pytest.mark.parametrize(

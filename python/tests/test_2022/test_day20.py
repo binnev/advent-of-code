@@ -1,6 +1,6 @@
 from redbreast.testing import parametrize, testparams
 
-from .day20 import shift_number
+from puzzles.y2022.day20 import shift_number
 
 
 @parametrize(

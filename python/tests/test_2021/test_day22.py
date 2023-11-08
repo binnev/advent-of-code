@@ -1,6 +1,6 @@
 import pytest
 
-from .day22 import Range, RangeError, Shape
+from puzzles.y2021.day22 import Range, RangeError, Shape
 
 
 def test_range():

@@ -1,6 +1,6 @@
 import pytest
 
-from .day25 import decimal_to_snafu, snafu_to_decimal
+from puzzles.y2022.day25 import decimal_to_snafu, snafu_to_decimal
 
 
 @pytest.mark.parametrize(
