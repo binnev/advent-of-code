@@ -2,8 +2,10 @@ package utils
 
 import (
 	"fmt"
+	"log"
 	"math"
 	"os"
+	"path"
 	"reflect"
 	"runtime"
 	"strconv"
@@ -12,19 +14,27 @@ import (
 )
 
 func LoadPuzzleInput(filename string) string {
-	path := fmt.Sprintf("../_inputs/%v.txt", filename)
-	data, err := os.ReadFile(path)
+	// Need to explicitly locate the file relative to the current file, because
+	// using a relative path results in different results when running the tests
+	// and running main.go
+	_, current_file, _, _ := runtime.Caller(0)
+	relative_file_path := fmt.Sprintf("../../../_inputs/%v.txt", filename)
+	file_path := path.Join(current_file, relative_file_path)
+
+	data, err := os.ReadFile(file_path)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	return string(data)
 }
 
 func LoadSolutions(year string) [][]string {
-	path := fmt.Sprintf("../_solutions/%v.txt", year)
-	data, err := os.ReadFile(path)
+	_, current_file, _, _ := runtime.Caller(0)
+	relative_file_path := fmt.Sprintf("../../../_solutions/%v.txt", year)
+	file_path := path.Join(current_file, relative_file_path)
+	data, err := os.ReadFile(file_path)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	lines := strings.Split(string(data), "\n")
 	output := [][]string{}
