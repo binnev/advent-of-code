@@ -12,7 +12,7 @@ import (
 )
 
 func LoadPuzzleInput(filename string) string {
-	path := fmt.Sprintf("../puzzle_inputs/%v.txt", filename)
+	path := fmt.Sprintf("../_inputs/%v.txt", filename)
 	data, err := os.ReadFile(path)
 	if err != nil {
 		panic(err)
@@ -21,7 +21,7 @@ func LoadPuzzleInput(filename string) string {
 }
 
 func LoadSolutions(year string) [][]string {
-	path := fmt.Sprintf("../solutions/%v.txt", year)
+	path := fmt.Sprintf("../_solutions/%v.txt", year)
 	data, err := os.ReadFile(path)
 	if err != nil {
 		panic(err)
