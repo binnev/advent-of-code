@@ -1,3 +1,5 @@
+.aoc-session
+
 *.pyc
 */.pytest-cache
 */__pycache__

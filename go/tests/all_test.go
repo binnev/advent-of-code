@@ -1,4 +1,4 @@
-package main
+package tests
 
 import (
 	_2020 "advent/2020"
