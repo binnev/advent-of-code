@@ -16,24 +16,19 @@ zoneight234
 7pqrstsixteen"""
 
 
-def extract_number(s: str) -> int:
-    num_str = "".join(filter(str.isnumeric, s))
-    number = num_str[0] + num_str[-1]
-    return int(number)
-
-
 @utils.profile
 def part1(raw: str):
     result = 0
     for line in raw.splitlines():
-        result += extract_number(line)
+        digits = re.findall(r"\d", line)
+        result += int(digits[0] + digits[-1])
     return result
 
 
 def regex_magic(s: str) -> list[str]:
     """
-    This jank is required because the regex on its own doesn't match overlapping values like
-    "oneight". In this case the regex will only find "one", not "eight".
+    This substring jank is required because the regex on its own doesn't match overlapping values
+    like "oneight". In this case the regex will only find "one", not "eight".
     """
     rx = re.compile("one|two|three|four|five|six|seven|eight|nine|[1-9]")
     matches = []
@@ -46,7 +41,7 @@ def regex_magic(s: str) -> list[str]:
 
 @utils.profile
 def part2(raw: str):
-    map = {
+    digit_map = {
         "one": "1",
         "two": "2",
         "three": "3",
@@ -60,11 +55,8 @@ def part2(raw: str):
     result = 0
     for line in raw.splitlines():
         digit_strings = regex_magic(line)
-        numbers = [map.get(d, d) for d in digit_strings]
-        first = numbers[0]
-        last = numbers[-1]
-        s = int(first + last)
-        result += s
+        digits = [digit_map.get(d, d) for d in digit_strings]
+        result += int(digits[0] + digits[-1])
     return result
 
 
