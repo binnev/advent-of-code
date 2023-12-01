@@ -1,4 +1,6 @@
 pytest
+aiohttp
+aiofiles
 pytest-timeout
 black
 numpy
