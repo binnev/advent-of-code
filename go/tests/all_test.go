@@ -4,7 +4,10 @@ import (
 	_2020 "advent/2020"
 	_2021 "advent/2021"
 	_2022 "advent/2022"
+	_2023 "advent/2023"
 	"advent/utils"
+	"reflect"
+	"runtime"
 	"strings"
 	"testing"
 
@@ -87,6 +90,27 @@ func Test2022(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(utils.GetFuncName(tc.f), func(t *testing.T) {
 			result := utils.Profile(tc.f)
+			assert.Equal(t, tc.expected, result)
+		})
+	}
+}
+
+type NewAdventTestCase struct {
+	day      string
+	f        func(string) string
+	expected string
+}
+
+func Test2023(t *testing.T) {
+	cases := []NewAdventTestCase{
+		{"2023/day1", _2023.Day1Part1, "55123"},
+		{"2023/day1", _2023.Day1Part2, "55260"},
+	}
+	for _, tc := range cases {
+		raw := utils.LoadPuzzleInput(tc.day)
+		name := runtime.FuncForPC(reflect.ValueOf(tc.f).Pointer()).Name()
+		t.Run(name, func(t *testing.T) {
+			result := tc.f(raw)
 			assert.Equal(t, tc.expected, result)
 		})
 	}
