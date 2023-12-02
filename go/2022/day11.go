@@ -123,8 +123,7 @@ func getMostActiveMonkeys(monkeys MonkeyBunch, top int) []Monkey {
 	return sortedMonkeys[:top]
 }
 
-func Day11Part1() string {
-	input := utils.LoadPuzzleInput("2022/day11")
+func Day11Part1(input string) string {
 	monkeys := ParseMonkeys(input)
 	worryFunc := func(number int) int { return number / 3 }
 	for round := 0; round < 20; round++ {
@@ -141,8 +140,7 @@ func Day11Part1() string {
 	return fmt.Sprint(result)
 }
 
-func Day11Part2() string {
-	input := utils.LoadPuzzleInput("2022/day11")
+func Day11Part2(input string) string {
 	monkeys := ParseMonkeys(input)
 	modulus := 1
 	for _, monkey := range monkeys {
@@ -161,9 +159,4 @@ func Day11Part2() string {
 	top2 := getMostActiveMonkeys(monkeys, 2)
 	result := top2[0].count * top2[1].count
 	return fmt.Sprint(result)
-}
-
-func Day11() {
-	utils.Profile(Day11Part1)
-	utils.Profile(Day11Part2)
 }

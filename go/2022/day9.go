@@ -56,8 +56,7 @@ func moveTail(head, tail Coord) Coord {
 	}
 }
 
-func Day9Part1() string {
-	input := utils.LoadPuzzleInput("2022/day9")
+func Day9Part1(input string) string {
 	head := Coord{}
 	tail := Coord{}
 	tailHistory := map[Coord]bool{tail: true}
@@ -74,8 +73,7 @@ func Day9Part1() string {
 	return fmt.Sprint(len(tailHistory))
 }
 
-func Day9Part2() string {
-	input := utils.LoadPuzzleInput("2022/day9")
+func Day9Part2(input string) string {
 	snake := [10]Coord{}
 	tail := snake[len(snake)-1]
 	tailHistory := map[Coord]bool{tail: true}
@@ -92,9 +90,4 @@ func Day9Part2() string {
 		}
 	}
 	return fmt.Sprint(len(tailHistory))
-}
-
-func Day9() {
-	utils.Profile(Day9Part1)
-	utils.Profile(Day9Part2)
 }

@@ -5,8 +5,6 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-
-	"advent/utils"
 )
 
 func parseLine(line string) (string, string, string, string) {
@@ -19,9 +17,8 @@ func parseLine(line string) (string, string, string, string) {
 	return a, b, char, pwd
 }
 
-func Day2Part1() string {
-	data := utils.LoadPuzzleInput("2020/day2")
-	lines := strings.Split(data, "\n")
+func Day2Part1(input string) string {
+	lines := strings.Split(input, "\n")
 	num_valid := 0
 	for _, line := range lines {
 		a, b, char, pwd := parseLine(line)
@@ -35,9 +32,8 @@ func Day2Part1() string {
 	return fmt.Sprintf("%v", num_valid)
 }
 
-func Day2Part2() string {
-	data := utils.LoadPuzzleInput("2020/day2")
-	lines := strings.Split(data, "\n")
+func Day2Part2(input string) string {
+	lines := strings.Split(input, "\n")
 	num_valid := 0
 	for _, line := range lines {
 		a, b, char, pwd := parseLine(line)
@@ -48,9 +44,4 @@ func Day2Part2() string {
 		}
 	}
 	return fmt.Sprintf("%v", num_valid)
-}
-
-func Day2() {
-	utils.Profile(Day2Part1)
-	utils.Profile(Day2Part2)
 }

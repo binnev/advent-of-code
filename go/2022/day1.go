@@ -7,9 +7,8 @@ import (
 	"strings"
 )
 
-func getCalories() []int {
-	data := utils.LoadPuzzleInput("2022/day1")
-	elves := strings.Split(data, "\n\n")
+func getCalories(raw string) []int {
+	elves := strings.Split(raw, "\n\n")
 	calories := make([]int, len(elves))
 	for ii, elf := range elves {
 		elfCalories := 0
@@ -21,22 +20,17 @@ func getCalories() []int {
 	return calories
 }
 
-func Day1Part1() string {
-	maxCalories := utils.Max(getCalories())
+func Day1Part1(input string) string {
+	maxCalories := utils.Max(getCalories(input))
 	return fmt.Sprint(maxCalories)
 }
 
-func Day1Part2() string {
-	calories := getCalories()
+func Day1Part2(input string) string {
+	calories := getCalories(input)
 	sort.Slice(
 		calories,
 		func(a, b int) bool { return calories[a] > calories[b] },
 	)
 	sum := utils.Sum(calories[:3])
 	return fmt.Sprint(sum)
-}
-
-func Day1() {
-	utils.Profile(Day1Part1)
-	utils.Profile(Day1Part2)
 }

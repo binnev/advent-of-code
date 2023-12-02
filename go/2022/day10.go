@@ -24,8 +24,7 @@ func iterateBeam(tasks *[]int, code *[]string) int {
 	return amount
 }
 
-func Day10Part1() string {
-	input := utils.LoadPuzzleInput("2022/day10")
+func Day10Part1(input string) string {
 	code := strings.Split(input, "\n")
 	tasks := []int{}
 	x := 1
@@ -39,8 +38,7 @@ func Day10Part1() string {
 	return fmt.Sprint(signal)
 }
 
-func Day10Part2() string {
-	input := utils.LoadPuzzleInput("2022/day10")
+func Day10Part2(input string) string {
 	code := strings.Split(input, "\n")
 	tasks := []int{}
 	x := 1

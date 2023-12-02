@@ -114,15 +114,13 @@ func BFS(
 	return distances
 }
 
-func Day12Part1() string {
-	input := utils.LoadPuzzleInput("2022/day12")
+func Day12Part1(input string) string {
 	heightMap, start, target := getHeightMap(input)
 	distances := BFS(heightMap, start, getNeighboursUphill)
 	return fmt.Sprint(distances[target])
 }
 
-func Day12Part2() string {
-	input := utils.LoadPuzzleInput("2022/day12")
+func Day12Part2(input string) string {
 	HeightMap, _, target := getHeightMap(input)
 	distances := BFS(HeightMap, target, getNeighboursDownhill)
 	lowPoints := []Coord{}

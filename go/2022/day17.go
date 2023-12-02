@@ -159,11 +159,10 @@ func printTower(grid, scenery SparseMatrix) {
 	forPrint.Print(true, 2, '.')
 }
 
-func Day17Part1() string {
-	jets := utils.LoadPuzzleInput("2022/day17")
+func Day17Part1(input string) string {
 	grid := SparseMatrix{}
 	N := 2022
-	buildTower(N, jets, grid)
+	buildTower(N, input, grid)
 	bruteHeight := utils.Max(grid.ys())
 	return fmt.Sprint(bruteHeight)
 }

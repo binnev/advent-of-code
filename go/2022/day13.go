@@ -130,8 +130,7 @@ func arePacketsOrdered(left, right string) int {
 	}
 }
 
-func Day13Part1() string {
-	input := utils.LoadPuzzleInput("2022/day13")
+func Day13Part1(input string) string {
 	packets := parseDay13Input(input)
 	score := 0
 	for ii, packetPair := range packets {
@@ -144,8 +143,7 @@ func Day13Part1() string {
 	return fmt.Sprint(score)
 }
 
-func Day13Part2() string {
-	input := utils.LoadPuzzleInput("2022/day13")
+func Day13Part2(input string) string {
 	input = strings.Replace(input, "\n\n", "\n", -1)
 	input += "\n[[2]]\n[[6]]"
 	packets := strings.Split(input, "\n")
