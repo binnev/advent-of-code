@@ -1,7 +1,6 @@
 package _2022
 
 import (
-	"advent/utils"
 	"regexp"
 	"strings"
 )
@@ -23,15 +22,10 @@ func parseSensors(input string) {
 	}
 }
 
-func Day18Part1() string {
+func Day18Part1(input string) string {
 	return ""
 }
 
-func Day18Part2() string {
+func Day18Part2(input string) string {
 	return ""
-}
-
-func Day18() {
-	utils.Profile(Day18Part1)
-	utils.Profile(Day18Part2)
 }

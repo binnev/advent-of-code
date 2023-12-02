@@ -13,6 +13,8 @@ import (
 	"time"
 )
 
+type AdventFunc func(string) string
+
 func LoadPuzzleInput(filename string) string {
 	// Need to explicitly locate the file relative to the current file, because
 	// using a relative path results in different results when running the tests
@@ -44,13 +46,20 @@ func LoadSolutions(year string) [][]string {
 	return output
 }
 
-func GetFuncName[V string | int](f func() V) string {
+func GetFuncName(f AdventFunc) string {
 	return runtime.FuncForPC(reflect.ValueOf(f).Pointer()).Name()
 }
 
-func Profile[V string | int](f func() V) V {
+func Wrap(f AdventFunc) AdventFunc {
+	wrapped := func(raw string) string {
+		return Profile(f, raw)
+	}
+	return wrapped
+}
+
+func Profile(f AdventFunc, raw string) string {
 	t1 := time.Now()
-	result := f()
+	result := f(raw)
 	t2 := time.Now()
 	dt := float32(t2.UnixMicro()-t1.UnixMicro()) / 1000000
 	message := fmt.Sprintf("%v: %v (%.5f seconds)",

@@ -1,7 +1,6 @@
 package _2022
 
 import (
-	"advent/utils"
 	"fmt"
 )
 
@@ -19,17 +18,10 @@ func findMarker(input string, length int) int {
 	return 0
 }
 
-func Day6Part1() string {
-	input := utils.LoadPuzzleInput("2022/day6")
+func Day6Part1(input string) string {
 	return fmt.Sprint(findMarker(input, 4))
 }
 
-func Day6Part2() string {
-	input := utils.LoadPuzzleInput("2022/day6")
+func Day6Part2(input string) string {
 	return fmt.Sprint(findMarker(input, 14))
-}
-
-func Day6() {
-	utils.Profile(Day6Part1)
-	utils.Profile(Day6Part2)
 }

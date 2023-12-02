@@ -1,7 +1,6 @@
 package _2022
 
 import (
-	"advent/utils"
 	"fmt"
 	"strings"
 	"unicode"
@@ -32,8 +31,7 @@ func getCommonLetter(words ...string) rune {
 	return 0
 }
 
-func Day3Part1() string {
-	input := utils.LoadPuzzleInput("2022/day3")
+func Day3Part1(input string) string {
 	elves := strings.Split(input, "\n")
 	score := 0
 	for _, elf := range elves {
@@ -45,8 +43,7 @@ func Day3Part1() string {
 	return fmt.Sprint(score)
 }
 
-func Day3Part2() string {
-	input := utils.LoadPuzzleInput("2022/day3")
+func Day3Part2(input string) string {
 	elves := strings.Split(input, "\n")
 	score := 0
 	for ii := 0; ii < len(elves); ii += 3 {
@@ -55,9 +52,4 @@ func Day3Part2() string {
 		score += getPriority(shared)
 	}
 	return fmt.Sprint(score)
-}
-
-func Day3() {
-	utils.Profile(Day3Part1)
-	utils.Profile(Day3Part2)
 }

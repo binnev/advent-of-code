@@ -6,5 +6,6 @@ import (
 )
 
 func main() {
-	utils.Profile(_2022.Day17Part1)
+	input := utils.LoadPuzzleInput("2022/day17")
+	utils.Profile(_2022.Day17Part1, input)
 }

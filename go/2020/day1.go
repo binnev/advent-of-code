@@ -4,13 +4,10 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-
-	"advent/utils"
 )
 
-func parseInput() []int {
-	data := utils.LoadPuzzleInput("2020/day1")
-	input_strings := strings.Fields(data)
+func parseInput(input string) []int {
+	input_strings := strings.Fields(input)
 	integers := make([]int, len(input_strings))
 	for ind, str := range input_strings {
 		i, _ := strconv.Atoi(str)
@@ -19,8 +16,8 @@ func parseInput() []int {
 	return integers
 }
 
-func Day1Part1() string {
-	integers := parseInput()
+func Day1Part1(input string) string {
+	integers := parseInput(input)
 	value := 0
 	for _, a := range integers {
 		for _, b := range integers {
@@ -33,8 +30,8 @@ func Day1Part1() string {
 	return fmt.Sprintf("%v", value)
 }
 
-func Day1Part2() string {
-	integers := parseInput()
+func Day1Part2(input string) string {
+	integers := parseInput(input)
 	value := 0
 	for _, a := range integers {
 		for _, b := range integers {
@@ -47,9 +44,4 @@ func Day1Part2() string {
 		}
 	}
 	return fmt.Sprintf("%v", value)
-}
-
-func Day1() {
-	utils.Profile(Day1Part1)
-	utils.Profile(Day1Part2)
 }

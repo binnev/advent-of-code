@@ -61,8 +61,7 @@ func getFolderSize(contents Filesystem, folderPath string) int {
 	return total
 }
 
-func Day7Part1() string {
-	input := utils.LoadPuzzleInput("2022/day7")
+func Day7Part1(input string) string {
 	contents := exploreFolders(input)
 	total := 0
 	for path, size := range contents {
@@ -76,8 +75,7 @@ func Day7Part1() string {
 	return fmt.Sprint(total)
 }
 
-func Day7Part2() string {
-	input := utils.LoadPuzzleInput("2022/day7")
+func Day7Part2(input string) string {
 	contents := exploreFolders(input)
 	totalSpace := 70000000
 	requiredSpace := 30000000
@@ -99,9 +97,4 @@ func Day7Part2() string {
 		}
 	}
 	return fmt.Sprint(smallest)
-}
-
-func Day7() {
-	utils.Profile(Day7Part1)
-	utils.Profile(Day7Part2)
 }

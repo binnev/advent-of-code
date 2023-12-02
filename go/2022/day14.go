@@ -100,8 +100,7 @@ func sandTrace(origin Coord, grid SparseMatrix, floor int, solidFloor bool) int 
 	return status
 }
 
-func Day14Part1() string {
-	input := utils.LoadPuzzleInput("2022/day14")
+func Day14Part1(input string) string {
 	grid := parseDay14Input(input)
 	origin := Coord{500, 0}
 	_, abyss := grid.Ylim()
@@ -116,8 +115,7 @@ func Day14Part1() string {
 	return fmt.Sprint(ii)
 }
 
-func Day14Part2() string {
-	input := utils.LoadPuzzleInput("2022/day14")
+func Day14Part2(input string) string {
 	grid := parseDay14Input(input)
 	origin := Coord{500, 0}
 	_, maxY := grid.Ylim()

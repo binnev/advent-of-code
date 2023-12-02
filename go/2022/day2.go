@@ -1,7 +1,6 @@
 package _2022
 
 import (
-	"advent/utils"
 	"fmt"
 	"strings"
 )
@@ -13,7 +12,7 @@ const LOSE = 1
 const DRAW = 2
 const WIN = 3
 
-func loadRPSMoves() [][2]int {
+func loadRPSMoves(raw string) [][2]int {
 	mapping := map[string]int{
 		"A": ROCK,
 		"B": PAPER,
@@ -22,8 +21,7 @@ func loadRPSMoves() [][2]int {
 		"Y": PAPER,
 		"Z": SCISSORS,
 	}
-	input := utils.LoadPuzzleInput("2022/day2")
-	lines := strings.Split(input, "\n")
+	lines := strings.Split(raw, "\n")
 	output := make([][2]int, len(lines))
 	for ii, line := range lines {
 		chars := strings.Split(line, "")
@@ -83,8 +81,8 @@ func selectMove(opponent, objective int) int {
 	return -1
 }
 
-func Day2Part1() string {
-	rounds := loadRPSMoves()
+func Day2Part1(input string) string {
+	rounds := loadRPSMoves(input)
 	score := 0
 	for _, round := range rounds {
 		score += scoreRound(round[0], round[1])
@@ -92,8 +90,8 @@ func Day2Part1() string {
 	return fmt.Sprint(score)
 }
 
-func Day2Part2() string {
-	rounds := loadRPSMoves()
+func Day2Part2(input string) string {
+	rounds := loadRPSMoves(input)
 	score := 0
 	for _, round := range rounds {
 		opponent, objective := round[0], round[1]
@@ -101,9 +99,4 @@ func Day2Part2() string {
 		score += scoreRound(opponent, you)
 	}
 	return fmt.Sprint(score)
-}
-
-func Day2() {
-	utils.Profile(Day2Part1)
-	utils.Profile(Day2Part2)
 }

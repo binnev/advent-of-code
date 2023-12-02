@@ -82,8 +82,7 @@ func getTopCrates(state Columns) string {
 	return result
 }
 
-func Day5Part1() string {
-	input := utils.LoadPuzzleInput("2022/day5")
+func Day5Part1(input string) string {
 	state, instructions := parseStateInstructions(input)
 	for _, instruction := range instructions {
 		for ii := 0; ii < instruction.amount; ii++ {
@@ -97,16 +96,10 @@ func Day5Part1() string {
 	return getTopCrates(state)
 }
 
-func Day5Part2() string {
-	input := utils.LoadPuzzleInput("2022/day5")
+func Day5Part2(input string) string {
 	state, instructions := parseStateInstructions(input)
 	for _, instruction := range instructions {
 		moveCrate(state, instruction)
 	}
 	return getTopCrates(state)
-}
-
-func Day5() {
-	utils.Profile(Day5Part1)
-	utils.Profile(Day5Part2)
 }

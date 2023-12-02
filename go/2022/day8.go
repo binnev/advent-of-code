@@ -85,8 +85,7 @@ func scenicScore2D(x, y int, grid TreeGrid) int {
 	return rowScore * colScore
 }
 
-func Day8Part1() string {
-	input := utils.LoadPuzzleInput("2022/day8")
+func Day8Part1(input string) string {
 	grid := parseTreeGrid(input)
 	count := 0
 	for y, row := range grid {
@@ -99,8 +98,7 @@ func Day8Part1() string {
 	return fmt.Sprint(count)
 }
 
-func Day8Part2() string {
-	input := utils.LoadPuzzleInput("2022/day8")
+func Day8Part2(input string) string {
 	grid := parseTreeGrid(input)
 	maxScore := 0
 	for y, row := range grid {
@@ -112,9 +110,4 @@ func Day8Part2() string {
 		}
 	}
 	return fmt.Sprint(maxScore)
-}
-
-func Day8() {
-	utils.Profile(Day8Part1)
-	utils.Profile(Day8Part2)
 }
