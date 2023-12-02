@@ -37,3 +37,5 @@ def test_get_min_cubes():
 
 def test_part2():
     assert day2.part2(example1) == 2286
+    input = utils.load_puzzle_input("2023/day2")
+    assert day2.part2(input) == 72706

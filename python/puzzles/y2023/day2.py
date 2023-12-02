@@ -1,16 +1,17 @@
-from typing import NamedTuple
+import re
+from dataclasses import dataclass
 
 import utils
-import re
 
 
-class RgbTuple(NamedTuple):
-    red: int
-    green: int
-    blue: int
+@dataclass
+class RgbTuple:
+    red: int = 0
+    green: int = 0
+    blue: int = 0
 
 
-def parse_game(game: str):
+def parse_game(game: str) -> tuple[int, list[RgbTuple]]:
     rx = re.compile(r"Game (\d+): (.*)")
     match = rx.match(game)
     game, rest = match.groups()
@@ -19,52 +20,41 @@ def parse_game(game: str):
     cube_colours = []
     rx = re.compile(r"(\d+) (blue|red|green)")
     for group in cube_groups:
-        red = green = blue = 0
         matches = rx.findall(group)
-        for match in matches:
-            n, colour = match
-            if colour == "green":
-                green = int(n)
-            if colour == "blue":
-                blue = int(n)
-            if colour == "red":
-                red = int(n)
-        cube_colours.append(RgbTuple(red=red, green=green, blue=blue))
+        kwargs = {color: int(n) for n, color in matches}
+        cube_colours.append(RgbTuple(**kwargs))
     return game, cube_colours
 
 
-def parse_games(input: str) -> list[RgbTuple]:
+def parse_games(input: str) -> list[tuple[int, list[RgbTuple]]]:
     return [parse_game(line) for line in input.splitlines()]
 
 
-def is_game_possible(game: list[RgbTuple], max_red: int, max_blue: int, max_green: int) -> bool:
+def is_game_possible(game: list[RgbTuple], limit: RgbTuple) -> bool:
     for hand in game:
-        if hand.red > max_red or hand.blue > max_blue or hand.green > max_green:
+        if hand.red > limit.red or hand.blue > limit.blue or hand.green > limit.green:
             return False
     return True
 
 
 @utils.profile
 def part1(input: str):
-    max_red = 12
-    max_green = 13
-    max_blue = 14
+    limit = RgbTuple(red=12, green=13, blue=14)
     result = 0
     games = parse_games(input)
     for ii, game in games:
-        if is_game_possible(game, max_red=max_red, max_blue=max_blue, max_green=max_green):
+        if is_game_possible(game, limit):
             result += ii
-
     return result
 
 
 def get_min_cubes(game: list[RgbTuple]) -> RgbTuple:
-    min_red = min_blue = min_green = 0
+    minimum = RgbTuple(red=0, green=0, blue=0)
     for hand in game:
-        min_red = max(min_red, hand.red)
-        min_blue = max(min_blue, hand.blue)
-        min_green = max(min_green, hand.green)
-    return RgbTuple(red=min_red, blue=min_blue, green=min_green)
+        minimum.red = max(minimum.red, hand.red)
+        minimum.blue = max(minimum.blue, hand.blue)
+        minimum.green = max(minimum.green, hand.green)
+    return minimum
 
 
 @utils.profile
