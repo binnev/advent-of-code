@@ -24,3 +24,16 @@ def test_part1():
     assert day2.part1(example1) == 8
     input = utils.load_puzzle_input("2023/day2")
     assert day2.part1(input) == 1853
+
+
+def test_get_min_cubes():
+    games = day2.parse_games(example1)
+    results = []
+    for ii, game in games:
+        results.append(day2.get_min_cubes(game))
+    assert results[0] == day2.RgbTuple(red=4, green=2, blue=6)
+    assert results[1] == day2.RgbTuple(red=1, green=3, blue=4)
+
+
+def test_part2():
+    assert day2.part2(example1) == 2286
