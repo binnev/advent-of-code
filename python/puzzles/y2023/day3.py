@@ -1,3 +1,6 @@
+from functools import reduce
+from operator import mul
+
 import utils
 from utils import Coord, SparseMatrix
 
@@ -61,6 +64,20 @@ def _find_all_number_coords(lines: list[str]) -> dict[NumberCoords, int]:
     return results
 
 
+def _get_full_number_coords(
+    coord: Coord,
+    all_number_coords: dict[NumberCoords, int],
+) -> tuple[NumberCoords, int]:
+    """
+    Given a char + coord, find the coordinates of the full number they belong to,
+    if it exists.
+    """
+    for coords, number in all_number_coords.items():
+        if coord in coords:
+            return coords, number
+    return (), 0  # if no number found
+
+
 @utils.profile
 def part1(input: str) -> int:
     """
@@ -87,24 +104,22 @@ def part2(input: str):
     Iterate over the gears, and check their surroundings for numbers
     """
     matrix = _parse_input_matrix(input)
-    number_coords = _find_all_number_coords(_parse_input(input))
+    all_numbers: dict[NumberCoords, int] = _find_all_number_coords(_parse_input(input))
 
     result = 0
-    for (xx, yy), char in matrix.items():
-        if char != "*":
-            continue  # consider only gears
-
-        neighbouring_numbers_coords = set()
-        for coord in _get_neighbours(matrix, xx, yy):
-            for coords, number in number_coords.items():
-                if coord in coords:
-                    neighbouring_numbers_coords.add(coords)
-
-        if len(neighbouring_numbers_coords) > 1:
-            product = 1
-            for coords in neighbouring_numbers_coords:
-                number = number_coords[coords]
-                product *= number
+    gears = {coord: char for coord, char in matrix.items() if char == "*"}
+    for (xx, yy), char in gears.items():
+        # Start by finding all neighbouring digits.
+        # But these could be part of the same number, so we need to do some clever stuff.
+        # Once we have all the neighbouring numbers, we can compute the product if there's more
+        # than 1.
+        neighbours = _get_neighbours(matrix, xx, yy)
+        neighbouring_digits = {coord for coord, char in neighbours.items() if char.isdigit()}
+        neighbouring_numbers: dict[NumberCoords, int] = dict(
+            _get_full_number_coords(coord, all_numbers) for coord in neighbouring_digits
+        )
+        if len(neighbouring_numbers) > 1:
+            product = reduce(mul, neighbouring_numbers.values())
             result += product
 
     return result
