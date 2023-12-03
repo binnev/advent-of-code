@@ -27,7 +27,7 @@ def test_part2():
 def test__find_all_number_coords():
     lines = day3._parse_input(example2)
     result = day3._find_all_number_coords(lines)
-    assert result == [
-        [(0, 0), (1, 0), (2, 0)],
-        [(4, 1), (5, 1)],
-    ]
+    assert result == {
+        ((0, 0), (1, 0), (2, 0)): 123,
+        ((4, 1), (5, 1)): 45,
+    }

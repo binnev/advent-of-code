@@ -1,37 +1,7 @@
-import re
-
 import utils
+from utils import Coord, SparseMatrix
 
-
-# @utils.profile
-# def part1(input: str):
-#     lines = list(map(str.strip, input.splitlines()))
-#     rx = re.compile(r"(\d+)+")
-#     valid_part_numbers = []
-#     for yy, line in enumerate(lines):
-#         # find all the numbers in the current line
-#         numbers = rx.findall(line)
-#         # for each number, look at all the adjacent characters
-#         # if any one of those is a symbol, add it to the list of valid part numbers.
-#         # otherwise do nothing.
-#         for n in numbers:
-#             xx = line.index(n)
-#             x_min = max(xx - 1, 0)
-#             x_max = min(xx + len(n) + 1, len(lines) - 1)
-#             y_min = max(yy - 1, 0)
-#             y_max = min(yy + 2, len(lines))
-#             chars = []
-#             for y in range(y_min, y_max):
-#                 for x in range(x_min, x_max):
-#                     c = lines[y][x]
-#                     chars.append(c)
-#             for c in chars:
-#                 if c not in ".1234567890":
-#                     valid_part_numbers.append(int(n))
-#
-#     return sum(valid_part_numbers)
-
-Coord = tuple[int, int]
+NumberCoords = tuple[Coord, ...]
 
 
 def is_symbol(char: str) -> bool:
@@ -42,68 +12,70 @@ def _parse_input(input: str) -> list[str]:
     return [line.strip() for line in input.splitlines()]
 
 
-def _get_char_neighbours(lines: list[str], xx: int, yy: int) -> list[tuple[str, Coord]]:
+def _parse_input_matrix(input: str) -> SparseMatrix:
     """
-    Return a list of chars and their xx,yy coords within the lines list
+    How could I forget: SparseMatrix, the godlike data structure that reduces AoC difficulty by
+    an order of magnitude at least.
     """
-    neighbours = []
-    line = lines[yy]
-    x_min = max(0, xx - 1)
-    y_min = max(0, yy - 1)
-    x_max = min(len(line), xx + 2)  # +2 because we want to include in range
-    y_max = min(len(lines), yy + 2)
-    for y in range(y_min, y_max):
-        for x in range(x_min, x_max):
-            neighbour = lines[y][x]
-            neighbours.append((neighbour, (x, y)))
-    return neighbours
+    lines = _parse_input(input)
+    result = SparseMatrix()
+    for yy, line in enumerate(lines):
+        for xx, char in enumerate(line):
+            result[(xx, yy)] = char
+    return result
+
+
+def _get_char_neighbours(matrix: SparseMatrix, xx: int, yy: int) -> SparseMatrix:
+    neighbour_coords = (
+        (xx - 1, yy - 1),
+        (xx - 1, yy),
+        (xx - 1, yy + 1),
+        (xx, yy - 1),
+        (xx, yy + 1),
+        (xx + 1, yy - 1),
+        (xx + 1, yy),
+        (xx + 1, yy + 1),
+    )
+    neighbours = {coord: matrix[coord] for coord in neighbour_coords if coord in matrix}
+    return SparseMatrix(neighbours)
+
+
+def _find_all_number_coords(lines: list[str]) -> dict[NumberCoords, int]:
+    results = {}
+    for yy, line in enumerate(lines):
+        coords = []
+        num_str = ""
+        for xx, char in enumerate(line):
+            if char.isnumeric():
+                coords.append((xx, yy))  # start a new number
+                num_str += char
+            else:
+                if coords:
+                    results[tuple(coords)] = int(num_str)
+                coords = []
+                num_str = ""
+        # when reach end of line, finish number
+        if coords:
+            results[tuple(coords)] = int(num_str)
+
+    return results
 
 
 @utils.profile
 def part1(input: str) -> int:
-    lines = _parse_input(input)
+    matrix = _parse_input_matrix(input)
+    number_coords = _find_all_number_coords(_parse_input(input))
+
     valid = []
-    for yy, line in enumerate(lines):
-        num = ""
-        is_valid = False
-        line: str
-        for xx, char in enumerate(line):
-            char: str
-            if char.isnumeric():
-                num += char
-                # check if any surrounding chars are symbols
-                neighbours = _get_char_neighbours(lines, xx, yy)
-                if any(is_symbol(n) for n, _ in neighbours):
-                    is_valid = True
+    for coords, num in number_coords.items():
+        # gather all the characters adjacent to the number
+        neighbours = SparseMatrix()
+        for xx, yy in coords:
+            neighbours.update(_get_char_neighbours(matrix, xx, yy))
 
-            # if we just finished parsing a number
-            else:
-                if is_valid:
-                    valid.append(int(num))
-                num = ""
-                is_valid = False
-
-        # if we hit the end of the line while parsing a number
-        if num and is_valid:
-            valid.append(int(num))
+        if any(is_symbol(char) for _, char in neighbours.items()):
+            valid.append(num)
     return sum(valid)
-
-
-def _find_all_number_coords(lines: list[str]) -> list[list[Coord]]:
-    results = []
-    for yy, line in enumerate(lines):
-        num = []
-        for xx, char in enumerate(line):
-            if char.isnumeric():
-                num.append((xx, yy))  # start a new number
-            else:
-                if num:
-                    results.append(num)  # finish number or not
-                num = []
-        # when reach end of line, finish number
-        if num:
-            results.append(num)
-    return results
 
 
 def _find_numbers(numbers: list[tuple[str, Coord]], lines: list[str]) -> set[int]:
@@ -120,26 +92,32 @@ def _find_numbers(numbers: list[tuple[str, Coord]], lines: list[str]) -> set[int
 
 @utils.profile
 def part2(input: str):
-    lines = _parse_input(input)
-    result = 0
-    for yy, line in enumerate(lines):
-        for xx, char in enumerate(line):
-            if char != "*":
-                continue  # consider only gears
+    matrix = _parse_input_matrix(input)
+    number_coords = _find_all_number_coords(_parse_input(input))
 
-            adjacent_numbers = [
-                (char, xy) for char, xy in _get_char_neighbours(lines, xx, yy) if char.isnumeric()
-            ]
-            if len(adjacent_numbers) > 1:
-                numbers = _find_numbers(adjacent_numbers, lines)
-                product = 1
-                for n in numbers:
-                    product *= n
-                result += product
+    result = 0
+    for (xx, yy), char in matrix.items():
+        if char != "*":
+            continue  # consider only gears
+
+        neighbours = _get_char_neighbours(matrix, xx, yy)
+        neighbouring_numbers_coords = set()
+        for coord in neighbours:
+            for coords, number in number_coords.items():
+                if coord in coords:
+                    neighbouring_numbers_coords.add(coords)
+
+        if len(neighbouring_numbers_coords) > 1:
+            product = 1
+            for coords in neighbouring_numbers_coords:
+                number = number_coords[coords]
+                product *= number
+            result += product
+
     return result
 
 
 if __name__ == "__main__":
     input = utils.load_puzzle_input("2023/day3")
     assert part1(input) == 527369
-    part2(input)
+    assert part2(input) == 73074886
