@@ -31,14 +31,37 @@ import utils
 #
 #     return sum(valid_part_numbers)
 
+Coord = tuple[int, int]
+
 
 def is_symbol(char: str) -> bool:
     return char not in ".1234567890"
 
 
+def _parse_input(input: str) -> list[str]:
+    return [line.strip() for line in input.splitlines()]
+
+
+def _get_char_neighbours(lines: list[str], xx: int, yy: int) -> list[tuple[str, Coord]]:
+    """
+    Return a list of chars and their xx,yy coords within the lines list
+    """
+    neighbours = []
+    line = lines[yy]
+    x_min = max(0, xx - 1)
+    y_min = max(0, yy - 1)
+    x_max = min(len(line), xx + 2)  # +2 because we want to include in range
+    y_max = min(len(lines), yy + 2)
+    for y in range(y_min, y_max):
+        for x in range(x_min, x_max):
+            neighbour = lines[y][x]
+            neighbours.append((neighbour, (x, y)))
+    return neighbours
+
+
 @utils.profile
 def part1(input: str) -> int:
-    lines: list[str] = [line.strip() for line in input.splitlines()]
+    lines = _parse_input(input)
     valid = []
     for yy, line in enumerate(lines):
         num = ""
@@ -49,16 +72,9 @@ def part1(input: str) -> int:
             if char.isnumeric():
                 num += char
                 # check if any surrounding chars are symbols
-                x_min = max(0, xx - 1)
-                y_min = max(0, yy - 1)
-                x_max = min(len(line), xx + 2)  # +2 because we want to include in range
-                y_max = min(len(lines), yy + 2)
-                for y in range(y_min, y_max):
-                    for x in range(x_min, x_max):
-                        neighbour = lines[y][x]
-                        if is_symbol(neighbour):
-                            is_valid = True
-                            break
+                neighbours = _get_char_neighbours(lines, xx, yy)
+                if any(is_symbol(n) for n, _ in neighbours):
+                    is_valid = True
 
             # if we just finished parsing a number
             else:
@@ -73,11 +89,57 @@ def part1(input: str) -> int:
     return sum(valid)
 
 
+def _find_all_number_coords(lines: list[str]) -> list[list[Coord]]:
+    results = []
+    for yy, line in enumerate(lines):
+        num = []
+        for xx, char in enumerate(line):
+            if char.isnumeric():
+                num.append((xx, yy))  # start a new number
+            else:
+                if num:
+                    results.append(num)  # finish number or not
+                num = []
+        # when reach end of line, finish number
+        if num:
+            results.append(num)
+    return results
+
+
+def _find_numbers(numbers: list[tuple[str, Coord]], lines: list[str]) -> set[int]:
+    """Given the coords of digits, get the full numbers"""
+    all_number_coords = _find_all_number_coords(lines)
+    integers = set()
+    for str, coord in numbers:
+        for number_coords in all_number_coords:
+            if coord in number_coords:
+                number = "".join(lines[y][x] for x, y in number_coords)
+                integers.add(int(number))
+    return integers
+
+
 @utils.profile
 def part2(input: str):
-    ...
+    lines = _parse_input(input)
+    result = 0
+    for yy, line in enumerate(lines):
+        for xx, char in enumerate(line):
+            if char != "*":
+                continue  # consider only gears
+
+            adjacent_numbers = [
+                (char, xy) for char, xy in _get_char_neighbours(lines, xx, yy) if char.isnumeric()
+            ]
+            if len(adjacent_numbers) > 1:
+                numbers = _find_numbers(adjacent_numbers, lines)
+                product = 1
+                for n in numbers:
+                    product *= n
+                result += product
+    return result
 
 
 if __name__ == "__main__":
     input = utils.load_puzzle_input("2023/day3")
     assert part1(input) == 527369
+    part2(input)
