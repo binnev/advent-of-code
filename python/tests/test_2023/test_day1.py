@@ -13,4 +13,4 @@ from puzzles.y2023 import day1
     ],
 )
 def test_regex_magic(s, expected):
-    assert day1.regex_magic(s) == expected
+    assert day1._regex_magic(s) == expected
