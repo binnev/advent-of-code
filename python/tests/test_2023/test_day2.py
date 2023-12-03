@@ -10,7 +10,7 @@ Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green"""
 
 def test_parse_game():
     input = "Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue"
-    assert day2.parse_game(input) == (
+    assert day2._parse_game(input) == (
         2,
         [
             day2.RgbTuple(blue=1, green=2, red=0),
@@ -27,7 +27,7 @@ def test_part1():
 
 
 def test_get_min_cubes():
-    games = day2.parse_games(example1)
+    games = day2._parse_games(example1)
     results = []
     for ii, game in games:
         results.append(day2.get_min_cubes(game))
