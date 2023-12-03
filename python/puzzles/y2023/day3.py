@@ -63,6 +63,9 @@ def _find_all_number_coords(lines: list[str]) -> dict[NumberCoords, int]:
 
 @utils.profile
 def part1(input: str) -> int:
+    """
+    Iterate over all the numbers, and check their surroundings for symbols
+    """
     matrix = _parse_input_matrix(input)
     number_coords = _find_all_number_coords(_parse_input(input))
 
@@ -80,6 +83,9 @@ def part1(input: str) -> int:
 
 @utils.profile
 def part2(input: str):
+    """
+    Iterate over the gears, and check their surroundings for numbers
+    """
     matrix = _parse_input_matrix(input)
     number_coords = _find_all_number_coords(_parse_input(input))
 
