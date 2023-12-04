@@ -18,11 +18,11 @@ def part2(input: str):
     cards = _parse_input(input)
     duplicates = {card_num: 1 for card_num, _, _ in cards}
     for card_num, winning_numbers, your_numbers in cards:
-        nn = _num_matches(winning_numbers, your_numbers)
-        for _ in range(duplicates[card_num]):
-            for ii in range(1, nn + 1):  # duplicate the next nn cards
-                index = card_num + ii
-                duplicates[index] += 1
+        score = _num_matches(winning_numbers, your_numbers)
+        num_copies = duplicates[card_num]
+        for ii in range(1, score + 1):  # duplicate the next N cards
+            index = card_num + ii
+            duplicates[index] += num_copies
     return sum(duplicates.values())
 
 
