@@ -13,7 +13,7 @@ def test_part1():
 
 
 def test_part2():
-    ...
+    assert day4.part2(example1) == 30
 
 
 def test_parse_line():
