@@ -161,6 +161,7 @@ def test_2022(day, func, expected_output):
         ("2023/day3", y2023.day3.part2, 73074886),
         ("2023/day4", y2023.day4.part1, 18653),
         ("2023/day4", y2023.day4.part2, 5921508),
+        ("2023/day5", y2023.day5.part1, 174137457),
     ],
 )
 def test_2023(day, func, expected_output):
