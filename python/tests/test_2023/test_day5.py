@@ -1,7 +1,7 @@
 import pytest
 
 from puzzles.y2023 import day5
-from puzzles.y2023.day5 import Transform
+from puzzles.y2023.day5 import Transform, Range
 
 example1 = """seeds: 79 14 55 13
 
@@ -40,10 +40,10 @@ humidity-to-location map:
 
 def test__find_critical_points():
     transforms = [
-        Transform({(2, 9): (1, 8)}),
-        Transform({(5, 10): (6, 11)}),
-        Transform({(7, 9): (3, 5)}),
-        Transform({(2, 6): (3, 7)}),
+        Transform({Range(2, 9): Range(1, 8)}),
+        Transform({Range(5, 10): Range(6, 11)}),
+        Transform({Range(7, 9): Range(3, 5)}),
+        Transform({Range(2, 6): Range(3, 7)}),
     ]
     critical_points = day5._find_critical_points(transforms)
     expected = {2, 3, 6, 7, 9, 10}

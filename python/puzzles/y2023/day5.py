@@ -1,9 +1,18 @@
 import re
-from collections import namedtuple
+
+from typing_extensions import NamedTuple
 
 import utils
 
-Range = namedtuple("Range", "start, stop")
+
+class Range(NamedTuple):
+    start: int
+    stop: int
+
+    def contains(self, value: int) -> bool:
+        return self[0] <= value <= self[1]
+
+
 Transform = dict[Range, Range]
 
 
@@ -26,7 +35,7 @@ def part2(input: str):
     for ii in range(0, len(seeds) // 2 + 1, 2):
         start = seeds[ii]
         width = seeds[ii + 1]
-        seed_range = (start, start + width - 1)
+        seed_range = Range(start, start + width - 1)
         seed_ranges.append(seed_range)
 
     critical_points = _find_critical_points(transforms)
@@ -36,7 +45,7 @@ def part2(input: str):
 
     new = set()
     for pt in critical_points:
-        if any(_contains(sr, pt) for sr in seed_ranges):
+        if any(sr.contains(pt) for sr in seed_ranges):
             new.add(pt)
     critical_points = new
 
@@ -67,10 +76,6 @@ def _find_critical_points(transforms: list[Transform]) -> set[int]:
     return critical_points
 
 
-def _contains(r: Range, value: int) -> bool:
-    return r[0] <= value <= r[1]
-
-
 def _calculate_seed(seed: int, transforms: list[Transform]) -> int:
     for transform in transforms:
         seed = _apply_map(seed, transform)
@@ -79,7 +84,7 @@ def _calculate_seed(seed: int, transforms: list[Transform]) -> int:
 
 def _apply_map(input: int, transform: Transform) -> int:
     for in_range, out_range in transform.items():
-        if _contains(in_range, input):
+        if in_range.contains(input):
             offset = input - in_range.start
             return out_range.start + offset
     # if no ranges match, output = input
@@ -88,7 +93,7 @@ def _apply_map(input: int, transform: Transform) -> int:
 
 def _apply_map_backwards(input: int, transform: Transform) -> int:
     for in_range, out_range in transform.items():
-        if _contains(out_range, input):
+        if out_range.contains(input):
             offset = input - out_range[0]
             return in_range[0] + offset
     return input
