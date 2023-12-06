@@ -33,13 +33,7 @@ class Transform(dict[Range, Range]):
 @utils.profile
 def part1(input: str):
     seeds, transforms = _parse_input(input)
-
-    lowest = seeds[0]
-    for seed in seeds:
-        seed = _apply_transforms(seed, transforms)
-        if seed < lowest:
-            lowest = seed
-    return lowest
+    return min(_apply_transforms(seed, transforms) for seed in seeds)
 
 
 @utils.profile
@@ -57,17 +51,10 @@ def part2(input: str):
         critical_points.add(start)
         critical_points.add(end)
 
-    new = set()
-    for pt in critical_points:
-        if any(sr.contains(pt) for sr in seed_ranges):
-            new.add(pt)
-    critical_points = new
+    # filter out any critical points that aren't within the input ranges
+    critical_points = filter(lambda pt: any(r.contains(pt) for r in seed_ranges), critical_points)
 
-    results = []
-    for seed in critical_points:
-        seed = _apply_transforms(seed, transforms)
-        results.append(seed)
-    return min(results)
+    return min(_apply_transforms(seed, transforms) for seed in critical_points)
 
 
 def _find_critical_points(transforms: list[Transform]) -> set[int]:
@@ -79,8 +66,7 @@ def _find_critical_points(transforms: list[Transform]) -> set[int]:
         # points "left". Otherwise just leave them as-is.
         new = set()
         for pt in critical_points:
-            pt_transformed_left = trans.backwards(pt)
-            new.add(pt_transformed_left)
+            new.add(trans.backwards(pt))
         critical_points = new
 
         # all the edges of the input ranges are automatically critical points
