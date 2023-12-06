@@ -26,20 +26,25 @@ def part2(input: str):
     for ii in range(0, len(seeds) // 2 + 1, 2):
         start = seeds[ii]
         width = seeds[ii + 1]
-        seed_range = range(start, start + width)
+        seed_range = (start, start + width - 1)
         seed_ranges.append(seed_range)
 
-    counter = 0
-    total = sum((sr.stop - sr.start) for sr in seed_ranges)
-    lowest = seed_ranges[0].start
-    for seed_range in seed_ranges:
-        for seed in seed_range:
-            seed = _calculate_seed(seed, transforms)
-            counter += 1
-            print(f"{counter}/{total}")
-            if seed < lowest:
-                lowest = seed
-    return lowest
+    critical_points = _find_critical_points(transforms)
+    for start, end in seed_ranges:
+        critical_points.add(start)
+        critical_points.add(end)
+
+    new = set()
+    for pt in critical_points:
+        if any(_contains_value(sr, pt) for sr in seed_ranges):
+            new.add(pt)
+    critical_points = new
+
+    results = []
+    for seed in critical_points:
+        seed = _calculate_seed(seed, transforms)
+        results.append(seed)
+    return min(results)
 
 
 def _find_critical_points(transforms: list[Transform]) -> set[int]:
@@ -135,9 +140,3 @@ def _parse_input(input: str) -> tuple[list[int], list[Transform]]:
     transforms.append(transform)
 
     return seeds, transforms
-
-
-if __name__ == "__main__":
-    input = utils.load_puzzle_input("2023/day5")
-    # part2(input)
-    print(input)
