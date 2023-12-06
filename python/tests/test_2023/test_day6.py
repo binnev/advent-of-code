@@ -10,8 +10,8 @@ def test_part1():
     assert day6.part1(example1) == 288
 
 
-# def test_part2():
-#     assert day6.part2(example1) == ...
+def test_part2():
+    assert day6.part2(example1) == 71503
 
 
 @pytest.mark.parametrize(
