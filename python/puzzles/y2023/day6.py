@@ -1,3 +1,4 @@
+import math
 import re
 
 import utils
@@ -14,10 +15,24 @@ def part1(input: str) -> int:
 
 @utils.profile
 def part2(input: str) -> int:
+    """
+    We can find where the distance function intersects the record distance, and structure it as a
+    quadratic equation:
+    -c**2 + c*t - r = 0
+    where c = charge time
+          t = total race time
+          r = record distance
+
+    solving for c gives us the two roots.
+    """
     times, distances = _parse_input(input)
     time = int("".join(map(str, times)))
     distance = int("".join(map(str, distances)))
-    return _calculate_win_possibilities(time, distance)
+
+    roots = _solve_quadratic(a=-1, b=time, c=-distance)
+    start = math.ceil(min(roots))
+    end = math.floor(max(roots))
+    return end - start + 1
 
 
 def _calculate_win_possibilities(race_time: int, distance_record: int) -> int:
@@ -29,10 +44,19 @@ def _calculate_win_possibilities(race_time: int, distance_record: int) -> int:
 
 
 def _calculate_distance(charge_time: int, total_time: int) -> int:
+    """
     speed = charge_time
     remaining_time = total_time - charge_time
     distance = remaining_time * speed
-    return distance
+    distance = (total_time - charge_time) * charge_time
+    """
+    return (total_time - charge_time) * charge_time
+
+
+def _solve_quadratic(a: int, b: int, c: int) -> tuple[float, float]:
+    neg = (-b - (math.sqrt(b**2 - 4 * a * c))) / (2 * a)
+    pos = (-b + (math.sqrt(b**2 - 4 * a * c))) / (2 * a)
+    return neg, pos
 
 
 def _parse_input(input: str) -> tuple[list[int], list[int]]:
