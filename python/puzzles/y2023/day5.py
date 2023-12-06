@@ -13,7 +13,21 @@ class Range(NamedTuple):
         return self[0] <= value <= self[1]
 
 
-Transform = dict[Range, Range]
+class Transform(dict[Range, Range]):
+    def forwards(self, value: int) -> int:
+        for in_range, out_range in self.items():
+            if in_range.contains(value):
+                offset = value - in_range.start
+                return out_range.start + offset
+        # if no ranges match, output = value
+        return value
+
+    def backwards(self, value: int) -> int:
+        for in_range, out_range in self.items():
+            if out_range.contains(value):
+                offset = value - out_range[0]
+                return in_range[0] + offset
+        return value
 
 
 @utils.profile
@@ -22,7 +36,7 @@ def part1(input: str):
 
     lowest = seeds[0]
     for seed in seeds:
-        seed = _calculate_seed(seed, transforms)
+        seed = _apply_transforms(seed, transforms)
         if seed < lowest:
             lowest = seed
     return lowest
@@ -51,7 +65,7 @@ def part2(input: str):
 
     results = []
     for seed in critical_points:
-        seed = _calculate_seed(seed, transforms)
+        seed = _apply_transforms(seed, transforms)
         results.append(seed)
     return min(results)
 
@@ -65,7 +79,7 @@ def _find_critical_points(transforms: list[Transform]) -> set[int]:
         # points "left". Otherwise just leave them as-is.
         new = set()
         for pt in critical_points:
-            pt_transformed_left = _apply_map_backwards(pt, trans)
+            pt_transformed_left = trans.backwards(pt)
             new.add(pt_transformed_left)
         critical_points = new
 
@@ -76,27 +90,10 @@ def _find_critical_points(transforms: list[Transform]) -> set[int]:
     return critical_points
 
 
-def _calculate_seed(seed: int, transforms: list[Transform]) -> int:
+def _apply_transforms(seed: int, transforms: list[Transform]) -> int:
     for transform in transforms:
-        seed = _apply_map(seed, transform)
+        seed = transform.forwards(seed)
     return seed
-
-
-def _apply_map(input: int, transform: Transform) -> int:
-    for in_range, out_range in transform.items():
-        if in_range.contains(input):
-            offset = input - in_range.start
-            return out_range.start + offset
-    # if no ranges match, output = input
-    return input
-
-
-def _apply_map_backwards(input: int, transform: Transform) -> int:
-    for in_range, out_range in transform.items():
-        if out_range.contains(input):
-            offset = input - out_range[0]
-            return in_range[0] + offset
-    return input
 
 
 def _parse_range_line(line: str) -> tuple[Range, Range]:

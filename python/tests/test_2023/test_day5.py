@@ -91,13 +91,13 @@ def test__parse_ranges():
         (99, 51),
     ],
 )
-def test__apply_map(input, expected):
-    range_map = day5.Transform()
+def test_transform_forwards(input, expected):
+    transform = Transform()
     for line in "50 98 2", "52 50 48":
         src, dst = day5._parse_range_line(line)
-        range_map[src] = dst
+        transform[src] = dst
 
-    out = day5._apply_map(input, range_map)
+    out = transform.forwards(input)
     assert out == expected
 
 
@@ -110,9 +110,9 @@ def test__apply_map(input, expected):
         (13, 35),
     ],
 )
-def test__calculate_seed(input, expected):
+def test__apply_transforms(input, expected):
     _, transforms = day5._parse_input(example1)
-    result = day5._calculate_seed(input, transforms)
+    result = day5._apply_transforms(input, transforms)
     assert result == expected
 
 
