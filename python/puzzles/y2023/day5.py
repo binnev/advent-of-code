@@ -2,16 +2,16 @@ import re
 
 import utils
 
-RangeMap = dict[range, range]
+Transform = dict[range, range]
 
 
 @utils.profile
 def part1(input: str):
-    seeds, maps = _parse_input(input)
+    seeds, transforms = _parse_input(input)
 
     lowest = seeds[0]
     for seed in seeds:
-        seed = _calculate_seed(seed, maps)
+        seed = _calculate_seed(seed, transforms)
         if seed < lowest:
             lowest = seed
     return lowest
@@ -19,7 +19,7 @@ def part1(input: str):
 
 @utils.profile
 def part2(input: str):
-    seeds, maps = _parse_input(input)
+    seeds, transforms = _parse_input(input)
     seed_ranges = []
     for ii in range(0, len(seeds) // 2 + 1, 2):
         start = seeds[ii]
@@ -32,7 +32,7 @@ def part2(input: str):
     lowest = seed_ranges[0].start
     for seed_range in seed_ranges:
         for seed in seed_range:
-            seed = _calculate_seed(seed, maps)
+            seed = _calculate_seed(seed, transforms)
             counter += 1
             print(f"{counter}/{total}")
             if seed < lowest:
@@ -40,9 +40,9 @@ def part2(input: str):
     return lowest
 
 
-def _calculate_seed(seed: int, maps: list[RangeMap]) -> int:
-    for range_map in maps:
-        seed = _apply_map(seed, range_map)
+def _calculate_seed(seed: int, transforms: list[Transform]) -> int:
+    for transform in transforms:
+        seed = _apply_map(seed, transform)
     return seed
 
 
@@ -53,8 +53,8 @@ def _parse_range_line(line: str) -> tuple[range, range]:
     return src_range, dst_range
 
 
-def _apply_map(input: int, mapp: RangeMap) -> int:
-    for in_range, out_range in mapp.items():
+def _apply_map(input: int, transform: Transform) -> int:
+    for in_range, out_range in transform.items():
         if input in in_range:
             offset = input - in_range.start
             return out_range.start + offset
@@ -62,25 +62,25 @@ def _apply_map(input: int, mapp: RangeMap) -> int:
     return input
 
 
-def _parse_input(input: str) -> tuple[list[int], list[RangeMap]]:
+def _parse_input(input: str) -> tuple[list[int], list[Transform]]:
     lines = input.splitlines()
     seed_line = lines.pop(0)
     input = "\n".join(lines)
     seeds = list(map(int, re.findall(r"(\d+)", seed_line)))
 
-    range_map = None
-    maps = []
+    transform = None
+    transforms = []
     for line in input.splitlines():
         if line.endswith("map:"):
-            if range_map:
-                maps.append(range_map)
-            range_map = RangeMap()
+            if transform:
+                transforms.append(transform)
+            transform = Transform()
         elif line.strip():
             src_range, dst_range = _parse_range_line(line)
-            range_map[src_range] = dst_range
-    maps.append(range_map)
+            transform[src_range] = dst_range
+    transforms.append(transform)
 
-    return seeds, maps
+    return seeds, transforms
 
 
 if __name__ == "__main__":

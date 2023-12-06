@@ -38,11 +38,11 @@ humidity-to-location map:
 
 
 def test__parse_input():
-    seeds, maps = day5._parse_input(example1)
+    seeds, transforms = day5._parse_input(example1)
     assert seeds == [79, 14, 55, 13]
-    assert isinstance(maps[0], dict)
-    assert len(maps) == 7
-    assert maps[0] == {
+    assert isinstance(transforms[0], dict)
+    assert len(transforms) == 7
+    assert transforms[0] == {
         range(98, 100): range(50, 52),
         range(50, 50 + 48): range(52, 52 + 48),
     }
@@ -79,7 +79,7 @@ def test__parse_ranges():
     ],
 )
 def test__apply_map(input, expected):
-    range_map = day5.RangeMap()
+    range_map = day5.Transform()
     for line in "50 98 2", "52 50 48":
         src, dst = day5._parse_range_line(line)
         range_map[src] = dst
@@ -98,8 +98,8 @@ def test__apply_map(input, expected):
     ],
 )
 def test__calculate_seed(input, expected):
-    _, maps = day5._parse_input(example1)
-    result = day5._calculate_seed(input, maps)
+    _, transforms = day5._parse_input(example1)
+    result = day5._calculate_seed(input, transforms)
     assert result == expected
 
 
