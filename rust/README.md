@@ -1,4 +1,4 @@
 # Rust TODO
 
-- set up project such that I can reuse utils 
+- implement load_puzzle_input
 - set up tests 
