@@ -36,7 +36,7 @@ def part2(input: str):
 
     new = set()
     for pt in critical_points:
-        if any(_contains_value(sr, pt) for sr in seed_ranges):
+        if any(_contains(sr, pt) for sr in seed_ranges):
             new.add(pt)
     critical_points = new
 
@@ -67,28 +67,8 @@ def _find_critical_points(transforms: list[Transform]) -> set[int]:
     return critical_points
 
 
-def _contains_value(r: Range, value: int) -> bool:
+def _contains(r: Range, value: int) -> bool:
     return r[0] <= value <= r[1]
-
-
-def _overlaps(first: Range, second: Range) -> bool:
-    (s1, e1), (s2, e2) = first, second
-    return (e1 >= s2 and e2 >= s1) or (e2 >= s1 and e1 >= s2)
-
-
-def _contains(first: Range, second: Range) -> bool:
-    (s1, e1), (s2, e2) = first, second
-    return (s2 >= s1 and e2 <= e1) or (s1 >= s2 and e1 <= e2)
-
-
-def _intersect(first: Range, second: Range) -> list[Range]:
-    points = sorted([first[0], first[1], second[0], second[1]])
-    out = [
-        (points[0], points[1] - 1),
-        (points[1], points[2]),
-        (points[2] + 1, points[3]),
-    ]
-    return out
 
 
 def _calculate_seed(seed: int, transforms: list[Transform]) -> int:
@@ -97,16 +77,9 @@ def _calculate_seed(seed: int, transforms: list[Transform]) -> int:
     return seed
 
 
-def _parse_range_line(line: str) -> tuple[Range, Range]:
-    dst, src, width = list(map(int, line.split()))
-    src_range = Range(start=src, stop=src + width - 1)
-    dst_range = Range(start=dst, stop=dst + width - 1)
-    return src_range, dst_range
-
-
 def _apply_map(input: int, transform: Transform) -> int:
     for in_range, out_range in transform.items():
-        if _contains_value(in_range, input):
+        if _contains(in_range, input):
             offset = input - in_range.start
             return out_range.start + offset
     # if no ranges match, output = input
@@ -115,10 +88,17 @@ def _apply_map(input: int, transform: Transform) -> int:
 
 def _apply_map_backwards(input: int, transform: Transform) -> int:
     for in_range, out_range in transform.items():
-        if _contains_value(out_range, input):
+        if _contains(out_range, input):
             offset = input - out_range[0]
             return in_range[0] + offset
     return input
+
+
+def _parse_range_line(line: str) -> tuple[Range, Range]:
+    dst, src, width = list(map(int, line.split()))
+    src_range = Range(start=src, stop=src + width - 1)
+    dst_range = Range(start=dst, stop=dst + width - 1)
+    return src_range, dst_range
 
 
 def _parse_input(input: str) -> tuple[list[int], list[Transform]]:
