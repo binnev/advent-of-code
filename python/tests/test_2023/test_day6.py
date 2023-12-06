@@ -37,3 +37,16 @@ def test__parse_input():
         [7, 15, 30],
         [9, 40, 200],
     )
+
+
+@pytest.mark.parametrize(
+    "time, distance, expected",
+    [
+        (7, 9, 4),
+        (15, 40, 8),
+        (30, 200, 9),
+    ],
+)
+def test_sanity(time, distance, expected):
+    assert day6._brute_force(time, distance) == expected
+    assert day6._calculate_win_possibilities(time, distance) == expected

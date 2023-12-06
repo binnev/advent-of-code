@@ -28,14 +28,24 @@ def part2(input: str) -> int:
     times, distances = _parse_input(input)
     time = int("".join(map(str, times)))
     distance = int("".join(map(str, distances)))
-
-    roots = _solve_quadratic(a=-1, b=time, c=-distance)
-    start = math.ceil(min(roots))
-    end = math.floor(max(roots))
-    return end - start + 1
+    return _calculate_win_possibilities(time, distance)
 
 
 def _calculate_win_possibilities(race_time: int, distance_record: int) -> int:
+    roots = _solve_quadratic(a=-1, b=race_time, c=-distance_record)
+    start = math.ceil(min(roots))
+    end = math.floor(max(roots))
+
+    # You need to BEAT the distance record, not match it. So if our bounds are equal to the
+    # distance record, we nudge them inwards by 1 to get the first/last values that actually win.
+    if _calculate_distance(start, race_time) == distance_record:
+        start += 1
+    if _calculate_distance(end, race_time) == distance_record:
+        end -= 1
+    return end - start + 1
+
+
+def _brute_force(race_time: int, distance_record: int) -> int:
     my_distances = [
         _calculate_distance(charge_time=t, total_time=race_time) for t in range(race_time)
     ]
