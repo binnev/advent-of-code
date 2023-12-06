@@ -19,7 +19,25 @@ def part1(input: str):
 
 @utils.profile
 def part2(input: str):
-    ...
+    seeds, maps = _parse_input(input)
+    seed_ranges = []
+    for ii in range(0, len(seeds) // 2 + 1, 2):
+        start = seeds[ii]
+        width = seeds[ii + 1]
+        seed_range = range(start, start + width)
+        seed_ranges.append(seed_range)
+
+    counter = 0
+    total = sum((sr.stop - sr.start) for sr in seed_ranges)
+    lowest = seed_ranges[0].start
+    for seed_range in seed_ranges:
+        for seed in seed_range:
+            seed = _calculate_seed(seed, maps)
+            counter += 1
+            print(f"{counter}/{total}")
+            if seed < lowest:
+                lowest = seed
+    return lowest
 
 
 def _calculate_seed(seed: int, maps: list[RangeMap]) -> int:
@@ -67,4 +85,4 @@ def _parse_input(input: str) -> tuple[list[int], list[RangeMap]]:
 
 if __name__ == "__main__":
     input = utils.load_puzzle_input("2023/day5")
-    part1(input)
+    part2(input)

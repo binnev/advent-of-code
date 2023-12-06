@@ -105,3 +105,13 @@ def test__calculate_seed(input, expected):
 
 def test_part1():
     assert day5.part1(example1) == 35
+
+
+def test_part2():
+    assert day5.part2(example1) == 46
+
+    """
+    It's too slow because we're trying to simulate it all. 
+    What we instead need to do is create a function that _merges RangeMaps_. 
+    
+    """
