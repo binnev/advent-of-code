@@ -1,6 +1,7 @@
 import pytest
 
 from puzzles.y2023 import day5
+from puzzles.y2023.day5 import Transform, Range
 
 example1 = """seeds: 79 14 55 13
 
@@ -37,21 +38,74 @@ humidity-to-location map:
 56 93 4"""
 
 
+def test__find_critical_points():
+    transforms = [
+        Transform({(2, 9): (1, 8)}),
+        Transform({(5, 10): (6, 11)}),
+        Transform({(7, 9): (3, 5)}),
+        Transform({(2, 6): (3, 7)}),
+    ]
+    critical_points = day5._find_critical_points(transforms)
+    expected = {2, 3, 6, 7, 9, 10}
+    assert critical_points == expected
+
+
+@pytest.mark.parametrize(
+    "first, second, expected",
+    [
+        pytest.param(
+            (10, 12),
+            (12, 14),
+            [(10, 11), (12, 12), (13, 14)],
+            id="single overlap",
+        ),
+        pytest.param(
+            (10, 12),
+            (11, 13),
+            [(10, 10), (11, 12), (13, 13)],
+            id="double overlap",
+        ),
+        pytest.param(
+            (0, 10),
+            (4, 6),
+            [(0, 3), (4, 6), (7, 10)],
+            id="one contains the other ",
+        ),
+    ],
+)
+def test__intersect(first, second, expected):
+    assert day5._intersect(first, second) == expected
+
+
+@pytest.mark.parametrize(
+    "left, right, should_overlap",
+    [
+        ((0, 1), (2, 3), False),  # no overlap; just touching
+        ((0, 2), (2, 3), True),  # single overlap
+        ((0, 2), (1, 3), True),  # multiple overlap
+        ((0, 10), (4, 5), True),  # one contains the other
+    ],
+)
+def test__ranges_overlap(left, right, should_overlap):
+    assert day5._overlaps(left, right) == should_overlap
+    assert day5._overlaps(right, left) == should_overlap
+
+
 def test__parse_input():
     seeds, transforms = day5._parse_input(example1)
     assert seeds == [79, 14, 55, 13]
     assert isinstance(transforms[0], dict)
     assert len(transforms) == 7
     assert transforms[0] == {
-        range(98, 100): range(50, 52),
-        range(50, 50 + 48): range(52, 52 + 48),
+        (98, 99): (50, 51),
+        (50, 97): (52, 99),
     }
 
 
 def test__parse_ranges():
     src_range, dst_range = day5._parse_range_line("50 98 2")
-    assert src_range == range(98, 100)
-    assert dst_range == range(50, 52)
+    assert src_range == (98, 99)
+    assert dst_range == (50, 51)
 
     assert 97 not in src_range
     assert 98 in src_range
