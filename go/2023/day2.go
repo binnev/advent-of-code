@@ -30,6 +30,17 @@ func Day2Part1(input string) string {
 	return fmt.Sprint(result)
 }
 
+func Day2Part2(input string) string {
+	games := parse_games(input)
+	result := 0
+	for _, game := range games {
+		min_cubes := get_min_cubes(game.hands)
+		power := min_cubes.red * min_cubes.blue * min_cubes.green
+		result += power
+	}
+	return fmt.Sprint(result)
+}
+
 func get_min_cubes(hands []RgbTuple) RgbTuple {
 	minimum := RgbTuple{red: 0, green: 0, blue: 0}
 	for _, hand := range hands {
