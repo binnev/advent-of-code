@@ -132,3 +132,11 @@ func Reverse[AnySlice ~[]A, A any](arr AnySlice) {
 	}
 	copy(arr, reversed)
 }
+
+func Map[I any, O any](f func(I) O, arr []I) []O {
+	result := make([]O, len(arr))
+	for ii, item := range arr {
+		result[ii] = f(item)
+	}
+	return result
+}

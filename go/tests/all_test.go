@@ -92,5 +92,6 @@ func Test2023(t *testing.T) {
 	RunAdventTestCases(t, []AdventTestCase{
 		{"2023/day1", _2023.Day1Part1, "55123"},
 		{"2023/day1", _2023.Day1Part2, "55260"},
+		{"2023/day2", _2023.Day2Part1, "1853"},
 	})
 }
