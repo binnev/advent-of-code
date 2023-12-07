@@ -1,4 +1,4 @@
-package _2023
+package day1
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func Day1Part1(raw string) string {
+func Part1(raw string) string {
 	raw = strings.TrimSpace(raw)
 	rx := regexp.MustCompile(`(\d)`)
 	result := 0
@@ -21,22 +21,7 @@ func Day1Part1(raw string) string {
 	return fmt.Sprint(result)
 }
 
-func regexMagic(s string) []string {
-	rx := regexp.MustCompile(`^(one|two|three|four|five|six|seven|eight|nine|[1-9])`)
-	matches := []string{}
-	length := len(s)
-	for ii := 0; ii < length; ii++ {
-		substr := s[ii:length]
-		if rx.MatchString(substr) {
-
-			match := rx.FindString(substr)
-			matches = append(matches, string(match))
-		}
-	}
-	return matches
-}
-
-func Day1Part2(raw string) string {
+func Part2(raw string) string {
 	digit_map := map[string]string{
 		"one":   "1",
 		"two":   "2",
@@ -64,4 +49,19 @@ func Day1Part2(raw string) string {
 		result += number
 	}
 	return fmt.Sprint(result)
+}
+
+func regexMagic(s string) []string {
+	rx := regexp.MustCompile(`^(one|two|three|four|five|six|seven|eight|nine|[1-9])`)
+	matches := []string{}
+	length := len(s)
+	for ii := 0; ii < length; ii++ {
+		substr := s[ii:length]
+		if rx.MatchString(substr) {
+
+			match := rx.FindString(substr)
+			matches = append(matches, string(match))
+		}
+	}
+	return matches
 }
