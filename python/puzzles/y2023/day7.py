@@ -14,17 +14,11 @@ class HandType(Enum):
     HIGH_CARD = 1
 
 
-STRENGTH = "23456789TJQKA"
-
-
 @utils.profile
 def part1(input: str) -> int:
     hands = _parse_input(input)
     rank = _rank_hands(list(hands))
-    result = 0
-    for hand, bid in hands.items():
-        value = rank[hand] * bid
-        result += value
+    result = sum(rank[hand] * bid for hand, bid in hands.items())
     return result
 
 
@@ -32,10 +26,7 @@ def part1(input: str) -> int:
 def part2(input: str):
     hands = _parse_input(input)
     rank = _rank_hands(list(hands), jokers=True)
-    result = 0
-    for hand, bid in hands.items():
-        value = rank[hand] * bid
-        result += value
+    result = sum(rank[hand] * bid for hand, bid in hands.items())
     return result
 
 
@@ -44,30 +35,6 @@ def _card_strength(card: str, jokers=False) -> int:
         return "J23456789TJQKA".index(card)
     else:
         return "23456789TJQKA".index(card)
-
-
-def _compare_hands(left: str, right: str, jokers=False) -> str:
-    left_type = _hand_type(left, jokers)
-    right_type = _hand_type(right, jokers)
-
-    # one hand outright beats the other because it's a better type
-    if left_type.value > right_type.value:
-        return left
-    if right_type.value > left_type.value:
-        return right
-
-    # the hands are the same type so we compare cards
-    for l, r in zip(left, right):
-        l_strength = _card_strength(l, jokers)
-        r_strength = _card_strength(r, jokers)
-        if l_strength == r_strength:
-            continue
-        elif l_strength > r_strength:
-            return left
-        else:
-            return right
-
-    return None  # draw
 
 
 def _hand_type(hand: str, jokers=False) -> HandType:
@@ -97,12 +64,39 @@ def _hand_type(hand: str, jokers=False) -> HandType:
         return HandType.HIGH_CARD
 
 
+def _compare_hands(left: str, right: str, jokers=False) -> str | None:
+    left_type = _hand_type(left, jokers)
+    right_type = _hand_type(right, jokers)
+
+    # one hand outright beats the other because it's a better type
+    if left_type.value > right_type.value:
+        return left
+    if right_type.value > left_type.value:
+        return right
+
+    # the hands are the same type so we compare cards
+    for l, r in zip(left, right):
+        l_strength = _card_strength(l, jokers)
+        r_strength = _card_strength(r, jokers)
+        if l_strength == r_strength:
+            continue
+        elif l_strength > r_strength:
+            return left
+        else:
+            return right
+
+    return None  # draw
+
+
 def _best_joker_value(hand: str) -> str:
+    """
+    Choose the joker value that will maximise the value of the hand
+    """
     other_cards = hand.replace("J", "")
 
     if not other_cards:  # because the hand is all jokers
         return "A"
-    # try to maximise the value of the hand
+
     best_card = other_cards[0]
     best_count = hand.count(best_card)
     for card in other_cards:
@@ -128,31 +122,12 @@ def _parse_input(input: str) -> dict[str, int]:
     return output
 
 
-def _absolute_strength(hand: str, jokers=False) -> int:
-    """
-    hand_type -> 10_000_000_000
-    1st card -> 100_000_000
-    2nd card -> 1_000_000
-    3rd card -> 10_000
-    4th card -> 100
-    5th card -> 1
-    """
-    strength = _hand_type(hand, jokers).value * 10_000_000_000
-    card_weights = [
-        100_000_000,  # 1st card
-        1_000_000,  # 2nd card
-        10_000,  # 3rd card
-        100,  # 4th card
-        1,  # 5th card
-    ]
-    for card, weight in zip(hand, card_weights):
-        strength += _card_strength(card, jokers) * weight
-    return strength
-
-
 def _rank_hands(hands: list[str], jokers=False) -> dict[str, int]:
-    # absolute_strengths = {hand: _absolute_strength(hand, jokers) for hand in hands}
-    # ranked = sorted(hands, key=lambda hand: absolute_strengths[hand])
+    """
+    We need to sort using a comparison function because we have no absolute value for hand
+    strength.
+    """
+
     def cmp(left, right):
         winner = _compare_hands(left, right, jokers)
         if winner == left:
@@ -164,9 +139,3 @@ def _rank_hands(hands: list[str], jokers=False) -> dict[str, int]:
 
     ranked = sorted(hands, key=cmp_to_key(cmp))
     return {hand: ranked.index(hand) + 1 for hand in hands}
-
-
-if __name__ == "__main__":
-    input = utils.load_puzzle_input("2023/day7")
-    part1(input)
-    part2(input)
