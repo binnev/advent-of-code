@@ -10,10 +10,30 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 type AdventFunc func(string) string
+type AdventTestCase struct {
+	Day      string
+	Func     AdventFunc
+	Expected string
+}
+
+// I use this logic to parametrize all the year testcases, so here it is
+// encapsulated in a function
+func RunAdventTestCases(t *testing.T, testcases []AdventTestCase) {
+	for _, tc := range testcases {
+		raw := LoadPuzzleInput(tc.Day)
+		t.Run(GetFuncName(tc.Func), func(t *testing.T) {
+			result := Profile(tc.Func, raw)
+			assert.Equal(t, tc.Expected, result)
+		})
+	}
+}
 
 func LoadPuzzleInput(filename string) string {
 	// Need to explicitly locate the file relative to the current file, because
@@ -131,4 +151,12 @@ func Reverse[AnySlice ~[]A, A any](arr AnySlice) {
 		reversed[length-1-ii] = value
 	}
 	copy(arr, reversed)
+}
+
+func Map[I any, O any](f func(I) O, arr []I) []O {
+	result := make([]O, len(arr))
+	for ii, item := range arr {
+		result[ii] = f(item)
+	}
+	return result
 }
