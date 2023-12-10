@@ -26,16 +26,16 @@ def part1(input: str):
 @utils.profile
 def part2(input: str):
     instructions, nodes = parse_input(input)
-    instructions_len = len(instructions)
+    start_nodes = [id for id in nodes if id.endswith("A")]
+    check_functions = [
+        get_endpoint_checker(node_id, instructions, nodes) for node_id in start_nodes
+    ]
     ii = 0
-    node_ids = [id for id in nodes if id.endswith("A")]
     while True:
-        if all(id.endswith("Z") for id in node_ids):
+        if ii % 1000_000 == 0:
+            print(ii)
+        if all(is_endpoint(ii) for is_endpoint in check_functions):
             break
-
-        instruction = instructions[ii % instructions_len]
-        node_ids = [do_iteration(node_id, instruction, nodes) for node_id in node_ids]
-
         ii += 1
     return ii
 
