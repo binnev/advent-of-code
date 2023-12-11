@@ -9,14 +9,19 @@ def part1(input: str):
     matrix = parse_input(input)
     empty_rows, empty_cols = detect_empty_rows(matrix)
     return sum(
-        galaxy_distance(galaxy1, galaxy2, empty_rows, empty_cols)
+        galaxy_distance(galaxy1, galaxy2, empty_rows, empty_cols, empty_multiplier=2)
         for galaxy1, galaxy2 in itertools.combinations(matrix, 2)
     )
 
 
 @utils.profile
 def part2(input: str):
-    ...
+    matrix = parse_input(input)
+    empty_rows, empty_cols = detect_empty_rows(matrix)
+    return sum(
+        galaxy_distance(galaxy1, galaxy2, empty_rows, empty_cols, empty_multiplier=1_000_000)
+        for galaxy1, galaxy2 in itertools.combinations(matrix, 2)
+    )
 
 
 def galaxy_distance(
@@ -24,6 +29,7 @@ def galaxy_distance(
     galaxy2: Coord,
     empty_rows: list[int],
     empty_cols: list[int],
+    empty_multiplier: int,
 ) -> int:
     """
     1. taxicab distance
@@ -37,7 +43,12 @@ def galaxy_distance(
     y_dist = y_max - y_min
     empty_rows_crossed = sum(1 for row in empty_rows if y_min < row < y_max)
     empty_cols_crossed = sum(1 for col in empty_cols if x_min < col < x_max)
-    total_distance = x_dist + empty_cols_crossed + y_dist + empty_rows_crossed
+    total_distance = (
+        x_dist
+        + empty_cols_crossed * (empty_multiplier - 1)
+        + y_dist
+        + empty_rows_crossed * (empty_multiplier - 1)
+    )
     return total_distance
 
 
@@ -65,8 +76,3 @@ def parse_input(input: str) -> SparseMatrix:
                 coord = (xx, yy)
                 matrix[coord] = char
     return matrix
-
-
-if __name__ == "__main__":
-    input = utils.load_puzzle_input("2023/day11")
-    part1(input)

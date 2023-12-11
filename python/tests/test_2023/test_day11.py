@@ -45,7 +45,7 @@ def test_galaxy_distance(a, b, expected_dist):
     coord_a = next(coord for coord in matrix if matrix[coord] == a)
     coord_b = next(coord for coord in matrix if matrix[coord] == b)
     assert (  # should be symmetrical
-        galaxy_distance(coord_a, coord_b, empty_rows, empty_cols)
-        == galaxy_distance(coord_b, coord_a, empty_rows, empty_cols)
+        galaxy_distance(coord_a, coord_b, empty_rows, empty_cols, empty_multiplier=2)
+        == galaxy_distance(coord_b, coord_a, empty_rows, empty_cols, empty_multiplier=2)
         == expected_dist
     )
