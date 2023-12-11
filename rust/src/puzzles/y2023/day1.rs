@@ -4,33 +4,12 @@ pub fn part1(input: &str) -> String {
     let rx = Regex::new("\\d").unwrap();
     let mut result = 0;
     for line in input.lines() {
-        let matches: Vec<&str> =
-            rx.find_iter(line).map(|m| m.as_str()).collect();
-        print!("{:?}", matches);
-        // let matches = rx.captures(line).unwrap();
-        // let first: i32 = matches[0].parse().unwrap();
-        // let last: i32 = matches[matches.len() - 1].parse().unwrap();
-        // print!("matches={:?}, ", matches);
-        // println!("first={first}, last={last}, line={line}");
-        // result = result + first + last;
+        let digits: Vec<&str> =
+            rx.find_iter(line).map(|digit| digit.as_str()).collect();
+        // struggling to concatenate two strings here
+        let mut new_digit = digits[0].to_owned();
+        new_digit.push_str(digits[digits.len() - 1]);
+        result += new_digit.parse::<i32>().unwrap();
     }
     return result.to_string();
-}
-
-fn hello() -> String {
-    return String::from("Hello");
-}
-
-#[cfg(test)]
-mod tests {
-    // this makes load_puzzle_input, greet available in the current scope
-    // without the absolute path prefix
-    use super::*;
-
-    #[test]
-    fn test_hello() {
-        let result = hello();
-        let expected = String::from("Hello");
-        assert_eq!(result, expected);
-    }
 }
