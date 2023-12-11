@@ -7,19 +7,19 @@ from utils import SparseMatrix, Coord
 @utils.profile
 def part1(input: str):
     matrix = parse_input(input)
-    empty_rows, empty_cols = detect_empty_rows(matrix)
-    return sum(
-        galaxy_distance(galaxy1, galaxy2, empty_rows, empty_cols, empty_multiplier=2)
-        for galaxy1, galaxy2 in itertools.combinations(matrix, 2)
-    )
+    return calculate_total_distance(matrix, empty_multiplier=2)
 
 
 @utils.profile
 def part2(input: str):
     matrix = parse_input(input)
+    return calculate_total_distance(matrix, empty_multiplier=1_000_000)
+
+
+def calculate_total_distance(matrix: SparseMatrix, empty_multiplier: int) -> int:
     empty_rows, empty_cols = detect_empty_rows(matrix)
     return sum(
-        galaxy_distance(galaxy1, galaxy2, empty_rows, empty_cols, empty_multiplier=1_000_000)
+        galaxy_distance(galaxy1, galaxy2, empty_rows, empty_cols, empty_multiplier)
         for galaxy1, galaxy2 in itertools.combinations(matrix, 2)
     )
 

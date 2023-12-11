@@ -14,8 +14,10 @@ example = """...1......
 8...9....."""
 
 
-def test_part1():
-    assert part1(example) == 374
+def test_calculate_total_distance():
+    matrix = parse_input(example)
+    assert calculate_total_distance(matrix, 2) == 374
+    assert calculate_total_distance(matrix, 10) == 1030
 
 
 def test_parse_input():
