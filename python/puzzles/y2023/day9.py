@@ -6,12 +6,7 @@ import utils
 @utils.profile
 def part1(input: str):
     sequences = parse_input(input)
-    result = 0
-    for seq in sequences:
-        next_value = predict_next_value(seq)
-        if next_value is not None:
-            result += next_value
-    return result
+    return sum(map(predict_next_value, sequences))
 
 
 @utils.profile
@@ -45,7 +40,7 @@ def predict_next_value(seq: list[int]) -> int | None:
         diff = get_differential(diff)
 
     if len(diff) == 0:
-        return None
+        raise ValueError(f"Sequence didn't converge: {seq}")
     return next_value
 
 
