@@ -1,6 +1,6 @@
 import re
 
-from typing_extensions import NamedTuple
+from typing import NamedTuple
 
 import utils
 
