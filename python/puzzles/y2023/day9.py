@@ -26,12 +26,16 @@ def get_differential(seq: list[int]) -> list[int]:
 
 
 def predict_next_value(seq: list[int]) -> int:
-    diffs = []
+    """
+    The next value is calculated by summing the last value of every differential.
+    Once we realise this, we don't actually have to hold on to all the diffs.
+    """
+    next_value = 0
     diff = seq
     while any(diff):
-        diffs.append(diff)
+        next_value += diff[-1]
         diff = get_differential(diff)
-    return sum(diff[-1] for diff in diffs)
+    return next_value
 
 
 if __name__ == "__main__":
