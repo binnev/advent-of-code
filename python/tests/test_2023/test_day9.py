@@ -87,6 +87,7 @@ def test_get_differential(input, expected):
             ],
             965259,
         ),
+        (list(reversed([10, 13, 16, 21, 30, 45])), 5),
     ],
 )
 def test_predict_next_value(input, expected):

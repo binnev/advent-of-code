@@ -11,7 +11,8 @@ def part1(input: str):
 
 @utils.profile
 def part2(input: str):
-    ...
+    sequences = [list(reversed(seq)) for seq in parse_input(input)]
+    return sum(map(predict_next_value, sequences))
 
 
 def parse_input(input: str) -> list[list[int]]:
@@ -42,8 +43,3 @@ def predict_next_value(seq: list[int]) -> int | None:
     if len(diff) == 0:
         raise ValueError(f"Sequence didn't converge: {seq}")
     return next_value
-
-
-if __name__ == "__main__":
-    input = utils.load_puzzle_input("2023/day9")
-    part1(input)
