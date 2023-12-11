@@ -15,21 +15,20 @@ example = """...1......
 
 
 def test_calculate_total_distance():
-    matrix = parse_input(example)
-    assert calculate_total_distance(matrix, 2) == 374
-    assert calculate_total_distance(matrix, 10) == 1030
+    matrix, empty_rows, empty_cols = parse_input(example)
+    assert calculate_total_distance(matrix, empty_rows, empty_cols, 2) == 374
+    assert calculate_total_distance(matrix, empty_rows, empty_cols, 10) == 1030
 
 
 def test_parse_input():
-    matrix = parse_input(example)
+    matrix, _, _ = parse_input(example)
     assert matrix.to_str() == example
 
 
 def test_detect_empty_rows():
-    matrix = parse_input(example)
-    empty_rows, empty_cols = detect_empty_rows(matrix)
-    assert empty_rows == [3, 7]
-    assert empty_cols == [2, 5, 8]
+    matrix, empty_rows, empty_cols = parse_input(example)
+    assert empty_rows == {3, 7}
+    assert empty_cols == {2, 5, 8}
 
 
 @pytest.mark.parametrize(
@@ -42,8 +41,7 @@ def test_detect_empty_rows():
     ],
 )
 def test_galaxy_distance(a, b, expected_dist):
-    matrix = parse_input(example)
-    empty_rows, empty_cols = detect_empty_rows(matrix)
+    matrix, empty_rows, empty_cols = parse_input(example)
     coord_a = next(coord for coord in matrix if matrix[coord] == a)
     coord_b = next(coord for coord in matrix if matrix[coord] == b)
     assert (  # should be symmetrical
