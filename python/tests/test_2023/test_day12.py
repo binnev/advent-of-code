@@ -19,6 +19,32 @@ def test_parse_input():
     "springs, numbers, expected",
     [
         ("???.###", [1, 1, 3], ["#.#.###"]),
+        (
+            ".??..??...?##.",
+            [1, 1, 3],
+            [
+                ".#?..#?...###.",
+                ".#?..?#...###.",
+                ".?#..#?...###.",
+                ".?#..?#...###.",
+            ],
+        ),
+        (
+            "?###????????",
+            [3, 2, 1],
+            [
+                ".###.##.#...",
+                ".###.##..#..",
+                ".###.##...#.",
+                ".###.##....#",
+                ".###..##.#..",
+                ".###..##..#.",
+                ".###..##...#",
+                ".###...##.#.",
+                ".###...##..#",
+                ".###....##.#",
+            ],
+        ),
     ],
 )
 def test_find_arrangements(springs, numbers, expected):
@@ -29,21 +55,33 @@ def test_find_arrangements(springs, numbers, expected):
     "springs, number, expected",
     [
         pytest.param(
-            "???.###",
+            "",
+            1,
+            [],
+            id="Empty string -> no possible places",
+        ),
+        pytest.param(
+            "....",
+            1,
+            [],
+            id="No #? characters -> no possible places",
+        ),
+        pytest.param(
+            "???.#?#",
             1,
             [(0, 1), (1, 2), (2, 3)],
-            id="Should ignore the last group of #s because it is longer than 1",
+            id="Should ignore the last ? because it will be longer than 1",
         ),
         pytest.param(
-            "???.###",
+            "???.#?#",
             2,
             [(0, 2), (1, 3)],
-            id="Should ignore the last group of #s because it is longer than 2",
+            id="Should ignore the last ? because it will be longer than 2",
         ),
         pytest.param(
-            "???.###",
+            "???.#?#",
             3,
-            [(0, 3), (4, 7)],
+            [(0, 3)],
             id="Should ignore the last group of #s because it is longer than 3",
         ),
         pytest.param(
@@ -54,6 +92,12 @@ def test_find_arrangements(springs, numbers, expected):
                 "Should only return the middle group of #s because any other "
                 "combination would result in a group of more than 3 long."
             ),
+        ),
+        pytest.param(
+            "#??.###",
+            1,
+            [(2, 3)],
+            id="Shouldn't match the hash at the beginning -- that's already set",
         ),
     ],
 )
@@ -88,3 +132,34 @@ def test_get_possible_places(springs, number, expected):
 )
 def test_is_match(s, length, expected):
     assert is_match(s, length) is expected
+
+
+@pytest.mark.parametrize(
+    "s, m, expected",
+    [
+        ("01234", (0, 1), "#1234"),
+        ("01234", (0, 2), "##234"),
+        ("01234", (1, 2), "0#234"),
+        ("01234", (1, 3), "0##34"),
+    ],
+)
+def test_substitute_hashes(s, m, expected):
+    assert substitute_hashes(s, m) == expected
+
+
+@pytest.mark.parametrize(
+    "s, numbers, expected",
+    [
+        ("", [1], False),
+        ("#", [1], True),
+        ("##", [2], True),
+        ("##", [1], False),
+        ("#", [2], False),
+        ("#.#", [2], False),
+        ("#.#", [1, 1], True),
+        ("#.#", [1, 2], False),
+        ("#..##.....###", [1, 2, 3], True),
+    ],
+)
+def test_satisfies_pattern(s, numbers, expected):
+    assert satisfies_pattern(s, numbers) == expected

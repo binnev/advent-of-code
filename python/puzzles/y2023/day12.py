@@ -2,6 +2,8 @@ import re
 
 import utils
 
+Match = tuple[int, int]  # the start/end indices of a substring within a string
+
 
 @utils.profile
 def part1(input: str):
@@ -32,66 +34,42 @@ def find_arrangements(springs: str, numbers: list[int]) -> list[str]:
 
     # base case -- no more numbers -> return input string as-is
     if not numbers:
-        return springs
+        return [springs]
 
     # recursive case
     number = numbers[0]
     # find the possible places this group *could* go -- patches of contiguous ?s at least N long
     # need to also catch non-contiguous ?s if they're joined by #s.
-    # THIS IS  AJOB FOR REGEX!!
+    possible_places = get_possible_places(springs, number)
+    if not possible_places:
+        return []
 
-    # filter out ones that already don't satisfy the pattern
-    # create new string for each arrangement, and do recursion on these
+    # create new string for each arrangement
+    new_strings = [substitute_hashes(springs, m) for m in possible_places]
 
-    # todo: error case -- no arrangements are possible (because caller chose a bad first
-    #  arrangement)
+    # # filter out ones that already don't satisfy the pattern
+    # new_strings = [s for s in new_strings if satisfies_pattern(s, numbers)]
 
+    # do recursion on these with the next first number
+    results = []
+    for s in new_strings:
+        foo = find_arrangements(s, numbers[1:])
+        results.extend(foo)
 
-Match = tuple[int, int]  # the start/end indices of a substring within a string
-
-
-def _regex_magic(s: str) -> list[str]:
-    """
-    This substring jank is required because the regex on its own doesn't match overlapping values
-    like "oneight". In this case the regex will only find "one", not "eight".
-    """
-    rx = re.compile("one|two|three|four|five|six|seven|eight|nine|[1-9]")
-    matches = []
-    for ii in range(len(s)):
-        substr = s[ii:]
-        if match := rx.match(substr):
-            matches.append(match.group())
-    return matches
+    return results
 
 
-# def get_possible_places(s: str, number: int) -> list[Match]:
-#     # find all the groups of length "number" that consist solely of "?"s and "#"s
-#     rx = re.compile(
-#         r"^"  # match must start at the start of the string
-#         r"([?#]{" + str(number) + r"})"  # capture exactly `number` ?# characters
-#         r"(?=[?#])"  # only match if the next character is not ?#
-#     )
-#     r"Isaac (?=Asimov)"  # matches 'Isaac ' only if it's not followed by "Asimov"
-#     matches = []
-#     for ii in range(len(s)):
-#         substr = s[ii:]
-#         if match := rx.match(substr):
-#             # indices = (match.pos + ii, match.lastindex + ii)
-#             indices = tuple(m + ii for m in match.regs[1])
-#             matches.append(indices)
-#     return matches
+def substitute_hashes(s: str, m: Match) -> str:
+    chars = list(s)
+    for ii in range(m[0], m[1]):
+        chars[ii] = "#"
+    return "".join(chars)
 
 
-# def is_match(s: str, length: int) -> bool:
-#     rx = re.compile(
-#         r"^"  # match must start at the start of the string
-#         r"(#|\?{" + str(length) + r"})"  # capture exactly `number` ?# characters
-#         r"$|^#|^\?"  # end of string or non-?# characters may follow
-#         # r"(?=[?#])"  # only match if the next character is not ?#
-#     )
-#     if match := rx.match(s):
-#         return True
-#     return False
+def satisfies_pattern(s: str, numbers: list[int]) -> bool:
+    hash_groups = re.findall(r"#+", s)
+    lengths = list(map(len, hash_groups))
+    return lengths == numbers
 
 
 def is_match(s: str, length: int) -> bool:
@@ -124,7 +102,7 @@ def get_possible_places(s: str, number: int) -> list[Match]:
             next_char = s[ii + number]
         except IndexError:
             next_char = "$"  # end of string
-        if all(char in "#?" for char in substr) and next_char != "#" and prev_char != "#":
+        if all(char in "?" for char in substr) and next_char != "#" and prev_char != "#":
             matches.append((ii, ii + number))
     return matches
 
