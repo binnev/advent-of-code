@@ -44,7 +44,7 @@ def test_find_arrangements(springs, numbers, expected):
             "???.###",
             3,
             [(0, 3), (4, 7)],
-            id="Should ignore the last group of #s because it is longer than 2",
+            id="Should ignore the last group of #s because it is longer than 3",
         ),
         pytest.param(
             "?###?",

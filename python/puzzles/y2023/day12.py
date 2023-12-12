@@ -114,8 +114,17 @@ def is_match(s: str, length: int) -> bool:
 def get_possible_places(s: str, number: int) -> list[Match]:
     matches = []
     for ii in range(len(s)):
-        substr = s[ii:]
-        if is_match(substr, number):
+        substr = s[ii : ii + number]
+        if ii > 0:
+            prev_char = s[ii - 1]
+        else:
+            prev_char = "^"  # start of string
+
+        try:
+            next_char = s[ii + number]
+        except IndexError:
+            next_char = "$"  # end of string
+        if all(char in "#?" for char in substr) and next_char != "#" and prev_char != "#":
             matches.append((ii, ii + number))
     return matches
 
