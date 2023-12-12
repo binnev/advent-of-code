@@ -41,6 +41,12 @@ def test_find_arrangements(springs, numbers, expected):
             id="Should ignore the last group of #s because it is longer than 2",
         ),
         pytest.param(
+            "???.###",
+            3,
+            [(0, 3), (4, 7)],
+            id="Should ignore the last group of #s because it is longer than 2",
+        ),
+        pytest.param(
             "?###?",
             3,
             [(1, 4)],
@@ -64,10 +70,20 @@ def test_get_possible_places(springs, number, expected):
         ("...", 1, False),
         ("?..", 1, True),
         ("#..", 1, True),
-        ("#?.", 1, False),  # too long
-        ("?#.", 1, False),  # too long
+        ("#?.", 1, True),  # trailing ? might not be a #
+        ("?#.", 1, False),  # too long; with trailing # it will be 2 long
+        ("?#.", 2, True),  # ?# together make 2
         (".#.", 1, False),  # not at start
         (".?.", 1, False),  # not at start
+        ("??#?..", 3, True),  # trailing ? might not be a #
+        ("?#?..", 3, True),
+        ("?##..", 3, True),
+        ("??#..", 3, True),
+        ("?##..", 2, False),
+        ("??#..", 2, False),
+        ("#??..", 2, True),
+        ("#?##.", 3, False),  # if the ? is a # then group will be 4 long
+        ("???#.", 3, False),
     ],
 )
 def test_is_match(s, length, expected):
