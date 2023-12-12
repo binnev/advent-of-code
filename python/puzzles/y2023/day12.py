@@ -22,7 +22,7 @@ def part2(input: str):
     parsed = [unfold(springs, numbers) for springs, numbers in parsed]
     result = 0
     for springs, numbers in parsed:
-        possible_arrangements = brute(springs, numbers)
+        possible_arrangements = elegant(springs, numbers)
         result += len(possible_arrangements)
     return result
 
@@ -64,28 +64,27 @@ def brute(line: str, numbers: list[int]) -> list[str]:
     return results
 
 
-def elegant(line: str, numbers: list[int], start: int = 0, depth: int = 0):
-    # todo: need another base case for when line="#.#..###" and number=3.
-    #  It is correct but there's no way to check
-    if "?" not in line:
-        if satisfies_pattern(line, numbers):
-            return [line]
+def sub_hashes(s: str, left: int, right: int) -> str:
+    # don't forget to delete the left ?s
+    chars = list(s)
+    for ii, char in enumerate(chars):
+        if ii < left:
+            if char == "?":
+                char = "."
+        elif left <= ii < right:
+            char = "#"
         else:
-            return []  # recursive base case
+            break  # don't process chars to the right of the substring
+        chars[ii] = char
+    return "".join(chars)
 
-    def sub_hashes(s: str, left: int, right: int) -> str:
-        # don't forget to delete the left ?s
-        chars = list(s)
-        for ii, char in enumerate(chars):
-            if ii < left:
-                if char == "?":
-                    char = "."
-            elif left <= ii < right:
-                char = "#"
-            else:
-                break  # don't process chars to the right of the substring
-            chars[ii] = char
-        return "".join(chars)
+
+def elegant(line: str, numbers: list[int], start: int = 0, depth: int = 0):
+    # base case
+    hashes_so_far = re.findall(r"#+", line)
+    groups_so_far = list(map(len, hashes_so_far))
+    if groups_so_far == numbers:
+        return [line.replace("?", ".")]
 
     number = numbers[depth]
     line_length = len(line)
@@ -94,19 +93,22 @@ def elegant(line: str, numbers: list[int], start: int = 0, depth: int = 0):
     for right in range(number + start, len(line) + 1):
         left = right - number
         substr = line[left:right]
+        from_start = line[:right]
         prev_char = "^" if left == 0 else line[left - 1]
         next_char = "$" if right == line_length else line[right]
+        groups_so_far = re.findall(r"#+", from_start)
         should_branch = (
-            # "?" in substr and
             next_char != "#"
             and prev_char != "#"
             and (substr.count("#") + substr.count("?")) == number
         )
+        should_break = groups_so_far == numbers[: depth + 1]
         if should_branch:
             new_substr = sub_hashes(line, left, right)
             start = right
             branches.append((start, new_substr))
-        # todo: skip if there are no more ?s to the right
+        if should_break:
+            break
 
     results = []
     for start, substr in branches:
@@ -124,86 +126,10 @@ def parse_input(input: str) -> list[tuple[str, list[int]]]:
     return result
 
 
-def find_arrangements(springs: str, numbers: list[int]) -> list[str]:
-    """
-    Actually compute the arrangements so we can sanity check them. Try a recursive strategy where
-    we find the possible positions for the first number, then pass the string and rest of the
-    numbers to a recursive call.
-    """
-
-    # base case -- no more numbers -> return input string as-is
-    if not numbers:
-        return [springs]
-
-    # recursive case
-    number = numbers[0]
-    # find the possible places this group *could* go -- patches of contiguous ?s at least N long
-    # need to also catch non-contiguous ?s if they're joined by #s.
-    possible_places = get_possible_places(springs, number)
-    if not possible_places:
-        return []
-
-    # create new string for each arrangement
-    new_strings = [substitute_hashes(springs, m) for m in possible_places]
-
-    # # filter out ones that already don't satisfy the pattern
-    # new_strings = [s for s in new_strings if satisfies_pattern(s, numbers)]
-
-    # do recursion on these with the next first number
-    results = []
-    for s in new_strings:
-        foo = find_arrangements(s, numbers[1:])
-        results.extend(foo)
-
-    return results
-
-
-def substitute_hashes(s: str, m: Match) -> str:
-    chars = list(s)
-    for ii in range(m[0], m[1]):
-        chars[ii] = "#"
-    return "".join(chars)
-
-
 def satisfies_pattern(s: str, numbers: list[int]) -> bool:
     hash_groups = re.findall(r"#+", s)
     lengths = list(map(len, hash_groups))
     return lengths == numbers
-
-
-def is_match(s: str, length: int) -> bool:
-    if len(s) < length:
-        return False  # not enough characters left in string
-
-    chars = s[:length]
-
-    # for the lookahead
-    try:
-        next_char = s[length]
-    except IndexError:
-        next_char = "."
-
-    if all(c in "?#" for c in chars) and next_char not in "#":
-        return True
-    return False
-
-
-def get_possible_places(s: str, number: int) -> list[Match]:
-    matches = []
-    for ii in range(len(s)):
-        substr = s[ii : ii + number]
-        if ii > 0:
-            prev_char = s[ii - 1]
-        else:
-            prev_char = "^"  # start of string
-
-        try:
-            next_char = s[ii + number]
-        except IndexError:
-            next_char = "$"  # end of string
-        if all(char in "?" for char in substr) and next_char != "#" and prev_char != "#":
-            matches.append((ii, ii + number))
-    return matches
 
 
 if __name__ == "__main__":
