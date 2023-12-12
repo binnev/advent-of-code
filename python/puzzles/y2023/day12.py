@@ -18,8 +18,19 @@ def part1(input: str) -> int:
 
 @utils.profile
 def part2(input: str):
-    ...
-    return 0
+    parsed = parse_input(input)
+    parsed = [unfold(springs, numbers) for springs, numbers in parsed]
+    result = 0
+    for springs, numbers in parsed:
+        possible_arrangements = brute(springs, numbers)
+        result += len(possible_arrangements)
+    return result
+
+
+def unfold(springs: str, numbers: list[int]) -> tuple[str, list[int]]:
+    new_springs = "?".join([springs] * 5)
+    new_numbers = numbers * 5
+    return new_springs, new_numbers
 
 
 def brute(line: str, numbers: list[int]) -> list[str]:
