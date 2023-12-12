@@ -1,7 +1,7 @@
 import pytest
 from puzzles.y2023.day12 import *
 
-# pytestmark = pytest.mark.timeout(3)
+pytestmark = pytest.mark.timeout(5)
 
 example = """???.### 1,1,3
 .??..??...?##. 1,1,3
@@ -67,12 +67,29 @@ def test_brute_elegant(func, line, numbers, expected):
     assert result == expected
 
 
+@pytest.mark.parametrize(
+    "springs, numbers, expected",
+    [
+        ("???.###", [1, 1, 3], 1),
+        (".??..??...?##.", [1, 1, 3], 16384),
+        ("?#?#?#?#?#?#?#?", [1, 3, 1, 6], 1),
+        ("????.#...#...", [4, 1, 1], 16),
+        ("????.######..#####.", [1, 6, 5], 2500),
+        ("?###????????", [3, 2, 1], 506250),
+    ],
+)
+def test_elegant_on_part2_testcases(springs, numbers, expected):
+    springs, numbers = unfold(springs, numbers)
+    result = elegant(springs, numbers)
+    assert len(result) == expected
+
+
 def test_part1():
     assert part1(example) == 21
 
 
-# def test_part2():
-#     assert part2(example) == 525152
+def test_part2():
+    assert part2(example) == 525152
 
 
 def test_parse_input():
