@@ -93,7 +93,12 @@ def elegant(line: str, numbers: list[int], start: int = 0, depth: int = 0):
     for right in range(number + start, len(line) + 1):
         left = right - number
         substr = line[left:right]
+        if ("?" not in substr) and ("#" not in substr):
+            continue
         from_start = line[:right]
+        to_end = line[left:]
+        if "?" not in to_end:  # todo: not sure this doesn't break things
+            continue
         prev_char = "^" if left == 0 else line[left - 1]
         next_char = "$" if right == line_length else line[right]
         groups_so_far = re.findall(r"#+", from_start)
