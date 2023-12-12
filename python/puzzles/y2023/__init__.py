@@ -9,6 +9,7 @@ from . import (
     day8,
     day9,
     day11,
+    day12,
     day13,
     day14,
 )

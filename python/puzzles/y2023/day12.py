@@ -1,3 +1,4 @@
+import itertools
 import re
 
 import utils
@@ -6,14 +7,44 @@ Match = tuple[int, int]  # the start/end indices of a substring within a string
 
 
 @utils.profile
-def part1(input: str):
-    ...
+def part1(input: str) -> int:
+    parsed = parse_input(input)
+    result = 0
+    for springs, numbers in parsed:
+        possible_arrangements = brute(springs, numbers)
+        result += len(possible_arrangements)
+    return result
 
 
 @utils.profile
 def part2(input: str):
     ...
     return 0
+
+
+def brute(line: str, numbers: list[int]) -> list[str]:
+    def substitute(s: str, indices: list[int]) -> str:
+        chars = list(s)
+        for ii in indices:
+            chars[ii] = "#"
+        # remove question marks -- they are empty now
+        for ii in range(len(chars)):
+            if chars[ii] == "?":
+                chars[ii] = "."
+        return "".join(chars)
+
+    hashes_needed = sum(numbers)
+    hashes_found = line.count("#")
+    hashes_to_place = hashes_needed - hashes_found
+
+    question_mark_locations = [ii for ii, char in enumerate(line) if char == "?"]
+
+    results = [
+        substitute(line, indices)
+        for indices in itertools.combinations(question_mark_locations, hashes_to_place)
+    ]
+    results = [result for result in results if satisfies_pattern(result, numbers)]
+    return results
 
 
 def parse_input(input: str) -> list[tuple[str, list[int]]]:

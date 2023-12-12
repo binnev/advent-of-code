@@ -9,6 +9,10 @@ example = """???.### 1,1,3
 ?###???????? 3,2,1"""
 
 
+def test_part1():
+    assert part1(example) == 21
+
+
 def test_parse_input():
     result = parse_input(example)
     assert result[0] == ("???.###", [1, 1, 3])
@@ -23,10 +27,10 @@ def test_parse_input():
             ".??..??...?##.",
             [1, 1, 3],
             [
-                ".#?..#?...###.",
-                ".#?..?#...###.",
-                ".?#..#?...###.",
-                ".?#..?#...###.",
+                ".#...#....###.",
+                ".#....#...###.",
+                "..#..#....###.",
+                "..#...#...###.",
             ],
         ),
         (
@@ -48,7 +52,8 @@ def test_parse_input():
     ],
 )
 def test_find_arrangements(springs, numbers, expected):
-    assert find_arrangements(springs, numbers) == expected
+    # assert find_arrangements(springs, numbers) == expected
+    assert brute(springs, numbers) == expected
 
 
 @pytest.mark.parametrize(
