@@ -8,9 +8,11 @@ def part1(input: str):
     result = 0
     for matrix in matrices:
         x_left, x_right = find_x_reflection(matrix)
-        y_top, y_btm = find_y_reflection(matrix)
-        result += x_left
-        result += y_top * 100
+        if None not in (x_left, x_right):
+            result += x_left
+        else:
+            y_top, y_btm = find_y_reflection(matrix)
+            result += y_top * 100
     return result
 
 
@@ -44,6 +46,10 @@ def is_x_reflection(between: tuple[int, int], matrix: SparseMatrix) -> bool:
     xx_left, xx_right = between
     x_min, x_max = matrix.get_xlim()
     y_min, y_max = matrix.get_ylim()
+
+    if xx_left < x_min or xx_right > x_max:  # out of bounds
+        return False
+
     while x_min <= xx_left and xx_right <= x_max:
         for yy in range(y_min, y_max + 1):
             coord_left = (xx_left, yy)
@@ -62,6 +68,10 @@ def is_y_reflection(between: tuple[int, int], matrix: SparseMatrix) -> bool:
     yy_top, yy_btm = between
     x_min, x_max = matrix.get_xlim()
     y_min, y_max = matrix.get_ylim()
+
+    if yy_top < y_min or yy_btm > y_max:  # out of bounds
+        return False
+
     while y_min <= yy_top and yy_btm <= y_max:  # remember y is positive downwards
         for xx in range(x_min, x_max + 1):
             coord_top = (xx, yy_top)
