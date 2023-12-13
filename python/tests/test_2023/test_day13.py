@@ -21,6 +21,10 @@ def test_part1():
     assert part1(example) == 405
 
 
+def test_part2():
+    assert part2(example) == 400
+
+
 def test_find_x_reflection():
     matrix = parse_input(example)[0]
     assert find_x_reflection(matrix) == (5, 6)
@@ -32,9 +36,11 @@ def test_find_x_reflection():
 def test_find_y_reflection():
     matrix = parse_input(example)[0]
     assert find_y_reflection(matrix) == (None, None)
+    assert find_y_reflection(matrix, allow_diffs=1) == (3, 4)
 
     matrix = parse_input(example)[1]
     assert find_y_reflection(matrix) == (4, 5)
+    assert find_y_reflection(matrix, allow_diffs=1) == (1, 2)
 
 
 def test_parse_input():
