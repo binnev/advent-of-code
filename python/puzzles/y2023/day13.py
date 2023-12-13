@@ -93,4 +93,4 @@ def parse_input(input: str) -> list[SparseMatrix]:
 
 if __name__ == "__main__":
     input = utils.load_puzzle_input("2023/day13")
-    print(input)
+    part1(input)
