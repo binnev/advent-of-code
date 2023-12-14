@@ -4,7 +4,7 @@ mod tests {
     use crate::utils;
 
     #[test]
-    fn test_load_puzzle_input() {
+    fn test_part1() {
         let input = utils::load_puzzle_input("2023/day1");
         let result = part1(&input);
         let expected = "55123";

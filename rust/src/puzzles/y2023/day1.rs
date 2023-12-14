@@ -13,3 +13,7 @@ pub fn part1(input: &str) -> String {
     }
     return result.to_string();
 }
+
+pub fn part2(input: &str) -> String {
+    return "".to_string();
+}
