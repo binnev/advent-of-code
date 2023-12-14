@@ -64,6 +64,37 @@ def parse_input(input: str) -> SparseMatrix:
     return SparseMatrix.from_str(input)
 
 
+def rotate_clockwise(matrix: SparseMatrix) -> SparseMatrix:
+    stringified = matrix.to_str()
+    rotated_str = rotate_string_clockwise(stringified)
+    return SparseMatrix.from_str(rotated_str)
+
+
+def rotate_string_clockwise(s: str) -> str:
+    values = []
+    for chars in zip(*s.splitlines()):
+        value = "".join(reversed(chars))
+        values.append(value)
+    return "\n".join(values)
+
+
+def spin_cycle(matrix: SparseMatrix) -> SparseMatrix:
+    # north is facing up
+    slide_north(matrix)  # slide north
+
+    matrix = rotate_clockwise(matrix)  # west is now facing up
+    slide_north(matrix)  # slide west
+
+    matrix = rotate_clockwise(matrix)  # south is now facing up
+    slide_north(matrix)  # slide south
+
+    matrix = rotate_clockwise(matrix)  # east is now facing up
+    slide_north(matrix)  # slide east
+
+    matrix = rotate_clockwise(matrix)  # north is now facing up again
+    return matrix
+
+
 if __name__ == "__main__":
     input = utils.load_puzzle_input("2023/day14")
-    part1(input)
+    part2(input)

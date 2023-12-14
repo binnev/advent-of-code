@@ -24,6 +24,47 @@ O..#.OO...
 #....###..
 #....#...."""
 
+example_after_1_spin_cycles = """.....#....
+....#...O#
+...OO##...
+.OO#......
+.....OOO#.
+.O#...O#.#
+....O#....
+......OOOO
+#...O###..
+#..OO#...."""
+
+example_after_2_spin_cycles = """.....#....
+....#...O#
+.....##...
+..O#......
+.....OOO#.
+.O#...O#.#
+....O#...O
+.......OOO
+#..OO###..
+#.OOO#...O"""
+
+example_after_3_spin_cycles = """.....#....
+....#...O#
+.....##...
+..O#......
+.....OOO#.
+.O#...O#.#
+....O#...O
+.......OOO
+#...O###.O
+#.OOO#...O"""
+
+example_rotation = """abc
+ABC
+123"""
+
+example_rotation_expected = """1Aa
+2Bb
+3Cc"""
+
 
 @pytest.fixture
 def example_matrix():
@@ -51,28 +92,23 @@ def test_move_rock_north(coord, expected, example_matrix):
     assert move_rock_north(coord, example_matrix) == expected
 
 
-debug = """OOOO.#....
-O...#....#
-O...O##..O
-...#......
-.O.....O#.
-O.#..O.#.#
-..O..#O..O
-.......O..
-#....###..
-#OO..#...."""
-
-
-def test_sanity():
-    matrix = parse_input(debug)
-    assert move_rock_north((1, 4), matrix) == (1, 1)
-
-
 def test_slide_north(example_matrix):
     slide_north(example_matrix)
     assert example_matrix.to_str() == example2
 
 
-def test_sanity():
-    assert list(range(0, 4)) == [0, 1, 2, 3]
-    assert list(reversed(range(0, 4))) == [3, 2, 1, 0]
+def test_rotate_string_clockwise():
+    assert rotate_string_clockwise(example_rotation) == example_rotation_expected
+    matrix = parse_input(example_rotation)
+    assert rotate_clockwise(matrix).to_str() == example_rotation_expected
+
+
+def test_spin_cycle(example_matrix):
+    matrix = example_matrix
+    assert matrix.to_str() == example
+    matrix = spin_cycle(matrix)
+    assert matrix.to_str() == example_after_1_spin_cycles
+    matrix = spin_cycle(matrix)
+    assert matrix.to_str() == example_after_2_spin_cycles
+    matrix = spin_cycle(matrix)
+    assert matrix.to_str() == example_after_3_spin_cycles
