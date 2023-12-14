@@ -1,15 +1,41 @@
+from copy import copy
+
+from typing import TypeVar
+
 import utils
 from utils import SparseMatrix, Coord
 
 ROUND = "O"
 SQUARE = "#"
 EMPTY = "."
+V = TypeVar("V")
 
 
 @utils.profile
 def part1(input: str):
     matrix = parse_input(input)
     slide_north(matrix)
+    return calculate_load(matrix)
+
+
+@utils.profile
+def part2(input: str):
+    matrix = initial_matrix = parse_input(input)
+    # detect cycle
+    history = []
+    for ii in range(1000000000):
+        matrix = spin_cycle(matrix)
+        if matrix in history:
+            break
+        history.append(matrix)
+    history.append(matrix)
+
+    final_index = get_final_index([m.to_str() for m in history], num_cycles=1000000000)
+    final_matrix = history[final_index]
+    return calculate_load(final_matrix)
+
+
+def calculate_load(matrix: SparseMatrix) -> int:
     score = 0
     new_str = matrix.to_str(flip_y=True)
     for yy, line in enumerate(new_str.splitlines()):
@@ -17,11 +43,6 @@ def part1(input: str):
         count = line.count(ROUND)
         score += count * row_value
     return score
-
-
-@utils.profile
-def part2(input: str):
-    ...
 
 
 def slide_north(matrix: SparseMatrix):
@@ -79,6 +100,7 @@ def rotate_string_clockwise(s: str) -> str:
 
 
 def spin_cycle(matrix: SparseMatrix) -> SparseMatrix:
+    matrix = copy(matrix)
     # north is facing up
     slide_north(matrix)  # slide north
 
@@ -95,6 +117,25 @@ def spin_cycle(matrix: SparseMatrix) -> SparseMatrix:
     return matrix
 
 
-if __name__ == "__main__":
-    input = utils.load_puzzle_input("2023/day14")
-    part2(input)
+def get_loop_length(sequence: list[V]) -> tuple[int, int]:
+    seen = set()
+    for ii, value in enumerate(sequence):
+        if value in seen:
+            loop_len = ii - sequence.index(value)
+            loop_start = ii - loop_len
+            break
+        seen.add(value)
+    return loop_start, loop_len
+
+
+def get_final_index(sequence: list, num_cycles: int) -> int:
+    items_before_loop, loop_len = get_loop_length(sequence)
+    foo = num_cycles - items_before_loop
+    remainder = foo % loop_len
+    end_state = items_before_loop + remainder - 1
+    return end_state
+
+
+def get_final_value(history: list[V], num_cycles: int) -> V:
+    final_index = get_final_index(history, num_cycles)
+    return history[final_index]

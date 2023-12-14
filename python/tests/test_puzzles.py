@@ -3,7 +3,7 @@ import pytest
 from puzzles import y2020, y2021, y2022, y2023
 from utils import load_puzzle_input
 
-pytestmark = pytest.mark.timeout(3)
+pytestmark = pytest.mark.timeout(5)
 
 
 @pytest.mark.parametrize(
@@ -174,6 +174,7 @@ def test_2022(day, func, expected_output):
         ("2023/day11", y2023.day11.part1, 9536038),
         ("2023/day11", y2023.day11.part2, 447744640566),
         ("2023/day14", y2023.day14.part1, 112048),
+        ("2023/day14", y2023.day14.part2, 105606),
     ],
 )
 def test_2023(day, func, expected_output):

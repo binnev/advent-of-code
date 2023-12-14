@@ -75,6 +75,11 @@ def test_part1():
     assert part1(example) == 136
 
 
+#
+def test_part2():
+    assert part2(example) == 64
+
+
 def test_parse_input(example_matrix):
     assert example_matrix.to_str() == example
 
@@ -112,3 +117,33 @@ def test_spin_cycle(example_matrix):
     assert matrix.to_str() == example_after_2_spin_cycles
     matrix = spin_cycle(matrix)
     assert matrix.to_str() == example_after_3_spin_cycles
+
+
+def test_get_loop_length():
+    start, length = get_loop_length([0, 1, 2, 3, 4, 5, 2, 3, 4, 5, 2, 3, 4, 5, 2, 3])
+    assert start == 2
+    assert length == 4
+    start, length = get_loop_length([0, 1, 2, 1, 2])
+    assert start == 1
+    assert length == 2
+    start, length = get_loop_length("abcdefdef")
+    assert start == 3
+    assert length == 3
+
+
+@pytest.mark.parametrize(
+    "cycles, expected",
+    [
+        (4, 3),
+        (8, 3),
+        (12, 3),
+        (15, 2),
+        (16, 3),
+        (17, 4),
+    ],
+)
+def test_get_final_value(cycles, expected):
+    #                ----------  ----------  ----------
+    #          1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16
+    history = [0, 1, 2, 3, 4, 5, 2, 3, 4, 5, 2, 3, 4, 5, 2, 3]
+    assert get_final_value(history, cycles) == expected
