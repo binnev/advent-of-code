@@ -80,7 +80,7 @@ def plot_results(data: dict):
     fig, ax = plt.subplots()
     ax: Axes
     ax.ticklabel_format(useOffset=False, style="plain")
-    days = [datetime.datetime(2022, 12, x, 6, 0, 0) for x in range(1, 32)]
+    days = [datetime.datetime(2023, 12, x, 6, 0, 0) for x in range(1, 32)]
     timestamps = [d.timestamp() for d in days]
     ax.set_xticks(timestamps)
     ax.set_xticklabels(x.day for x in days)
