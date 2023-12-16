@@ -1,10 +1,8 @@
 import enum
-
 from typing import NamedTuple
 
 import utils
 from utils import SparseMatrix, Coord
-import enum
 
 EMPTY = "."
 SPLITTERS = "|-"
@@ -39,10 +37,34 @@ def part1(input: str):
 
 @utils.profile
 def part2(input: str):
-    return
+    matrix = parse_input(input)
+    xmin, xmax = matrix.get_xlim()
+    ymin, ymax = matrix.get_ylim()
+    results = []
+    print("doing horizontal beams...")
+    for x in range(xmin, xmax + 1):
+        if x % 10 == 0:
+            print(f"{x}/{xmax}")
+        # top row, moving down
+        beam = Beam((x, ymin), Direction.DOWN)
+        results.append(trace_beam(matrix, beam))
+        # bottom row, moving up
+        beam = Beam((x, ymax), Direction.UP)
+        results.append(trace_beam(matrix, beam))
+    print("doing vertical beams...")
+    for y in range(ymin, ymax + 1):
+        if y % 10 == 0:
+            print(f"{y}/{ymax}")
+        # left col, moving right
+        beam = Beam((y, xmin), Direction.RIGHT)
+        results.append(trace_beam(matrix, beam))
+        # right col, moving left
+        beam = Beam((y, xmax), Direction.LEFT)
+        results.append(trace_beam(matrix, beam))
+    return max(results)
 
 
-def trace_beam(matrix: SparseMatrix):
+def trace_beam(matrix: SparseMatrix, start: Beam = Beam((0, 0), Direction.RIGHT)):
     # all the squares visited by the beam will be stored here
     # could use a set, but I want to store the directions for debugging
     energised = SparseMatrix()
@@ -63,7 +85,7 @@ def trace_beam(matrix: SparseMatrix):
 
     history = set[Beam]()
     active_beams = set[Beam]()
-    active_beams.add(Beam(coord=(0, 0), direction=Direction.RIGHT))
+    active_beams.add(start)
     while active_beams:
         history |= active_beams
         new_beams = set[Beam]()
@@ -224,5 +246,5 @@ def get_neighbours(coord: Coord) -> dict[Direction, Coord]:
 
 if __name__ == "__main__":
     input = utils.load_puzzle_input("2023/day16")
-    print(input)
-    part1(input)
+    # print(input)
+    part2(input)

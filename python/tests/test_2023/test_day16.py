@@ -20,6 +20,10 @@ def test_part1():
     assert part1(example) == 46
 
 
+def test_part2():
+    assert part2(example) == 51
+
+
 def test_parse_input():
     matrix = parse_input(example)
     assert matrix.to_str() == example
