@@ -77,18 +77,24 @@ def trace_beam(matrix: SparseMatrix):
     # print("")
     # print("=" * 20)
     # print("after tracing beam, energised squares are:")
-    # beam_path.print(empty_char=".")
-    # print("=" * 20)
-    # print("and here are the energies:")
     # energised.print()
+
+    # only_mirrors = {k: v for k, v in matrix.items() if v in r"|-\/"}
+    # combined = SparseMatrix(
+    #     {
+    #         **energised,
+    #         **only_mirrors,
+    #     }
+    # )
+    # combined.print()
 
     return len(energised)
 
 
 def iterate_beam(beam: Beam, matrix: SparseMatrix) -> set[Beam]:
     """
-    1. move beam forward
-    2. handle any collisions (which may turn the beam but not move it)
+    1. handle any collisions (which may turn the beam but not move it)
+    2. move beam(s) forward
     3. return the new beam(s)
 
     handle
@@ -100,18 +106,25 @@ def iterate_beam(beam: Beam, matrix: SparseMatrix) -> set[Beam]:
     empty return value means all beams died
     """
     # 1
-    next_coord = get_next_square(beam)
-    beam = Beam(next_coord, beam.direction)
-    # 2
-    next_value = matrix.get(next_coord)
-    if next_value is None:
-        return set()  # coord not in grid; beam dies
-    elif next_value in SPLITTERS:
-        return collide_splitter(beam, next_value)
-    elif next_value in MIRRORS:
-        return collide_mirror(beam, next_value)
+    current_value = matrix[beam.coord]
+    beams = set[Beam]()
+    # if current_value is None:
+    #     return set()  # coord not in grid; beam dies
+    if current_value in SPLITTERS:
+        beams |= collide_splitter(beam, current_value)
+    elif current_value in MIRRORS:
+        beams |= collide_mirror(beam, current_value)
     else:  # empty square; beam continues
-        return {beam}
+        beams = {beam}
+    # 2
+    new_beams = set[Beam]()
+    for beam in beams:
+        next_coord = get_next_square(beam)
+        if next_coord not in matrix:
+            continue  # beam dies
+        beam = Beam(next_coord, beam.direction)
+        new_beams.add(beam)
+    return new_beams
 
 
 def collide_splitter(beam: Beam, splitter: str) -> set[Beam]:
@@ -211,4 +224,5 @@ def get_neighbours(coord: Coord) -> dict[Direction, Coord]:
 
 if __name__ == "__main__":
     input = utils.load_puzzle_input("2023/day16")
+    print(input)
     part1(input)
