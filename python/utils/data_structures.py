@@ -87,7 +87,7 @@ def sparse_matrix_string(grid: SparseMatrix, flip_y=False, pad=0, empty_char="."
     for y in range(y_start, y_stop):
         line = ""
         for x in range(x_start, x_stop):
-            line += grid.get((x, y), empty_char)
+            line += str(grid.get((x, y), empty_char))
         lines.append(line)
     if flip_y:
         lines = reversed(lines)
