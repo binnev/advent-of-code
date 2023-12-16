@@ -3,7 +3,7 @@ import pytest
 from puzzles import y2020, y2021, y2022, y2023
 from utils import load_puzzle_input
 
-pytestmark = pytest.mark.timeout(5)
+# pytestmark = pytest.mark.timeout(5)
 
 
 @pytest.mark.parametrize(

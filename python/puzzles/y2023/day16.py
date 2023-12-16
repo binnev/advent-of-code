@@ -66,22 +66,7 @@ def part2(input: str):
 
 def trace_beam(matrix: SparseMatrix, start: Beam = Beam((0, 0), Direction.RIGHT)):
     # all the squares visited by the beam will be stored here
-    # could use a set, but I want to store the directions for debugging
-    energised = SparseMatrix()
-    beam_path = SparseMatrix()
-    beam_path.update({k: v for k, v in matrix.items() if v != EMPTY})
-
-    def _update_beam_path(beam: Beam):
-        if beam.coord in beam_path:
-            value = beam_path[beam.coord]
-            if value in r"\/-|":
-                return  # don't overwrite mirrors etc
-            if value.isnumeric():
-                beam_path[beam.coord] = str(int(value) + 1)
-            else:
-                beam_path[beam.coord] = "2"
-        else:
-            beam_path[beam.coord] = DIRECTION_STR[beam.direction]
+    energised = set[Coord]()
 
     history = set[Beam]()
     active_beams = set[Beam]()
@@ -90,25 +75,10 @@ def trace_beam(matrix: SparseMatrix, start: Beam = Beam((0, 0), Direction.RIGHT)
         history |= active_beams
         new_beams = set[Beam]()
         for beam in active_beams:
-            _update_beam_path(beam)
-            energised[beam.coord] = "#"
+            energised.add(beam.coord)
             new_beams |= iterate_beam(beam, matrix)
         active_beams = new_beams
         active_beams -= history  # don't loop infinitely
-
-    # print("")
-    # print("=" * 20)
-    # print("after tracing beam, energised squares are:")
-    # energised.print()
-
-    # only_mirrors = {k: v for k, v in matrix.items() if v in r"|-\/"}
-    # combined = SparseMatrix(
-    #     {
-    #         **energised,
-    #         **only_mirrors,
-    #     }
-    # )
-    # combined.print()
 
     return len(energised)
 
@@ -130,8 +100,6 @@ def iterate_beam(beam: Beam, matrix: SparseMatrix) -> set[Beam]:
     # 1
     current_value = matrix[beam.coord]
     beams = set[Beam]()
-    # if current_value is None:
-    #     return set()  # coord not in grid; beam dies
     if current_value in SPLITTERS:
         beams |= collide_splitter(beam, current_value)
     elif current_value in MIRRORS:
@@ -226,25 +194,14 @@ def collide_mirror(beam: Beam, mirror: str) -> set[Beam]:
 
 
 def parse_input(input: str) -> SparseMatrix:
-    matrix = SparseMatrix.from_str(input)
-    return matrix
+    return SparseMatrix.from_str(input)
 
 
 def get_next_square(beam: Beam) -> Coord:
-    return get_neighbours(beam.coord)[beam.direction]
-
-
-def get_neighbours(coord: Coord) -> dict[Direction, Coord]:
-    x, y = coord
+    x, y = beam.coord
     return {
         Direction.RIGHT: (x + 1, y),
         Direction.LEFT: (x - 1, y),
         Direction.DOWN: (x, y + 1),
         Direction.UP: (x, y - 1),
-    }
-
-
-if __name__ == "__main__":
-    input = utils.load_puzzle_input("2023/day16")
-    # print(input)
-    part2(input)
+    }[beam.direction]
