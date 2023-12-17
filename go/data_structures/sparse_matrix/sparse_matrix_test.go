@@ -352,15 +352,14 @@ func TestSparseMatrixConstruct(t *testing.T) {
 		"...#..#..#..",
 	}, "\n")
 
-	grid := SparseMatrix{}
-	for y, line := range strings.Split(EXPECTED, "\n") {
-		for x, value := range line {
-			if value != '.' {
-				grid[Coord{x, y}] = value
-			}
-		}
-	}
-
-	printed := grid.ToString(false, 0, '.')
-	assert.Equal(t, EXPECTED, printed)
+	t.Run("no ignore", func(t *testing.T) {
+		grid := SparseMatrix{}.FromString(EXPECTED, "")
+		assert.Equal(t, 12*11, len(grid), "all characters should be read in")
+		assert.Equal(t, EXPECTED, grid.ToString(false, 0, '.'))
+	})
+	t.Run("with ignore", func(t *testing.T) {
+		grid := SparseMatrix{}.FromString(EXPECTED, ".")
+		assert.Equal(t, 22, len(grid), "only #s should be read in")
+		assert.Equal(t, EXPECTED, grid.ToString(false, 0, '.'))
+	})
 }

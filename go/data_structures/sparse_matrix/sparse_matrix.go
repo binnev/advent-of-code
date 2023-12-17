@@ -61,6 +61,34 @@ func (grid SparseMatrix) ToString(flipY bool, pad int, emptyChar rune) string {
 	return strings.Join(lines, "\n")
 }
 
+/*
+I wanted a classmethod syntax like python:
+
+    matrix := SparseMatrix.FromString("blabla", "")
+
+but Go won't let you do this. A method must be attached to an _instance_ of a
+type. So as a workaround you can call it like this:
+
+    matrix := SparseMatrix{}.FromString("blabla", "")
+
+which creates an empty instance and then fills it using the FromString method.
+It actually kinda makes sense; it's like the __new__ -> __init__ method calls in
+python. __new__ creates an empty object, and __init__ sets the initial values.
+*/
+func (matrix SparseMatrix) FromString(source string, ignore string) SparseMatrix {
+	for yy, line := range strings.Split(source, "\n") {
+		for xx, char := range line {
+			coord := Coord{xx, yy}
+			if utils.Contains([]byte(ignore), byte(char)) {
+				continue
+			} else {
+				matrix[coord] = char
+			}
+		}
+	}
+	return matrix
+}
+
 func (grid SparseMatrix) Print(flipY bool, pad int, emptyChar rune) {
 	fmt.Println(grid.ToString(flipY, pad, emptyChar))
 }
