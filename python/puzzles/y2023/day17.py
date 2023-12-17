@@ -22,17 +22,13 @@ def part1(input: str) -> int:
     _, ymax = matrix.get_ylim()
     start = (0, 0)
     finish = (xmax, ymax)
-    neighbour_generator = get_neighbour_generator(matrix)
-    possible_paths = dfs(
+    scores = dfs(
+        matrix=matrix,
         path=[start],
-        neighbours_generator=neighbour_generator,
+        score=0,
         finish=finish,
     )
-    heat_losses = []
-    for path in possible_paths:
-        heat_loss = sum(matrix[coord] for coord in path)
-        heat_losses.append(heat_loss)
-    return min(heat_losses)
+    return min(scores)
 
 
 @utils.profile
@@ -41,11 +37,13 @@ def part2(input: str) -> int:
 
 
 def dfs(
+    matrix: SparseMatrix,
     path: Path,
-    neighbours_generator: Callable[[Coord], list[tuple[Direction, Coord]]],
+    score: int,  # the score of this path so far
     finish: Coord,
     direction_history: tuple[Direction, Direction, Direction] = (None, None, None),  # max 3 len
-) -> list[Path]:
+    best_score: int = None,  # lowest known score of a path that reached the finish
+) -> list[int]:
     """
     path = the list of coords we've explored so far
 
@@ -53,8 +51,9 @@ def dfs(
         - counting distance -- maybe instead of returning paths we can return total heat loss?
     """
     node = path[-1]
-    new_paths = []
-    for direction, coord in neighbours_generator(node):
+    scores = []
+    for direction, coord in get_neighbours(node, matrix):
+        new_score = score + matrix[coord]
         # Big assumption: the path never needs to cross itself, so we don't allow it.
         # Mainly to prevent infinite loops, but it also excludes solutions with just 1 loop...
         if coord in path:
@@ -62,42 +61,45 @@ def dfs(
         # Paths that go straight for more than 3 iterations are not allowed
         if len(direction_history) == 3 and all(d == direction for d in direction_history):
             continue
+        # If the path's score exceeds another known "low score", stop following this path
+        if best_score is not None and new_score > best_score:
+            continue
 
         # base case
         if coord == finish:
-            new_paths.append(path + [coord])  # todo: calculate heat loss here?
+            scores.append(new_score)
+            # every time we reach the finish, update the best score
+            if best_score is None:
+                best_score = new_score
+            else:
+                best_score = min(best_score, new_score)
             continue
 
         # recursive case
-        new_path = dfs(
-            path + [coord],
-            neighbours_generator,
-            finish,
+        new_scores = dfs(
+            matrix=matrix,
+            path=path + [coord],
+            score=new_score,
+            finish=finish,
             direction_history=(*direction_history[1:], direction),
+            best_score=best_score,
         )
-        new_paths.extend(new_path)
+        scores.extend(new_scores)
+        if scores:
+            best_score = min(scores)  # is it too little, too late?
 
-    return new_paths
+    return scores
 
 
-def get_neighbour_generator(
-    matrix: SparseMatrix,
-) -> Callable[[Coord], list[tuple[Direction, Coord]]]:
-    """
-    Using a closure to capture the matrix seems needlessly complicated here...
-    """
-
-    def neighbour_generator(coord: Coord) -> list[tuple[Direction, Coord]]:
-        x, y = coord
-        possible = {
-            Direction.RIGHT: (x + 1, y),
-            Direction.DOWN: (x, y + 1),
-            Direction.LEFT: (x - 1, y),
-            Direction.UP: (x, y - 1),
-        }
-        return [(dirn, coord) for dirn, coord in possible.items() if coord in matrix]
-
-    return neighbour_generator
+def get_neighbours(coord: Coord, matrix: SparseMatrix) -> list[tuple[Direction, Coord]]:
+    x, y = coord
+    possible = {
+        Direction.RIGHT: (x + 1, y),
+        Direction.DOWN: (x, y + 1),
+        Direction.LEFT: (x - 1, y),
+        Direction.UP: (x, y - 1),
+    }
+    return [(dirn, coord) for dirn, coord in possible.items() if coord in matrix]
 
 
 def parse_input(input: str) -> SparseMatrix[Coord, int]:

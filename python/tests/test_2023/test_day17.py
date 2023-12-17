@@ -42,11 +42,11 @@ small6 = """111111
 @pytest.mark.parametrize(
     "input, expected",
     [
-        (small3, 8),
-        (small4, 4 + 2 + 3 + 4),
-        (small5, 1 + 1 + 1 + 1 + 2 + 2 + 3 + 4 + 5),
-        (small6, 1 + 1 + 1 + 1 + 2 + 2 + 3 + 3 + 4 + 5 + 6)
-        # (example, 102),
+        (small3, 1 + 1 + 2 + 3),
+        (small4, 1 + 1 + 1 + 2 + 3 + 4),
+        (small5, 1 + 1 + 1 + 2 + 2 + 3 + 4 + 5),
+        (small6, 1 + 1 + 1 + 2 + 2 + 3 + 3 + 4 + 5 + 6),
+        (example, 102),
     ],
 )
 def test_part1(input, expected):
