@@ -143,7 +143,7 @@ func copySlice[T any](arr []T) []T {
 }
 
 // Return a reversed copy of the slice
-func Reverse[T cmp.Ordered](slice []T) []T {
+func Reverse[T any](slice []T) []T {
 	slice = copySlice(slice)
 	sort.SliceStable(slice, func(i, j int) bool { return i > j })
 	return slice
@@ -199,7 +199,7 @@ func TopN[T comparable](arr []T, N int) []T {
 	return keys[:N]
 }
 
-func Contains[V int | string](arr []V, value V) bool {
+func Contains[V cmp.Ordered](arr []V, value V) bool {
 	for _, item := range arr {
 		if item == value {
 			return true
