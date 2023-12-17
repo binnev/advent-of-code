@@ -38,6 +38,31 @@ small6 = """111111
 555555
 666666"""
 
+small4_diagonal = """
+1555
+1155
+5115
+5511
+"""
+
+small6_nonlinear = """
+188111
+111181
+888881
+888111
+888188
+888111
+"""
+
+small6_diagonal = """
+155555
+115555
+511555
+551155
+555115
+555511
+"""
+
 
 @pytest.mark.parametrize(
     "input, expected",
@@ -46,20 +71,11 @@ small6 = """111111
         (small4, 1 + 1 + 1 + 2 + 3 + 4),
         (small5, 1 + 1 + 1 + 2 + 2 + 3 + 4 + 5),
         (small6, 1 + 1 + 1 + 2 + 2 + 3 + 3 + 4 + 5 + 6),
+        (small4_diagonal, 6),
+        (small6_diagonal, 10),
+        (small6_nonlinear, 16),
         (example, 102),
     ],
 )
 def test_part1(input, expected):
     assert part1(input) == expected
-
-
-def test_get_neighbour_generator():
-    matrix = parse_input(example)
-    get_neighbours = get_neighbour_generator(matrix)
-
-    assert get_neighbours((0, 0)) == [
-        (Direction.RIGHT, (1, 0)),
-        (Direction.DOWN, (0, 1)),
-    ]
-
-    assert get_neighbours((420, 420)) == []  # because out of bounds

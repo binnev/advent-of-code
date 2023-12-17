@@ -103,7 +103,7 @@ def get_neighbours(coord: Coord, matrix: SparseMatrix) -> list[tuple[Direction, 
 
 
 def parse_input(input: str) -> SparseMatrix[Coord, int]:
-    matrix = SparseMatrix.from_str(input)
+    matrix = SparseMatrix.from_str(input.strip())
     return SparseMatrix({coord: int(value) for coord, value in matrix.items()})
 
 
