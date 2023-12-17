@@ -56,7 +56,7 @@ func (grid SparseMatrix) ToString(flipY bool, pad int, emptyChar rune) string {
 		lines = append(lines, string(runes))
 	}
 	if flipY {
-		utils.Reverse(lines)
+		lines = utils.Reverse(lines)
 	}
 	return strings.Join(lines, "\n")
 }
