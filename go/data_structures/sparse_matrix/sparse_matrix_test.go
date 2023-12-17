@@ -1,4 +1,4 @@
-package _2022
+package sparse_matrix
 
 import (
 	"sort"

@@ -1,7 +1,7 @@
 package _2022
 
 import (
-	"advent/utils"
+	. "advent/data_structures/sparse_matrix"
 	"fmt"
 )
 
@@ -110,7 +110,7 @@ func addShapeToTower(ii, jet_ii int, grid SparseMatrix, jets string) (int, Shape
 	// spawn rock at correct x/y
 	towerHeight := 0
 	if len(grid) > 0 {
-		towerHeight = utils.Max(grid.ys())
+		_, towerHeight = grid.Ylim()
 	}
 	x := 2
 	y := 4 + towerHeight
@@ -163,6 +163,6 @@ func Day17Part1(input string) string {
 	grid := SparseMatrix{}
 	N := 2022
 	buildTower(N, input, grid)
-	bruteHeight := utils.Max(grid.ys())
+	_, bruteHeight := grid.Ylim()
 	return fmt.Sprint(bruteHeight)
 }
