@@ -1,9 +1,10 @@
-from typing import Sequence, TypeVar
+from typing import TypeVar
 
 # sparse matrix key types
 Coord = tuple[int, int]
 Coord3 = tuple[int, int, int]
-T = TypeVar("T", str, int)  # sparse matrix value type
+
+T = TypeVar("T", str, int)  # chars or ints
 
 
 class SparseMatrix(dict[Coord, T]):
