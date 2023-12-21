@@ -14,4 +14,6 @@ from . import (
     day14,
     day15,
     day16,
+    day18,
+    day21,
 )
