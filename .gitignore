@@ -1,4 +1,5 @@
 .aoc-session
+_inputs
 
 *.pyc
 */.pytest-cache
