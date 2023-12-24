@@ -7,7 +7,7 @@ from aiofiles import os
 from aiohttp import ClientSession
 
 BASE_DIR = Path(__file__).parent.parent.parent
-INPUTS_DIR = BASE_DIR / "_inputs"
+INPUTS_DIR = BASE_DIR / ".puzzle-inputs"
 AOC_SESSION_COOKIE_FILE = BASE_DIR / ".aoc-session"
 FIRST_YEAR = 2015
 
