@@ -1,12 +1,12 @@
 import * as fs from "fs"
 
 var path = require("path")
-const {performance} = require("perf_hooks")
+const { performance } = require("perf_hooks")
 
 
 export function loadPuzzleInput(filename: string): string {
-    const p = path.join(__dirname, `../puzzle_inputs/${filename}.txt`)
-    return fs.readFileSync(p, "utf8")
+    const p = path.join(__dirname, `../.puzzle-inputs/${filename}.txt`)
+    return fs.readFileSync(p, "utf8").trim()
 }
 
 export function profile(func: () => any) {

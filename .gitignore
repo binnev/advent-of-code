@@ -1,4 +1,5 @@
 .aoc-session
+.puzzle-inputs
 
 *.pyc
 */.pytest-cache
