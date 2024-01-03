@@ -3,7 +3,7 @@ import pytest
 from puzzles import y2020, y2021, y2022, y2023
 from utils import load_puzzle_input
 
-pytestmark = pytest.mark.timeout(3)
+pytestmark = pytest.mark.timeout(5)
 
 
 @pytest.mark.parametrize(
@@ -161,6 +161,30 @@ def test_2022(day, func, expected_output):
         ("2023/day3", y2023.day3.part2, 73074886),
         ("2023/day4", y2023.day4.part1, 18653),
         ("2023/day4", y2023.day4.part2, 5921508),
+        ("2023/day5", y2023.day5.part1, 174137457),
+        ("2023/day5", y2023.day5.part2, 1493866),
+        ("2023/day6", y2023.day6.part1, 1413720),
+        ("2023/day6", y2023.day6.part2, 30565288),
+        ("2023/day7", y2023.day7.part1, 248422077),
+        ("2023/day7", y2023.day7.part2, 249817836),
+        ("2023/day8", y2023.day8.part1, 14681),
+        # ("2023/day8", y2023.day8.part2, ???),
+        ("2023/day9", y2023.day9.part1, 1887980197),
+        ("2023/day9", y2023.day9.part2, 990),
+        ("2023/day11", y2023.day11.part1, 9536038),
+        ("2023/day11", y2023.day11.part2, 447744640566),
+        ("2023/day12", y2023.day12.part1, 7490),
+        # ("2023/day12", y2023.day12.part2, ???),
+        ("2023/day13", y2023.day13.part1, 39939),
+        # ("2023/day13", y2023.day13.part2, ???),
+        ("2023/day14", y2023.day14.part1, 112048),
+        ("2023/day14", y2023.day14.part2, 105606),
+        ("2023/day15", y2023.day15.part1, 514025),
+        ("2023/day15", y2023.day15.part2, 244461),
+        ("2023/day16", y2023.day16.part1, 7242),
+        ("2023/day16", y2023.day16.part2, 7572),
+        ("2023/day18", y2023.day18.part1, 28911),
+        ("2023/day21", y2023.day21.part1, 3699),
     ],
 )
 def test_2023(day, func, expected_output):

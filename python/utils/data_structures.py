@@ -1,8 +1,12 @@
+from typing import Sequence, TypeVar
+
+# sparse matrix key types
 Coord = tuple[int, int]
 Coord3 = tuple[int, int, int]
+T = TypeVar("T", str, int)  # sparse matrix value type
 
 
-class SparseMatrix(dict[Coord, str | int]):
+class SparseMatrix(dict[Coord, T]):
     def get_xlim(self) -> tuple[int, int]:
         return get_sparse_matrix_xlim(self)
 
@@ -14,6 +18,10 @@ class SparseMatrix(dict[Coord, str | int]):
 
     def to_str(self, flip_y=False, pad=0, empty_char="."):
         return sparse_matrix_string(self, flip_y, pad, empty_char)
+
+    @classmethod
+    def from_str(cls, source: str, ignore: str = "") -> "SparseMatrix":
+        return sparse_matrix_from_string(source, ignore)
 
 
 class SparseMatrix3(dict[Coord3, str]):
@@ -79,7 +87,7 @@ def sparse_matrix_string(grid: SparseMatrix, flip_y=False, pad=0, empty_char="."
     for y in range(y_start, y_stop):
         line = ""
         for x in range(x_start, x_stop):
-            line += grid.get((x, y), empty_char)
+            line += str(grid.get((x, y), empty_char))
         lines.append(line)
     if flip_y:
         lines = reversed(lines)
@@ -98,3 +106,15 @@ def print_sparse_matrix3(grid: SparseMatrix3, flip_y=False, pad=0, empty_char=".
     for layer_z in range(min_z, max_z + 1):
         layer = SparseMatrix({(x, y): value for (x, y, z), value in grid.items() if z == layer_z})
         print_sparse_matrix(layer, flip_y=flip_y, pad=pad, empty_char=empty_char)
+
+
+def sparse_matrix_from_string(source: str, ignore: str = "") -> SparseMatrix:
+    matrix = SparseMatrix()
+    for yy, line in enumerate(source.splitlines()):
+        for xx, char in enumerate(line):
+            coord = (xx, yy)
+            if char in ignore:
+                continue
+            else:
+                matrix[coord] = char
+    return matrix

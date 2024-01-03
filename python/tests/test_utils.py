@@ -193,3 +193,52 @@ def test_sparse_matrix_string(param):
         empty_char=param.empty_char,
     )
     assert result == param.expected
+
+
+@parametrize(
+    param := testparams("source", "ignore", "expected"),
+    [
+        param(
+            description="Empty default behaviour",
+            source="",
+            ignore="",
+            expected=SparseMatrix(),
+        ),
+        param(
+            description="Single entry default behaviour",
+            source="A",
+            ignore="",
+            expected=SparseMatrix({(0, 0): "A"}),
+        ),
+        param(
+            description="Non-empty default behaviour",
+            source="\n".join(
+                [
+                    "A..",
+                    "...",
+                    "...",
+                    "..B",
+                ]
+            ),
+            ignore="",
+            expected=SparseMatrix(
+                {
+                    (0, 0): "A",
+                    (2, 3): "B",
+                    (1, 0): ".",
+                    (2, 0): ".",
+                    (0, 1): ".",
+                    (1, 1): ".",
+                    (2, 1): ".",
+                    (0, 2): ".",
+                    (1, 2): ".",
+                    (2, 2): ".",
+                    (0, 3): ".",
+                    (1, 3): ".",
+                }
+            ),
+        ),
+    ],
+)
+def test_sparse_matrix_from_string(param):
+    assert SparseMatrix.from_str(source=param.source, ignore=param.ignore) == param.expected
