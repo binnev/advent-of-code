@@ -3,7 +3,7 @@ use std::fs;
 
 pub fn load_puzzle_input(filename: &str) -> String {
     let rust_folder = env::current_dir().unwrap();
-    let inputs_folder = rust_folder.parent().unwrap().join("_inputs");
+    let inputs_folder = rust_folder.parent().unwrap().join(".puzzle-inputs");
     let file_path = inputs_folder.join(filename.to_owned() + ".txt");
 
     let contents = fs::read_to_string(file_path.as_path())
