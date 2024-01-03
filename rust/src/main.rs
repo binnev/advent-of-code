@@ -1,11 +1,8 @@
-use ferris_says::say;
-use std::io::{stdout, BufWriter};
+mod puzzles;
+mod utils;
 
 fn main() {
-    let stdout = stdout();
-    let message = String::from("Hello fellow Rustaceansssssssssssssssssssssssssss!");
-    let width = message.chars().count();
-
-    let mut writer = BufWriter::new(stdout.lock());
-    say(message.as_bytes(), width, &mut writer).unwrap();
+    let input = crate::utils::load_puzzle_input("2023/day1");
+    let result = crate::puzzles::y2023::day1::part1(&input);
+    println!("{result}");
 }
