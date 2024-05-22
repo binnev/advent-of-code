@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+
+  aoc_python:
+    build:
+      context: ./
+      target: pythonstage
+    volumes:
+      - .:/workspace:cached
+    command: sleep infinity
+
+  aoc_typescript:
+    build:
+      context: ./
+      target: typescriptstage
+    volumes:
+      - .:/workspace:cached
+    command: sleep infinity

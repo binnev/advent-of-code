@@ -1,0 +1,8 @@
+{
+    "name": "Typescript Container",
+    "dockerComposeFile": [
+        "../../docker-compose.yml"
+    ],
+    "service": "aoc_typescript",
+    "workspaceFolder": "/workspace/typescript"
+}

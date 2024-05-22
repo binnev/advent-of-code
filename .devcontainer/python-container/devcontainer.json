@@ -1,0 +1,8 @@
+{
+    "name": "Python Container",
+    "dockerComposeFile": [
+        "../../docker-compose.yml"
+    ],
+    "service": "aoc_python",
+    "workspaceFolder": "/workspace/python"
+}
