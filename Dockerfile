@@ -1,7 +1,14 @@
-FROM python:3.12 AS pythonstage
-COPY python/ . 
+ARG IMAGE
+
+FROM $IMAGE AS base
+COPY ./.puzzle-inputs /workspace/.puzzle-inputs
+
+FROM base as python_stage
+COPY ./python workspace/python
+WORKDIR /workspace/python
 RUN pip install -r requirements.txt
 
-FROM mcr.microsoft.com/devcontainers/typescript-node:20 AS typescriptstage
-COPY typescript/ . 
-RUN echo "hello world"
+FROM base as typescript_stage
+COPY ./typescript workspace/typescript
+WORKDIR /workspace/typescript
+RUN npm install

@@ -1,8 +1,11 @@
 {
     "name": "Typescript Container",
-    "dockerComposeFile": [
-        "../../docker-compose.yml"
-    ],
-    "service": "aoc_typescript",
-    "workspaceFolder": "/workspace/typescript"
+    "dockerFile": "../../Dockerfile",
+    "workspaceFolder": "/workspace/typescript",
+    "build": {
+        "target": "typescript_stage",
+        "args": {
+            "IMAGE": "mcr.microsoft.com/devcontainers/typescript-node:20"
+        }
+    }
 }

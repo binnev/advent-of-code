@@ -1,8 +1,12 @@
 {
     "name": "Python Container",
-    "dockerComposeFile": [
-        "../../docker-compose.yml"
-    ],
-    "service": "aoc_python",
-    "workspaceFolder": "/workspace/python"
+    "dockerFile": "../../Dockerfile",
+    // "context": "../..",
+    "workspaceFolder": "/workspace/python", // where the terminal will open
+    "build": {
+        "target": "python_stage",
+        "args": {
+            "IMAGE": "mcr.microsoft.com/vscode/devcontainers/python:3.12"
+        }
+    }
 }
