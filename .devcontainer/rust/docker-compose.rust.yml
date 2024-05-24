@@ -1,0 +1,10 @@
+services:
+  rust_container:
+    build:
+      context: ../..
+      args:
+        - IMAGE=mcr.microsoft.com/devcontainers/rust:dev-1-bookworm
+      target: rust_stage
+    volumes:
+      - ../..:/workspace:cached
+    command: sleep infinity
