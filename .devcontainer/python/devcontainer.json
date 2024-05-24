@@ -1,0 +1,27 @@
+{
+    "name": "Python Container",
+    "dockerComposeFile": [
+        "../../docker-compose.yml"
+    ],
+    "service": "python_container",
+    "shutdownAction": "none",
+    "workspaceFolder": "/workspace/python",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "charliermarsh.ruff",
+            ]
+        }
+    },
+    // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+    "remoteUser": "root",
+    "settings": {
+        "[python]": {
+            "editor.rulers": [
+                79,
+                80,
+                81
+            ]
+        }
+    }
+}

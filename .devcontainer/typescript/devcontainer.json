@@ -1,0 +1,16 @@
+{
+    "name": "Node Container",
+    "dockerComposeFile": [
+        "../../docker-compose.yml"
+    ],
+    "service": "node-app",
+    "shutdownAction": "none",
+    "workspaceFolder": "/workspace/typescript",
+    "settings": {
+        "editor.rulers": [
+            79,
+            80,
+            81
+        ]
+    }
+}
