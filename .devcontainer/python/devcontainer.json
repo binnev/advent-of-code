@@ -1,7 +1,7 @@
 {
     "name": "Python Container",
     "dockerComposeFile": [
-        "../../docker-compose.python.yml"
+        "./docker-compose.python.yml"
     ],
     "service": "python_container",
     "shutdownAction": "stopCompose",
@@ -9,15 +9,22 @@
     "customizations": {
         "vscode": {
             "extensions": [
+                "ms-python.python",
+                "ms-python.debugpy",
+                "ms-python.vscode-pylance",
                 "charliermarsh.ruff",
             ],
             "settings": {
-                "[python]": {
-                    "editor.rulers": [
-                        79,
-                        80,
-                        81
-                    ]
+                "editor.rulers": [
+                    80
+                ],
+                "editor.defaultFormatter": "charliermarsh.ruff",
+                "python.testing.pytestEnabled": true,
+                "python.testing.unittestEnabled": false,
+                "editor.wordWrapColumn": 80,
+                "editor.codeActionsOnSave": {
+                    "source.fixAll": "explicit",
+                    "source.organizeImports.ruff": "explicit"
                 }
             }
         }

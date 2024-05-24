@@ -1,7 +1,7 @@
 {
     "name": "Typescript Container",
     "dockerComposeFile": [
-        "../../docker-compose.typescript.yml"
+        "./docker-compose.typescript.yml"
     ],
     "service": "typescript_container",
     "shutdownAction": "stopCompose",
@@ -10,11 +10,12 @@
         "vscode": {
             "settings": {
                 "editor.rulers": [
-                    79,
                     80,
-                    81
                 ]
-            }
+            },
+            "extensions": [
+                "dbaeumer.vscode-eslint"
+            ]
         }
     },
     "remoteUser": "root",

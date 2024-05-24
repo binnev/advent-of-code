@@ -6,6 +6,3 @@ WORKDIR /workspace/python
 RUN pip install -r requirements.txt
 
 FROM $IMAGE AS typescript_stage
-# COPY ./typescript /tmp/typescript/
-# WORKDIR /tmp/typescript
-# RUN npm install . --global
