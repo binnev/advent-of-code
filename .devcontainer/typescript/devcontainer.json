@@ -1,9 +1,10 @@
 {
     "name": "Typescript Container",
     "dockerComposeFile": [
+        "../../docker-compose.yml",
         "./docker-compose.typescript.yml"
     ],
-    "service": "typescript_container",
+    "service": "devcontainer",
     "shutdownAction": "stopCompose",
     "workspaceFolder": "/workspace/typescript",
     "customizations": {

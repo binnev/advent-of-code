@@ -1,9 +1,10 @@
 {
     "name": "Rust Container",
     "dockerComposeFile": [
+        "../../docker-compose.yml",
         "./docker-compose.rust.yml"
     ],
-    "service": "rust_container",
+    "service": "devcontainer",
     "shutdownAction": "stopCompose",
     "workspaceFolder": "/workspace/rust",
     "customizations": {

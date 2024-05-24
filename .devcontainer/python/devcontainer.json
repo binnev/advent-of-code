@@ -1,9 +1,10 @@
 {
     "name": "Python Container",
     "dockerComposeFile": [
+        "../../docker-compose.yml",
         "./docker-compose.python.yml"
     ],
-    "service": "python_container",
+    "service": "devcontainer",
     "shutdownAction": "stopCompose",
     "workspaceFolder": "/workspace/python",
     "customizations": {

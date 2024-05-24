@@ -1,10 +1,6 @@
 services:
-  typescript_container:
+  devcontainer:
     build:
-      context: ../..
       args:
         - IMAGE=mcr.microsoft.com/devcontainers/typescript-node:1-20-bookworm
       target: typescript_stage
-    volumes:
-      - ../..:/workspace:cached
-    command: sleep infinity
