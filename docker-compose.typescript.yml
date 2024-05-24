@@ -1,0 +1,12 @@
+version: '3'
+services:
+  typescript_container:
+    build:
+      context: ./
+      args:
+        - IMAGE=mcr.microsoft.com/devcontainers/typescript-node:1-20-bookworm
+      target: typescript_stage
+    volumes:
+      # Mount the root folder that contains .git
+      - .:/workspace:cached
+    command: sleep infinity

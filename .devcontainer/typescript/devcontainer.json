@@ -1,9 +1,9 @@
 {
-    "name": "Node Container",
+    "name": "Typescript Container",
     "dockerComposeFile": [
-        "../../docker-compose.yml"
+        "../../docker-compose.typescript.yml"
     ],
-    "service": "node-app",
+    "service": "typescript_container",
     "shutdownAction": "stopCompose",
     "workspaceFolder": "/workspace/typescript",
     "customizations": {
@@ -18,4 +18,8 @@
         }
     },
     "remoteUser": "root",
+    // This is the recommended way to do this. Doing it in the Dockerfile
+    // doesn't work because the resulting `node_modules` folder is not
+    // persisted.
+    "postCreateCommand": "npm install"
 }
