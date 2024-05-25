@@ -1,0 +1,48 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "go",
+			"label": "go: test workspace",
+			"command": "test",
+			"options": {
+				"cwd": "${workspaceFolder}/go"
+			},
+			"args": [
+				"./..."
+			],
+			"problemMatcher": [
+				"$go"
+			],
+			"group": {
+				"kind": "test",
+			},
+		},
+		{
+			"type": "cargo",
+			"command": "test",
+			"options": {
+				"cwd": "${workspaceFolder}/rust"
+			},
+			"problemMatcher": [
+				"$rustc"
+			],
+			"group": {
+				"kind": "test",
+			},
+			"label": "rust: cargo test"
+		},
+		{
+			"type": "shell",
+			"label": "python: pytest",
+			"command": "pytest",
+			"options": {
+				"cwd": "${workspaceFolder}/python"
+			},
+			"group": {
+				"kind": "test",
+				"isDefault": true
+			}
+		}
+	]
+}

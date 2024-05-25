@@ -1,0 +1,35 @@
+{
+    "name": "Python Container",
+    "dockerComposeFile": [
+        "../../docker-compose.yml",
+        "./docker-compose.python.yml"
+    ],
+    "service": "devcontainer",
+    "shutdownAction": "stopCompose",
+    "workspaceFolder": "/workspace/python",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-python.debugpy",
+                "ms-python.vscode-pylance",
+                "charliermarsh.ruff",
+            ],
+            "settings": {
+                "editor.rulers": [
+                    80
+                ],
+                "editor.defaultFormatter": "charliermarsh.ruff",
+                "python.testing.pytestEnabled": true,
+                "python.testing.unittestEnabled": false,
+                "editor.wordWrapColumn": 80,
+                "editor.codeActionsOnSave": {
+                    "source.fixAll": "explicit",
+                    "source.organizeImports.ruff": "explicit"
+                }
+            }
+        }
+    },
+    // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+    "remoteUser": "root",
+}

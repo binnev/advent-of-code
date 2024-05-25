@@ -1,0 +1,27 @@
+{
+    "name": "Typescript Container",
+    "dockerComposeFile": [
+        "../../docker-compose.yml",
+        "./docker-compose.typescript.yml"
+    ],
+    "service": "devcontainer",
+    "shutdownAction": "stopCompose",
+    "workspaceFolder": "/workspace/typescript",
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "editor.rulers": [
+                    80,
+                ]
+            },
+            "extensions": [
+                "dbaeumer.vscode-eslint"
+            ]
+        }
+    },
+    "remoteUser": "root",
+    // This is the recommended way to do this. Doing it in the Dockerfile
+    // doesn't work because the resulting `node_modules` folder is not
+    // persisted.
+    "postCreateCommand": "npm install"
+}

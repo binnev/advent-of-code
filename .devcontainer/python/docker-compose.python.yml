@@ -1,0 +1,6 @@
+services:
+  devcontainer:
+    build:
+      args:
+        - IMAGE=mcr.microsoft.com/devcontainers/python:1-3.12-bookworm
+      target: python_stage

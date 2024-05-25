@@ -1,0 +1,6 @@
+services:
+  devcontainer:
+    build:
+      args:
+        - IMAGE=mcr.microsoft.com/devcontainers/go:dev-1.22-bookworm
+      target: go_stage

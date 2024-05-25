@@ -1,0 +1,6 @@
+services:
+  devcontainer:
+    build:
+      args:
+        - IMAGE=mcr.microsoft.com/devcontainers/rust:dev-1-bookworm
+      target: rust_stage
