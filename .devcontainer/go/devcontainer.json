@@ -10,7 +10,7 @@
     "customizations": {
         "vscode": {
             "extensions": [
-                "golang.go",
+                "golang.go"
             ],
             "settings": {
                 "editor.rulers": [
@@ -21,9 +21,9 @@
                     "source.fixAll": "explicit",
                     "source.organizeImports": "explicit"
                 }
-            },
+            }
         }
     },
     // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-    "remoteUser": "root",
+    "remoteUser": "root"
 }
