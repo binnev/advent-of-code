@@ -10,3 +10,4 @@ FROM $IMAGE AS typescript_stage
 FROM $IMAGE as go_stage
 
 FROM $IMAGE as rust_stage
+RUN cargo install cargo-watch

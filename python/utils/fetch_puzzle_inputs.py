@@ -15,7 +15,7 @@ FIRST_YEAR = 2015
 def main():
     assert AOC_SESSION_COOKIE_FILE.exists()
     with open(AOC_SESSION_COOKIE_FILE) as file:
-        aoc_session_cookie = file.read()
+        aoc_session_cookie = file.read().strip()
 
     asyncio.run(_get_all_inputs(aoc_session_cookie))
 
@@ -28,11 +28,10 @@ async def _get_puzzle_input(year: int, day: int, session: ClientSession):
 
     url = f"https://adventofcode.com/{year}/day/{day}/input"
     response = await session.request(method="GET", url=url)
-    if not response.ok:
-        print(f"{year=} {day=} is not available yet")
-        return
-
     text = await response.text()
+    if not response.ok:
+        print(f"{year=} {day=} is not available yet: {text}")
+        return
 
     async with aiofiles.open(filename, mode="w") as file:
         await file.write(text)
@@ -55,9 +54,13 @@ async def _get_all_inputs(cookie: str):
         jobs.append((year, range(1, max_day)))
 
     # make sure all the year dirs exist first
-    await asyncio.gather(*(os.makedirs(INPUTS_DIR / str(year), exist_ok=True) for year in years))
+    await asyncio.gather(
+        *(os.makedirs(INPUTS_DIR / str(year), exist_ok=True) for year in years)
+    )
     # fetch the inputs
-    async with ClientSession(cookies={"session": cookie}) as session:
+    async with ClientSession(
+        headers={"Cookie": f"session={cookie}"}
+    ) as session:
         await asyncio.gather(
             *(
                 _get_puzzle_input(year, day, session)
