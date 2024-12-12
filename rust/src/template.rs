@@ -1,9 +1,9 @@
 pub fn part1(input: &str) -> String {
-    todo!()
+    "".into()
 }
 
 pub fn part2(input: &str) -> String {
-    todo!()
+    "".into()
 }
 
 const EXAMPLE: &str = "";
