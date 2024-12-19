@@ -4,22 +4,22 @@ pub fn part1(input: &str) -> String {
 
 /// Search for X-MAS the right way up, and rotate the text grid
 pub fn part2(input: &str) -> String {
-    let mut grid = input.to_owned();
+    let mut grid: Vec<String> = griddy(input);
     let mut count = 0;
     for _ in 0..4 {
         count += count_xmas(&grid);
-        grid = rotate_grid_90_clockwise(&grid);
+        grid = rotate_grid_90_clockwise(grid);
     }
     format!("{count}")
 }
 
 /// Count the number of X-MAS in the grid.
-fn count_xmas(haystack: &str) -> usize {
+fn count_xmas(haystack: &Vec<String>) -> usize {
     let mut count = 0;
-    for (y, line) in haystack.lines().enumerate() {
+    for (y, line) in haystack.iter().enumerate() {
         for x in 0..line.len() {
             let xy = (x as i32, y as i32); // risky cast but whatever
-            if search_xmas_here(haystack, xy) {
+            if search_xmas_here(&haystack, xy) {
                 count += 1;
             }
         }
@@ -33,17 +33,12 @@ fn count_xmas(haystack: &str) -> usize {
 ///     M.S
 ///     .A.
 ///     M.S
-fn search_xmas_here(haystack: &str, xy: (i32, i32)) -> bool {
+fn search_xmas_here(grid: &Vec<String>, xy: (i32, i32)) -> bool {
     let (x, y) = xy;
     let top_left = (x - 1, y - 1);
     let top_right = (x + 1, y - 1);
     let btm_left = (x - 1, y + 1);
     let btm_right = (x + 1, y + 1);
-    let grid: Vec<String> = haystack
-        .lines()
-        .map(|line| line.to_owned())
-        .collect();
-
     _get(&grid, xy) == Some('A')
         && _get(&grid, top_left) == Some('M')
         && _get(&grid, btm_left) == Some('M')
@@ -52,6 +47,8 @@ fn search_xmas_here(haystack: &str, xy: (i32, i32)) -> bool {
 }
 
 fn _get(grid: &Vec<String>, xy: (i32, i32)) -> Option<char> {
+    // negative i32 values can't be case to usize. This also means the
+    // coordinate is out of bounds, so we should return None
     let x: usize = match xy.0.try_into() {
         Ok(x) => Some(x),
         Err(_) => None,
@@ -144,21 +141,24 @@ fn search_1d(haystack: &str, needle: &str) -> usize {
     return haystack.matches(needle).count();
 }
 
+fn griddy(input: &str) -> Vec<String> {
+    input
+        .lines()
+        .map(|line| line.to_owned())
+        .collect()
+}
+
 /// thanks ChatGPT
-fn rotate_grid_90_clockwise(grid: &str) -> String {
-    let grid: Vec<_> = grid.lines().collect();
+fn rotate_grid_90_clockwise(grid: Vec<String>) -> Vec<String> {
     let num_rows = grid.len();
     let num_cols = grid[0].len();
-
     let mut rotated_grid = vec![String::new(); num_cols];
-
     for col in 0..num_cols {
         for row in (0..num_rows).rev() {
             rotated_grid[col].push(grid[row].chars().nth(col).unwrap());
         }
     }
-
-    rotated_grid.join("\n")
+    rotated_grid
 }
 
 const EXAMPLE: &str = "MMMSXXMASM
@@ -252,30 +252,36 @@ ijkl"
 
     #[test]
     fn test_search_xmas_here() {
-        let s = "
+        let s = griddy(
+            "
 M.S
 .A.
 M.S
 "
-        .trim();
+            .trim(),
+        );
 
-        assert_eq!(search_xmas_here(s, (0, 0)), false);
-        assert_eq!(search_xmas_here(s, (1, 1)), true);
-        assert_eq!(search_xmas_here(s, (2, 2)), false);
+        assert_eq!(search_xmas_here(&s, (0, 0)), false);
+        assert_eq!(search_xmas_here(&s, (1, 1)), true);
+        assert_eq!(search_xmas_here(&s, (2, 2)), false);
     }
 
     #[test]
     fn test_rotate() {
-        let input = "
+        let input = griddy(
+            "
 abc
 def
 ghi"
-        .trim();
-        let expected = "
+            .trim(),
+        );
+        let expected = griddy(
+            "
 gda
 heb
 ifc"
-        .trim();
+            .trim(),
+        );
         assert_eq!(rotate_grid_90_clockwise(input), expected);
     }
 }
