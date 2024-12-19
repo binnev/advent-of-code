@@ -1,3 +1,5 @@
+use std::time::Instant;
+
 use crate::puzzles::y2024;
 use crate::utils;
 use test_case::test_case;
@@ -9,8 +11,12 @@ use test_case::test_case;
 #[test_case("2024/day3", y2024::day3::part1, "165225049")]
 #[test_case("2024/day3", y2024::day3::part2, "108830766")]
 #[test_case("2024/day4", y2024::day4::part1, "2642")]
+#[test_case("2024/day4", y2024::day4::part2, "1974")]
 fn test_2024(day: &str, func: fn(&str) -> String, expected: &str) {
     let input = utils::load_puzzle_input(day);
+    let start = Instant::now();
     let result = func(&input);
+    let duration = start.elapsed();
+    println!("Got {result} in {duration:?}");
     assert_eq!(result, expected);
 }
