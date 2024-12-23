@@ -1,17 +1,78 @@
 use std::collections::{HashMap, HashSet};
 
+const OBSTACLE: char = '#';
+
+// Find the number of unique squares visited by the guard
 pub fn part1(input: &str) -> String {
     let mut map = parse(input);
-    let mut guard = remove_guard(&mut map);
-    let mut visited: HashSet<Coord, _> = HashSet::new();
-    while map.contains_key(&guard.position) {
-        visited.insert(guard.position);
+    let guard = remove_guard(&mut map);
+    let (history, _) = trace_guard(map, guard);
+    let unique_positions: HashSet<Coord> = history
+        .iter()
+        .map(|guard| guard.position)
+        .collect();
+    format!("{}", unique_positions.len())
+}
+
+// Insert an obstacle into every square, and check if that produces an infinite
+// loop for the guard. Count the infinite loops.
+pub fn part2(input: &str) -> String {
+    let mut map = parse(input);
+    let guard = remove_guard(&mut map);
+    let (history, _) = trace_guard(map.clone(), guard.clone());
+    let mut infinite_loops = 0;
+
+    // Consider only the squares visited by the guard in their normal
+    // trajectory. These are the only places it makes sense to insert an
+    // obstacle, because it's the only place the guard will collide with it.
+    let unique_positions: HashSet<Coord> = history
+        .iter()
+        .map(|guard| guard.position)
+        .collect();
+
+    for coord in unique_positions {
+        // not allowed to insert an obstacle at the starting point
+        if coord == guard.position {
+            continue;
+        }
+        // For every square, make a copy of the map, and try inserting an
+        // obstacle
+        let mut new_map = map.clone();
+        new_map.insert(coord, OBSTACLE);
+
+        // Check if there's an infinite loop
+        let (_, result) = trace_guard(new_map, guard.clone());
+        match result {
+            TraceResult::InfiniteLoop(_) => infinite_loops += 1,
+            _ => {} // do nothing for out of bounds
+        }
+    }
+
+    format!("{infinite_loops}")
+}
+
+// Iterate the guard until it either goes out of bounds or enters an infinite
+// loop
+fn trace_guard(map: Map, guard: Guard) -> (HashSet<Guard>, TraceResult) {
+    let mut history: HashSet<Guard> = HashSet::new();
+    let mut guard = guard;
+    loop {
+        // if the guard's position is not in the map, it has gone out of bounds
+        if !map.contains_key(&guard.position) {
+            return (history, TraceResult::OutOfBounds(guard.position));
+        }
+        // if the guard assumes a position that we've seen before, it means
+        // we've entered an infinite loop
+        if history.contains(&guard) {
+            return (history, TraceResult::InfiniteLoop(guard));
+        }
+        history.insert(guard.clone());
         iter_guard(&map, &mut guard);
     }
-    format!("{}", visited.len())
 }
-pub fn part2(input: &str) -> String {
-    "".into()
+enum TraceResult {
+    OutOfBounds(Coord),
+    InfiniteLoop(Guard),
 }
 
 const EXAMPLE: &str = "....#.....
@@ -36,6 +97,7 @@ const EAST: usize = 1;
 const SOUTH: usize = 2;
 const WEST: usize = 3;
 
+#[derive(Hash, PartialEq, Eq, Clone)]
 struct Guard {
     direction: usize,
     position:  Coord,
@@ -62,7 +124,7 @@ impl Guard {
 /// Move the guard, turning if necessary. Bear in mind that we may need to turn
 /// multiple times.
 fn iter_guard(map: &Map, guard: &mut Guard) {
-    while map.get(&guard.next_square()) == Some(&'#') {
+    while map.get(&guard.next_square()) == Some(&OBSTACLE) {
         guard.turn_right();
     }
     guard.walk();
@@ -106,6 +168,6 @@ mod tests {
     }
     #[test]
     fn test_part2() {
-        assert_eq!(part2(EXAMPLE), "");
+        assert_eq!(part2(EXAMPLE), "6");
     }
 }
