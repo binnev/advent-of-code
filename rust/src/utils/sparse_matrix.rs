@@ -4,9 +4,9 @@ use std::{
     ops::{Deref, DerefMut},
 };
 
-type Coord = (i64, i64);
+pub type Coord = (i64, i64);
 
-struct SparseMatrix {
+pub struct SparseMatrix {
     pub contents: HashMap<Coord, char>,
 }
 impl SparseMatrix {

@@ -6,4 +6,4 @@ mod sparse_matrix;
 // accessible via crate::utils::load_puzzle_input, for example.
 // I guess this is equivalent to python's `from .loading import *`
 pub use loading::*;
-
+pub use sparse_matrix::{Coord, SparseMatrix};
