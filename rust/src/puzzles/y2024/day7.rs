@@ -2,15 +2,36 @@
 pub fn part1(input: &str) -> String {
     let equations = parse(input);
     let mut out = 0;
+    let operators = [
+        |a: usize, b: usize| a + b,
+        |a: usize, b: usize| a * b,
+        // |a: usize, b: usize| format!("{a}{b}").parse().unwrap(),
+    ]
+    .to_vec();
+
     for equation in equations {
-        if brute_force(equation.checksum, equation.numbers) {
+        if brute_force(equation.checksum, equation.numbers, &operators) {
             out += equation.checksum;
         }
     }
     format!("{out}")
 }
 pub fn part2(input: &str) -> String {
-    "".into()
+    let equations = parse(input);
+    let mut out = 0;
+    let operators = [
+        |a: usize, b: usize| a + b,
+        |a: usize, b: usize| a * b,
+        |a: usize, b: usize| format!("{b}{a}").parse().unwrap(),
+    ]
+    .to_vec();
+
+    for equation in equations {
+        if brute_force(equation.checksum, equation.numbers, &operators) {
+            out += equation.checksum;
+        }
+    }
+    format!("{out}")
 }
 const EXAMPLE: &str = "190: 10 19
 3267: 81 40 27
@@ -28,9 +49,13 @@ struct Equation {
 }
 
 /// Try every combination. Will scale terribly.
-fn brute_force(checksum: usize, numbers: Vec<usize>) -> bool {
+fn brute_force(
+    checksum: usize,
+    numbers: Vec<usize>,
+    operators: &Vec<fn(usize, usize) -> usize>,
+) -> bool {
     let numbers = numbers.into_iter().rev().collect();
-    let combos = get_all_combinations(numbers);
+    let combos = get_all_combinations(numbers, operators);
     for result in combos {
         if result == checksum {
             return true;
@@ -39,21 +64,26 @@ fn brute_force(checksum: usize, numbers: Vec<usize>) -> bool {
     false
 }
 
-fn get_all_combinations(numbers: Vec<usize>) -> Vec<usize> {
+fn get_all_combinations(
+    numbers: Vec<usize>,
+    operators: &Vec<fn(usize, usize) -> usize>,
+) -> Vec<usize> {
     let mut out = vec![];
     if numbers.len() == 2 {
         // base case
         let left = numbers[0];
         let right = numbers[1];
-        out.push(left + right);
-        out.push(left * right);
+        for operator in operators {
+            out.push(operator(left, right));
+        }
     } else {
         // recursive case
         let left = numbers[0];
         let rest = numbers[1..].to_vec();
-        for right in get_all_combinations(rest) {
-            out.push(left + right);
-            out.push(left * right);
+        for right in get_all_combinations(rest, operators) {
+            for operator in operators {
+                out.push(operator(left, right));
+            }
         }
     }
     out
@@ -116,14 +146,23 @@ mod tests {
     }
     #[test]
     fn test_part2() {
-        assert_eq!(part2(EXAMPLE), "");
+        assert_eq!(part2(EXAMPLE), "11387");
     }
 
     #[test]
     fn test_brute_force() {
-        assert!(brute_force(190, vec![10, 19]));
-        assert!(brute_force(292, vec![11, 6, 16, 20]));
-        assert!(brute_force(3267, vec![81, 40, 27]));
-        assert!(!brute_force(21037, vec![9, 7, 18, 13]));
+        let add = |a: usize, b: usize| a + b;
+        let mul = |a: usize, b: usize| a * b;
+        let cat = |a: usize, b: usize| format!("{b}{a}").parse().unwrap();
+        let operators = [add, mul].to_vec();
+        assert!(brute_force(190, vec![10, 19], &operators));
+        assert!(brute_force(292, vec![11, 6, 16, 20], &operators));
+        assert!(brute_force(3267, vec![81, 40, 27], &operators));
+        assert!(!brute_force(21037, vec![9, 7, 18, 13], &operators));
+
+        let operators = [add, mul, cat].to_vec();
+        assert!(brute_force(156, vec![15, 6], &operators));
+        assert!(brute_force(7290, vec![6, 8, 6, 15], &operators));
+        assert!(brute_force(192, vec![17, 8, 14], &operators));
     }
 }
