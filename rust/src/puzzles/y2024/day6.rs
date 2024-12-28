@@ -8,7 +8,7 @@ const OBSTACLE: char = '#';
 pub fn part1(input: &str) -> String {
     let mut map = parse(input);
     let guard = remove_guard(&mut map);
-    let (history, _) = trace_guard(map, guard);
+    let (history, _) = trace_guard(&map, vec![guard]);
     let unique_positions: HashSet<Coord> = history
         .iter()
         .map(|guard| guard.position)
@@ -80,11 +80,25 @@ pub fn part1(input: &str) -> String {
 ///
 /// Once we've found this much smaller set of valid obstacle points, we check
 /// all those for infinite loops.
+///
+/// TAKE 3:
+/// Reducing the search space like this ^ didn't help much. The guard's path is
+/// 5554 long, found 4788 potential obstacles. So most of the guard's path is
+/// potential obstacles. We need to speed up the checking for infinite loops.
+///
+/// Currently we insert the new obstacle and trace the guard from the beginning.
+/// Which is around 5000 steps. What we could do is keep the original guard path
+/// up to where it collides with the new obstacle, and then simulate from then
+/// on.
+///
+/// - Keep an ordered guard path -- Vec<Guard> instead of HashSet<Guard>
+/// - Make a function that can accept a partial path and continue iterating it
+///   -- maybe iter_guard can continue doing this?
 
 fn scan_for_potential_obstacles(
     map: &Map,
     obstacle: &Coord,
-    guard_path: &HashSet<Guard>,
+    guard_path: &Vec<Guard>,
 ) -> HashSet<Coord> {
     let mut out: HashSet<Coord> = HashSet::new();
 
@@ -161,39 +175,37 @@ fn scan_for_potential_obstacles(
 // loop for the guard. Count the infinite loops.
 pub fn part2(input: &str) -> String {
     let mut map = parse(input);
-    let guard = remove_guard(&mut map);
-    let (history, _) = trace_guard(map.clone(), guard.clone());
+    let start = remove_guard(&mut map);
+    let (history, _) = trace_guard(&map, vec![start.clone()]);
     let mut infinite_loops = 0;
 
-    println!("The guard's path is {} long", history.len());
-
-    let mut potential_obstacles: HashSet<Coord> = HashSet::new();
-    for (obstacle, _) in map
+    let unique_positions: HashSet<Coord> = history
         .iter()
-        .filter(|(_, square)| square == &&OBSTACLE)
-    {
-        let new = scan_for_potential_obstacles(&map, obstacle, &history);
-        for item in new.into_iter() {
-            potential_obstacles.insert(item);
-        }
-    }
-    println!("Found {} potential obstacles", potential_obstacles.len());
-
-    for (ii, coord) in potential_obstacles
-        .into_iter()
-        .enumerate()
-    {
+        .map(|g| g.position)
+        .collect();
+    // For now just try inserting an obstacle into every square visited by the
+    // guard.
+    for obstacle_position in unique_positions {
         // not allowed to insert an obstacle at the starting point
-        if coord == guard.position {
+        if obstacle_position == start.position {
             continue;
         }
         // For every square, make a copy of the map, and try inserting an
         // obstacle
         let mut new_map = map.clone();
-        new_map.insert(coord, OBSTACLE);
+        new_map.insert(obstacle_position, OBSTACLE);
+        // Check if there's an infinite loop.
+        // Keep the guard's path up to where it intersects the new obstacle.
+        // Then simulate from then on.
+        let last_step_before_collision = history
+            .iter()
+            .enumerate()
+            .find(|(_, guard)| guard.position == obstacle_position)
+            .map(|x| x.0)
+            .expect("Obstacle doesn't intersect guard path?!");
+        let new_history = history[..last_step_before_collision].to_vec();
 
-        // Check if there's an infinite loop
-        let (_, result) = trace_guard(new_map, guard.clone());
+        let (_, result) = trace_guard(&new_map, new_history);
         match result {
             TraceResult::InfiniteLoop(_) => infinite_loops += 1,
             _ => {} // do nothing for out of bounds
@@ -214,10 +226,16 @@ fn print_map(map: &Map) {
 
 // Iterate the guard until it either goes out of bounds or enters an infinite
 // loop
-fn trace_guard(map: Map, guard: Guard) -> (HashSet<Guard>, TraceResult) {
-    let mut history: HashSet<Guard> = HashSet::new();
-    let mut guard = guard;
+fn trace_guard(map: &Map, history: Vec<Guard>) -> (Vec<Guard>, TraceResult) {
+    let mut history = history;
+    // Continue iterating from the end of the history.
+    let mut guard = history
+        .iter()
+        .last()
+        .expect("Got empty history!")
+        .clone();
     loop {
+        iter_guard(&map, &mut guard);
         // if the guard's position is not in the map, it has gone out of bounds
         if !map.contains_key(&guard.position) {
             return (history, TraceResult::OutOfBounds(guard.position));
@@ -227,8 +245,7 @@ fn trace_guard(map: Map, guard: Guard) -> (HashSet<Guard>, TraceResult) {
         if history.contains(&guard) {
             return (history, TraceResult::InfiniteLoop(guard));
         }
-        history.insert(guard.clone());
-        iter_guard(&map, &mut guard);
+        history.push(guard.clone());
     }
 }
 enum TraceResult {
@@ -354,7 +371,7 @@ mod tests {
     fn test_scan_for_potential_obstacles() {
         let mut map = parse(EXAMPLE);
         let guard = remove_guard(&mut map);
-        let (guard_path, _) = trace_guard(map.clone(), guard);
+        let (guard_path, _) = trace_guard(&map, vec![guard]);
         let obstacle = Coord { x: 0, y: 8 };
         assert_eq!(map.get(&obstacle), Some(&OBSTACLE));
         let potential_obstacles =
