@@ -1,38 +1,30 @@
 /// Get the sum of the checksums for the equations that can be true
 pub fn part1(input: &str) -> String {
     let equations = parse(input);
-    let mut out = 0;
-    let operators = [
-        |a: usize, b: usize| a + b,
-        |a: usize, b: usize| a * b,
-        // |a: usize, b: usize| format!("{a}{b}").parse().unwrap(),
-    ]
-    .to_vec();
-
-    for equation in equations {
-        if brute_force(equation.checksum, equation.numbers, &operators) {
-            out += equation.checksum;
-        }
-    }
+    let out = sum_possible_equations(equations, &vec![SUB, DIV]);
     format!("{out}")
 }
+/// Same as part 1, but we add another operator
 pub fn part2(input: &str) -> String {
     let equations = parse(input);
-    let mut out = 0;
-    let operators = [
-        |a: usize, b: usize| a + b,
-        |a: usize, b: usize| a * b,
-        |a: usize, b: usize| format!("{b}{a}").parse().unwrap(),
-    ]
-    .to_vec();
+    let out = sum_possible_equations(equations, &vec![SUB, DIV, STRIP]);
+    format!("{out}")
+}
 
+fn sum_possible_equations(
+    equations: Vec<Equation>,
+    operators: &Vec<fn(usize, usize) -> Option<usize>>,
+) -> usize {
+    let mut out = 0;
     for equation in equations {
-        if brute_force(equation.checksum, equation.numbers, &operators) {
+        if modify_the_checksum(equation.checksum, equation.numbers, &operators)
+        {
             out += equation.checksum;
         }
     }
-    format!("{out}")
+    out
 }
+
 const EXAMPLE: &str = "190: 10 19
 3267: 81 40 27
 83: 17 5
@@ -49,76 +41,136 @@ struct Equation {
 }
 
 /// Try every combination. Will scale terribly.
-fn brute_force(
+fn try_every_combination(
     checksum: usize,
     numbers: Vec<usize>,
     operators: &Vec<fn(usize, usize) -> usize>,
 ) -> bool {
-    let numbers = numbers.into_iter().rev().collect();
-    let combos = get_all_combinations(numbers, operators);
-    for result in combos {
-        if result == checksum {
-            return true;
-        }
-    }
-    false
-}
-
-fn get_all_combinations(
-    numbers: Vec<usize>,
-    operators: &Vec<fn(usize, usize) -> usize>,
-) -> Vec<usize> {
-    let mut out = vec![];
-    if numbers.len() == 2 {
-        // base case
-        let left = numbers[0];
-        let right = numbers[1];
-        for operator in operators {
-            out.push(operator(left, right));
-        }
-    } else {
-        // recursive case
-        let left = numbers[0];
-        let rest = numbers[1..].to_vec();
-        for right in get_all_combinations(rest, operators) {
+    let mut results = vec![];
+    let mut numbers = numbers;
+    results.push(numbers.remove(0));
+    for number in numbers {
+        let mut new_results = vec![];
+        for result in results {
             for operator in operators {
-                out.push(operator(left, right));
+                new_results.push(operator(result, number))
             }
         }
+        results = new_results;
     }
-    out
+
+    results.iter().any(|&r| r == checksum)
 }
-/// Return true if it is possible to substitute in a combination of operators
-/// such that the equation evaluates to the checksum
-fn try_evaluate(checksum: usize, numbers: Vec<usize>) -> bool {
-    // base case -- 2 numbers
-    if numbers.len() == 2 {
-        let left = numbers[0];
-        let right = numbers[1];
-        return left + right == checksum || left * right == checksum;
-    }
 
-    // recursive case -- >2 numbers
-    let left = numbers[0];
-    let rest = numbers[1..].to_vec().clone();
-    // addition: left + ... == checksum
-    // same as
-    // ... = checksum - left
-    let new_checksum = checksum - left;
-    if try_evaluate(new_checksum, rest.clone()) {
-        return true;
+/// Modify the checksum as we proceed from left to right. This can early exit.
+/// For example:
+///
+/// 100: 3 2 20
+///
+/// Can only be solved by 3 + 2 * 20.
+/// (3 + 2) * 20 = 100
+/// 3 + 2 = 100 / 20 = 5  // check 100 % 20 == 0
+/// 3 = 5 - 2 = 3         // check 5 - 2 > 0
+/// 3 = 3                 // final number should equal itself
+///
+/// So we go from right to left, and apply the inverse operations to the
+/// checksum
+///
+/// forward         backward
+/// 2 + 3 = 5       5 - 3 = 2
+/// 2 * 3 = 6       6 / 3 = 2
+/// 2 | 3 = 23      23 ! 3 = 2
+///
+/// But how to handle the branching?
+/// 3 ? 2 ? 20 = 100
+/// 3 ? 2 = 100 ? 20
+///     add: 3 ? 2 + 20 = 100 -> 3 ? 2 = 100 - 20 = 80
+///     mul: 3 ? 2 * 20 = 100 -> 3 ? 2 = 100 / 20 = 5
+///     cat: 3 ? 2 | 20 = 100 -> 3 ? 2 = 100 ! 20 = None (20 not in 100)
+///
+/// So now 3 ? 2 = [80, 5]
+/// for 80:
+///     add: 3 + 2 = 80 -> 80 - 2 = 78
+///     mul: 3 * 2 = 80 -> 80 / 2 = 40
+///     cat: 3 | 2 = 80 -> 80 ! 2 = None
+/// for 5:
+///     add: 3 + 2 = 5 -> 5 - 2 = 3
+///     mul: 3 * 2 = 5 -> 5 / 2 = None (doesn't divide evenly)
+///     cat: 3 | 2 = 5 -> 5 ! 2 = None
+///
+/// So now 3 = [78, 40, 3]
+///
+/// no more operations, so we search for 3 in the list. It's in there, so we
+/// return true.
+///
+///
+/// Compare this to the brute force approach:
+/// 3 ? 2 ? 20 = 100
+/// apply 3:
+/// [3]
+/// apply 2:
+/// [
+///     3 + 2,
+///     3 * 2,
+///     3 | 2,
+/// ]
+/// apply 20:
+/// [
+///     3 + 2 + 20,
+///     3 * 2 + 20,
+///     3 | 2 + 20,
+///     3 + 2 * 20,
+///     3 * 2 * 20,
+///     3 | 2 * 20,
+///     3 + 2 | 20,
+///     3 * 2 | 20,
+///     3 | 2 | 20,
+/// ]
+fn modify_the_checksum(
+    checksum: usize,
+    numbers: Vec<usize>,
+    inverse_operators: &Vec<fn(usize, usize) -> Option<usize>>,
+) -> bool {
+    let mut numbers = numbers;
+    let mut checksums = vec![checksum];
+    while numbers.len() > 1 {
+        let n = numbers.pop().unwrap();
+        checksums = {
+            let mut new = vec![];
+            for cs in checksums.iter() {
+                for op in inverse_operators {
+                    if let Some(number) = op(*cs, n) {
+                        new.push(number);
+                    }
+                }
+            }
+            new
+        };
     }
-
-    // multiplication: left * ...
-    // same as
-    // ... = checksum / left
-    let new_checksum = checksum / left; // this might be buggy rounding down
-    if try_evaluate(new_checksum, rest) {
-        return true;
-    }
-
-    false
+    let n = numbers.pop().unwrap();
+    checksums.contains(&n)
 }
+
+// reverse operations
+const SUB: fn(usize, usize) -> Option<usize> = |a, b| a.checked_sub(b);
+const DIV: fn(usize, usize) -> Option<usize> = |a, b| {
+    if a % b == 0 {
+        Some(a / b)
+    } else {
+        None
+    }
+};
+const STRIP: fn(usize, usize) -> Option<usize> = |a, b| {
+    let a = format!("{a}");
+    let b = format!("{b}");
+    let stripped = a.strip_suffix(&b)?;
+    stripped.parse().ok()
+};
+
+const ADD: fn(usize, usize) -> usize = |a, b| a + b;
+const MUL: fn(usize, usize) -> usize = |a, b| a * b;
+const CAT: fn(usize, usize) -> usize =
+    |a, b| format!("{a}{b}").parse().unwrap();
 
 fn parse(input: &str) -> Vec<Equation> {
     let mut out = vec![];
@@ -151,18 +203,43 @@ mod tests {
 
     #[test]
     fn test_brute_force() {
-        let add = |a: usize, b: usize| a + b;
-        let mul = |a: usize, b: usize| a * b;
-        let cat = |a: usize, b: usize| format!("{b}{a}").parse().unwrap();
-        let operators = [add, mul].to_vec();
-        assert!(brute_force(190, vec![10, 19], &operators));
-        assert!(brute_force(292, vec![11, 6, 16, 20], &operators));
-        assert!(brute_force(3267, vec![81, 40, 27], &operators));
-        assert!(!brute_force(21037, vec![9, 7, 18, 13], &operators));
+        let operators = [ADD, MUL].to_vec();
+        assert!(try_every_combination(190, vec![10, 19], &operators));
+        assert!(try_every_combination(292, vec![11, 6, 16, 20], &operators));
+        assert!(try_every_combination(3267, vec![81, 40, 27], &operators));
+        assert!(!try_every_combination(
+            21037,
+            vec![9, 7, 18, 13],
+            &operators
+        ));
 
-        let operators = [add, mul, cat].to_vec();
-        assert!(brute_force(156, vec![15, 6], &operators));
-        assert!(brute_force(7290, vec![6, 8, 6, 15], &operators));
-        assert!(brute_force(192, vec![17, 8, 14], &operators));
+        let operators = [ADD, MUL, CAT].to_vec();
+        assert!(try_every_combination(156, vec![15, 6], &operators));
+        assert!(try_every_combination(7290, vec![6, 8, 6, 15], &operators));
+        assert!(try_every_combination(192, vec![17, 8, 14], &operators));
+    }
+    #[test]
+    fn test_modify_checksum() {
+        let operators = [SUB, DIV].to_vec();
+        assert!(modify_the_checksum(190, vec![10, 19], &operators));
+        assert!(modify_the_checksum(292, vec![11, 6, 16, 20], &operators));
+        assert!(modify_the_checksum(3267, vec![81, 40, 27], &operators));
+        assert!(!modify_the_checksum(21037, vec![9, 7, 18, 13], &operators));
+
+        let operators = [SUB, DIV, STRIP].to_vec();
+        assert!(modify_the_checksum(156, vec![15, 6], &operators));
+        assert!(modify_the_checksum(7290, vec![6, 8, 6, 15], &operators));
+        assert!(modify_the_checksum(192, vec![17, 8, 14], &operators));
+    }
+    #[test]
+    fn test_modify_checksum_panic() {
+        let operators = [SUB, DIV, STRIP].to_vec();
+        // should not panic
+        // 12763566858: [1, 6, 641, 895, 618, 83, 6]
+        modify_the_checksum(
+            12763566858,
+            vec![1, 6, 641, 895, 618, 83, 6],
+            &operators,
+        );
     }
 }
