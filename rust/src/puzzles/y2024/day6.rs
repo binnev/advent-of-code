@@ -192,8 +192,7 @@ pub fn part2(input: &str) -> String {
         }
         // For every square, make a copy of the map, and try inserting an
         // obstacle
-        let mut new_map = map.clone();
-        new_map.insert(obstacle_position, OBSTACLE);
+        map.insert(obstacle_position, OBSTACLE);
         // Check if there's an infinite loop.
         // Keep the guard's path up to where it intersects the new obstacle.
         // Then simulate from then on.
@@ -205,11 +204,12 @@ pub fn part2(input: &str) -> String {
             .expect("Obstacle doesn't intersect guard path?!");
         let new_history = history[..last_step_before_collision].to_vec();
 
-        let (_, result) = trace_guard(&new_map, new_history);
+        let (_, result) = trace_guard(&map, new_history);
         match result {
             TraceResult::InfiniteLoop(_) => infinite_loops += 1,
             _ => {} // do nothing for out of bounds
         }
+        map.insert(obstacle_position, '.'); // remove obstacle
     }
 
     format!("{infinite_loops}")
