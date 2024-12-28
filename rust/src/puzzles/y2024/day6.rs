@@ -190,11 +190,10 @@ pub fn part2(input: &str) -> String {
         if obstacle_position == start.position {
             continue;
         }
-        // For every square, make a copy of the map, and try inserting an
-        // obstacle
+        // For every square, try inserting an obstacle, and check if there's an
+        // infinite loop.
         map.insert(obstacle_position, OBSTACLE);
-        // Check if there's an infinite loop.
-        // Keep the guard's path up to where it intersects the new obstacle.
+        // Reuse the guard's path up to where it intersects the new obstacle.
         // Then simulate from then on.
         let last_step_before_collision = history
             .iter()
@@ -228,6 +227,8 @@ fn print_map(map: &Map) {
 // loop
 fn trace_guard(map: &Map, history: Vec<Guard>) -> (Vec<Guard>, TraceResult) {
     let mut history = history;
+    // use a set for fast lookup
+    let mut unique: HashSet<Guard> = history.clone().into_iter().collect();
     // Continue iterating from the end of the history.
     let mut guard = history
         .iter()
@@ -242,10 +243,11 @@ fn trace_guard(map: &Map, history: Vec<Guard>) -> (Vec<Guard>, TraceResult) {
         }
         // if the guard assumes a position that we've seen before, it means
         // we've entered an infinite loop
-        if history.contains(&guard) {
+        if unique.contains(&guard) {
             return (history, TraceResult::InfiniteLoop(guard));
         }
         history.push(guard.clone());
+        unique.insert(guard.clone());
     }
 }
 enum TraceResult {
