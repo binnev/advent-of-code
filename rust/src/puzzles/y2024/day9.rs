@@ -1,3 +1,5 @@
+use itertools::Itertools;
+
 pub fn part1(input: &str) -> String {
     let mut disk = expand(input.trim());
     fragment(&mut disk);
@@ -5,7 +7,10 @@ pub fn part1(input: &str) -> String {
     format!("{checksum}")
 }
 pub fn part2(input: &str) -> String {
-    "".into()
+    let mut disk = expand(input.trim());
+    defragment(&mut disk);
+    let checksum = compute_checksum(&disk);
+    format!("{checksum}")
 }
 const EXAMPLE: &str = "2333133121414131402";
 fn compute_checksum(disk: &Disk) -> usize {
@@ -46,9 +51,66 @@ fn expand(s: &str) -> Disk {
     }
     out
 }
-// Squash the contents of the disk to the left, creating more contiguous free
-// space, but fragmenting the files in the process. Assume that we created one
-// file block per character in the input
+
+/// Move entire files to the left if possible. Iterate over the files in reverse
+/// order of file_id (largest first). Attempt to move each file exactly once.
+fn defragment(disk: &mut Disk) {
+    // Iterate over the files in descending order of file_id.
+    let file_ids: Vec<usize> = disk
+        .iter()
+        .filter_map(|block| block.file_id)
+        .sorted()
+        .rev()
+        .collect();
+    for file_id in file_ids {
+        let file_pos = disk
+            .iter()
+            .position(|block| block.file_id == Some(file_id))
+            .unwrap();
+        let file = &disk[file_pos];
+        // Find the next empty space (starting from the left) that can
+        // accommodate the file. If no empty space big enough exists, skip to
+        // the next file.
+        if let Some(empty_pos) =
+            disk.iter()
+                .enumerate()
+                .position(|(pos, block)| {
+                    block.file_id.is_none() // empty space
+                    && pos < file_pos // to the left of the file
+                    && block.size >= file.size // that can fit the file
+                })
+        {
+            let empty = &disk[empty_pos];
+            if empty.size == file.size {
+                // Same size: simply swap the file with the empty space
+                disk.swap(empty_pos, file_pos);
+            } else if empty.size > file.size {
+                // Empty space > file:
+                // divide the empty block into 2; 1 the size of the file, and 1
+                // empty remainder
+                // 1. Set empty space to be size of file
+                // 2. Swap empty space and file
+                // 3. Insert empty remainder after the file
+                let remainder = empty.size - file.size;
+                disk[empty_pos].size = file.size;
+                disk.swap(empty_pos, file_pos);
+                disk.insert(
+                    empty_pos + 1,
+                    Block {
+                        file_id: None,
+                        size:    remainder,
+                    },
+                );
+            } else {
+                // File > empty space:
+                unreachable!()
+            }
+        }
+    }
+}
+/// Squash the contents of the disk to the left, creating more contiguous free
+/// space, but fragmenting the files in the process. Assume that we created one
+/// file block per character in the input
 fn fragment(disk: &mut Disk) {
     loop {
         // move the left pointer to the leftmost empty character
@@ -191,6 +253,15 @@ mod tests {
         let mut disk = expand(EXAMPLE);
         fragment(&mut disk);
         let expected = "0099811188827773336446555566..............";
+        let stringified = stringify_disk(&disk);
+        assert_eq!(stringified, expected);
+    }
+
+    #[test]
+    fn test_defragment() {
+        let mut disk = expand(EXAMPLE);
+        defragment(&mut disk);
+        let expected = "00992111777.44.333....5555.6666.....8888..";
         let stringified = stringify_disk(&disk);
         assert_eq!(stringified, expected);
     }
