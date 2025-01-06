@@ -4,7 +4,7 @@ use std::collections::{HashMap, HashSet};
 use crate::utils::{Coord, SparseMatrix};
 
 pub fn part1(input: &str) -> String {
-    let grid: SparseMatrix = input.into();
+    let grid: SparseMatrix<char> = input.into();
     let antennae = aggregate_antennae(&grid);
     let mut antinodes = HashSet::new();
     for (_, coords) in antennae.iter() {
@@ -19,7 +19,7 @@ pub fn part1(input: &str) -> String {
     format!("{}", antinodes.len())
 }
 pub fn part2(input: &str) -> String {
-    let grid: SparseMatrix = input.into();
+    let grid: SparseMatrix<char> = input.into();
     let antennae = aggregate_antennae(&grid);
     let mut antinodes = HashSet::new();
     for (_, coords) in antennae.iter() {
@@ -43,7 +43,7 @@ pub fn part2(input: &str) -> String {
 /// associated with an antenna name, we can go through all the pairs, calculate
 /// the antinode locations (checking that they're inside the grid) and add them
 /// to a hashset.
-fn aggregate_antennae(grid: &SparseMatrix) -> HashMap<char, Vec<Coord>> {
+fn aggregate_antennae(grid: &SparseMatrix<char>) -> HashMap<char, Vec<Coord>> {
     let mut antennae: HashMap<char, Vec<Coord>> = HashMap::new();
     for (&coord, &ch) in grid.iter() {
         if ch != '.' {
@@ -76,7 +76,7 @@ fn calculate_antinodes_part1(a: &Coord, b: &Coord) -> Vec<Coord> {
 fn calc_antinodes_part2(
     a: &Coord,
     b: &Coord,
-    grid: &SparseMatrix,
+    grid: &SparseMatrix<char>,
 ) -> Vec<Coord> {
     let mut out = vec![*a, *b]; // the antennae are always antinodes now?
     let (x1, y1) = a;
