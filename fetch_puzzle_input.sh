@@ -1,1 +1,1 @@
-curl https://adventofcode.com/2023/day/1/input --header "Cookie: session=$(cat .aoc-session)"
+curl https://adventofcode.com/$1/day/$2/input --header "Cookie: session=$(cat .aoc-session)" > .puzzle-inputs/$1/day$2.txt
