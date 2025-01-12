@@ -26,6 +26,7 @@ use test_case::test_case;
 #[test_case("2024/day11", y2024::day11::part1, 199753)]
 #[test_case("2024/day12", y2024::day12::part1, 1533024)]
 #[test_case("2024/day12", y2024::day12::part2, 910066)]
+#[test_case("2024/day13", y2024::day13::part1, 26599)]
 fn test_2024<T: Debug + Eq>(day: &str, func: fn(&str) -> T, expected: T) {
     let input = utils::load_puzzle_input(day);
     let start = Instant::now();
