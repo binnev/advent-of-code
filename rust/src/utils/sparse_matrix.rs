@@ -6,6 +6,7 @@ use std::{
 
 pub type Coord = (i64, i64);
 
+#[derive(PartialEq, Eq, Debug)]
 pub struct SparseMatrix<T> {
     pub contents: HashMap<Coord, T>,
 }
