@@ -4,12 +4,28 @@ use crate::utils::Coord;
 
 const COST_A: i64 = 3;
 const COST_B: i64 = 1;
+const FUDGE: i64 = 10000000000000;
 
-/// The claw machines here are a little unusual. Instead of a joystick or
-/// directional buttons to control the claw, these machines have two buttons
-/// labeled A and B. Worse, you can't just put in a token and play; it costs 3
-/// tokens to push the A button and 1 token to push the B button.
-///
+pub fn part1(input: &str) -> i64 {
+    let claw_machines = parse(input);
+    let mut out = 0;
+    for ((xa, ya), (xb, yb), (xp, yp)) in claw_machines {
+        if let Some((na, nb)) = solve(xa, ya, xb, yb, xp, yp) {
+            out += solution_cost(na, nb);
+        }
+    }
+    out
+}
+pub fn part2(input: &str) -> i64 {
+    let claw_machines = parse(input);
+    let mut out = 0;
+    for ((xa, ya), (xb, yb), (xp, yp)) in claw_machines {
+        if let Some((na, nb)) = solve(xa, ya, xb, yb, xp + FUDGE, yp + FUDGE) {
+            out += solution_cost(na, nb);
+        }
+    }
+    out
+}
 /// This is going to be solving simultaneous equations.
 /// 1: xa * na + xb + nb = x_prize
 /// 2: ya * na + yb * nb = y_prize
@@ -18,117 +34,77 @@ const COST_B: i64 = 1;
 /// unknowns: na, nb
 /// equations: 2
 ///
-/// 1:
-/// xa.na + xb.nb = x_prize
-/// na + xb.nb/xa = x_prize/xa
-/// na = x_prize/xa - xb.nb/xa
-///
-/// 2:
-/// ya.na + yb.nb = y_prize
-/// na + yb.nb/ya = y_prize/ya
-///
-/// sub in 1:
-/// (x_prize/xa - xb.nb/xa) + yb.nb/ya = y_prize/ya
-///
-/// solve for nb:
-/// x_prize/xa - xb.nb/xa + yb.nb/ya = y_prize/ya
-/// x_prize/xa - nb(xb/xa + yb/ya) = y_prize/ya
-/// - nb(xb/xa + yb/ya) = y_prize/ya - x_prize/xa
-/// nb(xb/xa + yb/ya) = x_prize/xa - y_prize/ya
-/// nb = (x_prize/xa - y_prize/ya) / (xb/xa + yb/ya)
-///
-/// try it for this example:
-/// xa = 94, ya = 34
-/// xb = 22, yb = 67
-/// x_prize = 8400, y_prize = 5400
-/// nb = (8400/94 - 5400/34) / (22/94 + 67/34)
-///
-/// The key is it must be an _integer_ solution.
-///
-///
-///
-///  
-///
-/// It all looks linear -- so how can there be multiple solutions? It's probably
-/// 2 planes intersecting or something.
-///
-///
-/// |     nb
-/// |    /
-/// |   /
-/// |  /
-/// | /
-/// |/_______ na
-pub fn part1(input: &str) -> i64 {
-    let claw_machines = parse(input);
-    let mut out = 0;
-    for (button_a, button_b, prize) in claw_machines {
-        brute_force_solutions(button_a, button_b, prize)
-            .iter()
-            .min_by(|(cost_a, _), (cost_b, _)| cost_a.cmp(&cost_b))
-            .map(|(cost, _)| out += cost);
-    }
-    out
-}
-pub fn part2(input: &str) -> usize {
-    0
-}
-fn solve(xa: f64, ya: f64, xb: f64, yb: f64, xp: f64, yp: f64) -> f64 {
-    -(xp / xb - yp / yb) / (ya / yb - xa / xb)
-}
+/// Solve the simultaneous equations and calculate na & nb in terms of
+/// floats. Round them to the nearest integer. Check the solution to make
+/// sure it is a valid integer solution.
+fn solve(
+    xa: i64,
+    ya: i64,
+    xb: i64,
+    yb: i64,
+    xp: i64,
+    yp: i64,
+) -> Option<(i64, i64)> {
+    let (na, nb) = {
+        let xa = xa as f64;
+        let ya = ya as f64;
+        let xb = xb as f64;
+        let yb = yb as f64;
+        let xp = xp as f64;
+        let yp = yp as f64;
 
-fn brute_force_solutions(
+        // Solve 1 & 2 for na
+        let na = -(xp / xb - yp / yb) / (ya / yb - xa / xb);
+        let na = na.round() as i64;
+
+        // Solve 1 for nb
+        let nb = ((xp - xa * na as f64) / xb).trunc() as i64;
+        (na, nb)
+    };
+    if check_solution((xa, ya), (xb, yb), (xp, yp), na, nb) {
+        Some((na, nb))
+    } else {
+        None
+    }
+}
+fn check_solution(
     button_a: Coord,
     button_b: Coord,
     prize: Coord,
-) -> Vec<(i64, Coord)> {
+    na: i64,
+    nb: i64,
+) -> bool {
     let (xa, ya) = button_a;
     let (xb, yb) = button_b;
-    let mut solutions = vec![];
-    for na in 0..=100 {
-        for nb in 0..=100 {
-            let x = xa * na + xb * nb;
-            let y = ya * na + yb * nb;
-            let position = (x, y);
-            if position == prize {
-                let cost = na * COST_A + nb * COST_B;
-                solutions.push((cost, (na, nb)));
-            }
-        }
-    }
-    solutions
+    let x = xa * na + xb * nb;
+    let y = ya * na + yb * nb;
+    (x, y) == prize
+}
+fn solution_cost(na: i64, nb: i64) -> i64 {
+    na * COST_A + nb * COST_B
 }
 fn parse(input: &str) -> Vec<(Coord, Coord, Coord)> {
-    let mut out = vec![];
-    for chunk in input.split("\n\n") {
-        let mut lines = chunk.lines();
-        let line_a = lines.next().unwrap();
-        let line_b = lines.next().unwrap();
-        let line_p = lines.next().unwrap();
-        let (xa, ya) = parse_line_xy(line_a);
-        let (xb, yb) = parse_line_xy(line_b);
-        let (xp, yp) = parse_line_xy(line_p);
-        out.push(((xa, ya), (xb, yb), (xp, yp)));
-    }
-    out
+    input
+        .split("\n\n")
+        .map(|chunk| parse_machine(chunk).unwrap())
+        .collect()
 }
-
-fn parse_line_xy(line: &str) -> Coord {
+fn parse_machine(chunk: &str) -> Option<(Coord, Coord, Coord)> {
+    let mut lines = chunk.lines();
+    let line_a = lines.next().unwrap();
+    let line_b = lines.next().unwrap();
+    let line_p = lines.next().unwrap();
+    let button_a = parse_line_xy(line_a)?;
+    let button_b = parse_line_xy(line_b)?;
+    let prize = parse_line_xy(line_p)?;
+    Some((button_a, button_b, prize))
+}
+fn parse_line_xy(line: &str) -> Option<Coord> {
     let rx = Regex::new(r".*X.(\d+), Y.(\d+)").unwrap();
     let caps = rx.captures(line).unwrap();
-    let x = caps
-        .get(1)
-        .unwrap()
-        .as_str()
-        .parse()
-        .unwrap();
-    let y = caps
-        .get(2)
-        .unwrap()
-        .as_str()
-        .parse()
-        .unwrap();
-    (x, y)
+    let x = caps.get(1)?.as_str().parse().ok()?;
+    let y = caps.get(2)?.as_str().parse().ok()?;
+    Some((x, y))
 }
 const EXAMPLE: &str = "Button A: X+94, Y+34
 Button B: X+22, Y+67
@@ -155,24 +131,45 @@ mod tests {
     }
     #[test]
     fn test_part2() {
-        assert_eq!(part2(EXAMPLE), 0);
+        assert_eq!(part2(EXAMPLE), 875318608908);
     }
 
-    // #[test]
-    // fn test_solve() {
-    //     let xa = 94f64;
-    //     let ya = 34f64;
-    //     let xb = 22f64;
-    //     let yb = 67f64;
-    //     let xp = 8400f64;
-    //     let yp = 5400f64;
-    //     let result = solve(xa, ya, xb, yb, xp, yp);
-    //     assert_eq!(result, 80f64);
-    // }
+    #[test]
+    fn test_solve() {
+        let machines = parse(EXAMPLE);
+        let expected_results = [Some((80, 40)), None, Some((38, 86)), None];
+        for (machine, expected) in machines
+            .into_iter()
+            .zip(expected_results)
+        {
+            let ((xa, ya), (xb, yb), (xp, yp)) = machine;
+            assert_eq!(solve(xa, ya, xb, yb, xp, yp), expected);
+        }
+    }
+
+    #[test]
+    fn test_solve_more() {
+        // Machine 313
+        let (xa, ya) = (63, 12);
+        let (xb, yb) = (23, 90);
+        let (xp, yp) = (3708, 3018);
+        let expected = Some((49, 27));
+        assert_eq!(solve(xa, ya, xb, yb, xp, yp), expected);
+
+        // Machine 76
+        let (xa, ya) = (72, 45);
+        let (xb, yb) = (17, 36);
+        let (xp, yp) = (4731, 8729);
+        let expected = None;
+        assert_eq!(solve(xa, ya, xb, yb, xp, yp), expected);
+    }
 
     #[test]
     fn test_parse_line_xy() {
-        assert_eq!(parse_line_xy("Button A: X+94, Y+34"), (94, 34));
-        assert_eq!(parse_line_xy("Prize: X=8400, Y=5400"), (8400, 5400));
+        assert_eq!(parse_line_xy("Button A: X+94, Y+34").unwrap(), (94, 34));
+        assert_eq!(
+            parse_line_xy("Prize: X=8400, Y=5400").unwrap(),
+            (8400, 5400)
+        );
     }
 }
