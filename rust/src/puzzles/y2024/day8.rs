@@ -60,12 +60,12 @@ fn aggregate_antennae(grid: &SparseMatrix<char>) -> HashMap<char, Vec<Coord>> {
 /// as far away as the other. This means that for any pair of antennas with the
 /// same frequency, there are two antinodes, one on either side of them."
 fn calculate_antinodes_part1(a: &Coord, b: &Coord) -> Vec<Coord> {
-    let (x1, y1) = a;
-    let (x2, y2) = b;
+    let (x1, y1) = a.into();
+    let (x2, y2) = b.into();
     let dx = x2 - x1;
     let dy = y2 - y1;
-    let left = (x1 - dx, y1 - dy);
-    let right = (x2 + dx, y2 + dy);
+    let left = Coord(x1 - dx, y1 - dy);
+    let right = Coord(x2 + dx, y2 + dy);
     vec![left, right]
 }
 /// "After updating your model, it turns out that an antinode occurs at any grid
@@ -79,13 +79,13 @@ fn calc_antinodes_part2(
     grid: &SparseMatrix<char>,
 ) -> Vec<Coord> {
     let mut out = vec![*a, *b]; // the antennae are always antinodes now?
-    let (x1, y1) = a;
-    let (x2, y2) = b;
+    let (x1, y1) = a.into();
+    let (x2, y2) = b.into();
     let dx = x2 - x1;
     let dy = y2 - y1;
     // get right nodes that are in the grid
     for ii in 1.. {
-        let node = (x2 + dx * ii, y2 + dy * ii);
+        let node = Coord(x2 + dx * ii, y2 + dy * ii);
         if !grid.contains_key(&node) {
             break;
         }
@@ -93,7 +93,7 @@ fn calc_antinodes_part2(
     }
     // left nodes
     for ii in 1.. {
-        let node = (x1 - dx * ii, y1 - dy * ii);
+        let node = Coord(x1 - dx * ii, y1 - dy * ii);
         if !grid.contains_key(&node) {
             break;
         }

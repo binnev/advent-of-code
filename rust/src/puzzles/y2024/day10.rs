@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use crate::utils::{coord_neighbours, Coord, SparseMatrix};
+use crate::utils::{Coord, SparseMatrix};
 
 /// Find all the "hiking trails" for each "trailhead".
 /// "Hiking trail" = path from 0 to 9
@@ -154,7 +154,8 @@ fn bfs_down(start: &Coord, map: &SparseMatrix<u8>) -> HashSet<Coord> {
 }
 /// Get the downhill neighbours of a coord
 fn downhill_neighbours(coord: &Coord, map: &SparseMatrix<u8>) -> Vec<Coord> {
-    coord_neighbours(coord)
+    coord
+        .neighbours()
         .into_iter()
         // If is_downhill returns None it's because the neighbour is not in the
         // map. In that case we should not return that neighbour.

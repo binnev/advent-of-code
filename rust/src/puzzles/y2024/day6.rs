@@ -215,11 +215,12 @@ pub fn part2(input: &str) -> usize {
 }
 
 fn print_map(map: &Map) {
-    let contents: HashMap<(i64, i64), char> = map
-        .into_iter()
-        .map(|(k, v)| ((k.x as i64, k.y as i64), *v))
-        .collect();
-    let matrix = SparseMatrix { contents };
+    let matrix = SparseMatrix {
+        contents: map
+            .into_iter()
+            .map(|(k, v)| ((k.x as i64, k.y as i64).into(), *v))
+            .collect(),
+    };
     println!("{matrix}");
 }
 

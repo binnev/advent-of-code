@@ -4,11 +4,11 @@ use crate::utils::{Coord, SparseMatrix};
 use std::collections::HashSet;
 
 pub fn part1(input: &str) -> usize {
-    do_the_thing(input, 100, (101, 103))
+    do_the_thing(input, 100, Coord(101, 103))
 }
 pub fn part2(input: &str) -> usize {
     let mut robots = parse(input);
-    let limits = (101, 103);
+    let limits = Coord(101, 103);
     for ii in 1.. {
         for robot in robots.iter_mut() {
             robot.position = simulate_robot(robot, 1, limits);
@@ -40,13 +40,13 @@ fn print_robots(robots: &Vec<Robot>, limits: Coord) {
 }
 fn robots_to_matrix(
     robots: &Vec<Robot>,
-    (xlim, ylim): Coord,
+    Coord(xlim, ylim): Coord,
 ) -> SparseMatrix<usize> {
     let mut map: SparseMatrix<usize> = SparseMatrix::new();
     for x in 0..xlim {
         for y in 0..ylim {
             // explicitly populate empty squares so we can see the limits
-            map.insert((x, y), 0);
+            map.insert((x, y).into(), 0);
         }
     }
     for robot in robots.iter() {
@@ -58,7 +58,7 @@ fn robots_to_matrix(
 }
 /// I'm not sure why this works, but on the iteration where the robots form the
 /// christmas tree, there are no overlaps.
-fn is_tree(robots: &Vec<Robot>, (xlim, ylim): Coord) -> bool {
+fn is_tree(robots: &Vec<Robot>, Coord(xlim, ylim): Coord) -> bool {
     let unique_positions: HashSet<Coord> = robots
         .iter()
         .map(|r| r.position)
@@ -77,14 +77,14 @@ fn do_the_thing(input: &str, steps: i64, limits: Coord) -> usize {
 /// Count how many robots are in each quadrant
 fn count_robots(
     positions: &Vec<Coord>,
-    (xlim, ylim): Coord,
+    Coord(xlim, ylim): Coord,
 ) -> (usize, usize, usize, usize) {
     assert!(xlim % 2 != 0); // limits should be odd
     assert!(ylim % 2 != 0);
     let middle_x = xlim / 2;
     let middle_y = ylim / 2;
     let (mut topleft, mut topright, mut btmleft, mut btmright) = (0, 0, 0, 0);
-    for (x, y) in positions {
+    for Coord(x, y) in positions {
         let dx = x - middle_x;
         let dy = y - middle_y;
         if dx < 0 && dy < 0 {
@@ -100,14 +100,18 @@ fn count_robots(
     (topleft, topright, btmleft, btmright)
 }
 /// Calculate the robot's position after the given number of steps
-fn simulate_robot(robot: &Robot, steps: i64, (xlim, ylim): Coord) -> Coord {
-    let (mut x, mut y) = robot.position;
-    let (u, v) = robot.velocity;
+fn simulate_robot(
+    robot: &Robot,
+    steps: i64,
+    Coord(xlim, ylim): Coord,
+) -> Coord {
+    let (mut x, mut y) = robot.position.into();
+    let (u, v) = robot.velocity.into();
     x += u * steps;
     y += v * steps;
     x = wrap(x, xlim);
     y = wrap(y, ylim);
-    (x, y)
+    Coord(x, y)
 }
 fn wrap(x: i64, limit: i64) -> i64 {
     let mut x = x;
@@ -136,8 +140,8 @@ fn parse_line(line: &str) -> Option<Robot> {
     let u = caps.get(3)?.as_str().parse().ok()?;
     let v = caps.get(4)?.as_str().parse().ok()?;
     Some(Robot {
-        position: (x, y),
-        velocity: (u, v),
+        position: Coord(x, y),
+        velocity: Coord(u, v),
     })
 }
 const EXAMPLE: &str = "p=0,4 v=3,-3
@@ -367,15 +371,15 @@ mod tests {
     use super::*;
     #[test]
     fn test_part1() {
-        let limits = (11, 7);
+        let limits = Coord(11, 7);
         assert_eq!(do_the_thing(EXAMPLE, 100, limits), 12);
     }
     #[test]
     fn test_parse_line() {
         let line = "p=2,4 v=2,-3";
         let expected = Robot {
-            position: (2, 4),
-            velocity: (2, -3),
+            position: Coord(2, 4),
+            velocity: Coord(2, -3),
         };
         assert_eq!(parse_line(line).unwrap(), expected);
     }

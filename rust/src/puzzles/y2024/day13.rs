@@ -9,7 +9,7 @@ const FUDGE: i64 = 10000000000000;
 pub fn part1(input: &str) -> i64 {
     let claw_machines = parse(input);
     let mut out = 0;
-    for ((xa, ya), (xb, yb), (xp, yp)) in claw_machines {
+    for (Coord(xa, ya), Coord(xb, yb), Coord(xp, yp)) in claw_machines {
         if let Some((na, nb)) = solve(xa, ya, xb, yb, xp, yp) {
             out += solution_cost(na, nb);
         }
@@ -19,7 +19,7 @@ pub fn part1(input: &str) -> i64 {
 pub fn part2(input: &str) -> i64 {
     let claw_machines = parse(input);
     let mut out = 0;
-    for ((xa, ya), (xb, yb), (xp, yp)) in claw_machines {
+    for (Coord(xa, ya), Coord(xb, yb), Coord(xp, yp)) in claw_machines {
         if let Some((na, nb)) = solve(xa, ya, xb, yb, xp + FUDGE, yp + FUDGE) {
             out += solution_cost(na, nb);
         }
@@ -61,7 +61,7 @@ fn solve(
         let nb = ((xp - xa * na as f64) / xb).trunc() as i64;
         (na, nb)
     };
-    if check_solution((xa, ya), (xb, yb), (xp, yp), na, nb) {
+    if check_solution(Coord(xa, ya), Coord(xb, yb), Coord(xp, yp), na, nb) {
         Some((na, nb))
     } else {
         None
@@ -74,11 +74,11 @@ fn check_solution(
     na: i64,
     nb: i64,
 ) -> bool {
-    let (xa, ya) = button_a;
-    let (xb, yb) = button_b;
+    let (xa, ya) = button_a.into();
+    let (xb, yb) = button_b.into();
     let x = xa * na + xb * nb;
     let y = ya * na + yb * nb;
-    (x, y) == prize
+    (x, y) == prize.into()
 }
 fn solution_cost(na: i64, nb: i64) -> i64 {
     na * COST_A + nb * COST_B
@@ -104,7 +104,7 @@ fn parse_line_xy(line: &str) -> Option<Coord> {
     let caps = rx.captures(line).unwrap();
     let x = caps.get(1)?.as_str().parse().ok()?;
     let y = caps.get(2)?.as_str().parse().ok()?;
-    Some((x, y))
+    Some(Coord(x, y))
 }
 const EXAMPLE: &str = "Button A: X+94, Y+34
 Button B: X+22, Y+67
@@ -142,7 +142,7 @@ mod tests {
             .into_iter()
             .zip(expected_results)
         {
-            let ((xa, ya), (xb, yb), (xp, yp)) = machine;
+            let (Coord(xa, ya), Coord(xb, yb), Coord(xp, yp)) = machine;
             assert_eq!(solve(xa, ya, xb, yb, xp, yp), expected);
         }
     }
@@ -166,10 +166,13 @@ mod tests {
 
     #[test]
     fn test_parse_line_xy() {
-        assert_eq!(parse_line_xy("Button A: X+94, Y+34").unwrap(), (94, 34));
+        assert_eq!(
+            parse_line_xy("Button A: X+94, Y+34").unwrap(),
+            Coord(94, 34)
+        );
         assert_eq!(
             parse_line_xy("Prize: X=8400, Y=5400").unwrap(),
-            (8400, 5400)
+            Coord(8400, 5400)
         );
     }
 }

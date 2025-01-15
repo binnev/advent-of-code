@@ -4,7 +4,90 @@ use std::{
     ops::{Deref, DerefMut},
 };
 
-pub type Coord = (i64, i64);
+#[derive(PartialEq, Eq, Hash, Debug, Clone, Copy)]
+pub struct Coord(pub i64, pub i64);
+impl Coord {
+    pub fn west(&self) -> Self {
+        self.neighbour(West)
+    }
+    pub fn east(&self) -> Self {
+        self.neighbour(East)
+    }
+    pub fn north(&self) -> Self {
+        self.neighbour(North)
+    }
+    pub fn south(&self) -> Self {
+        self.neighbour(South)
+    }
+    pub fn neighbour(&self, direction: Direction) -> Self {
+        self.translate(direction, 1)
+    }
+    pub fn translate(&self, direction: Direction, steps: i64) -> Self {
+        use Direction::*;
+        let (x, y) = self.into();
+        match direction {
+            East => Coord(x + steps, y),
+            West => Coord(x - steps, y),
+            North => Coord(x, y - steps), // NOTE: y is positive down
+            South => Coord(x, y + steps),
+        }
+    }
+    // Get the vertical and horizontal neighbours (no diagonals)
+    pub fn neighbours(&self) -> Vec<Self> {
+        let (x, y) = self.into();
+        vec![
+            Coord(x + 1, y),
+            Coord(x - 1, y),
+            Coord(x, y + 1),
+            Coord(x, y - 1),
+        ]
+    }
+    pub fn neighbours_all(&self) -> Vec<Self> {
+        let (x, y) = self.into();
+        let mut out = vec![];
+        for x in [-1, 0, 1] {
+            for y in [-1, 0, 1] {
+                if (x, y) == (0, 0) {
+                    continue;
+                }
+                out.push((x, y).into());
+            }
+        }
+        out
+    }
+}
+impl std::ops::Add for Coord {
+    type Output = Self;
+    fn add(self, rhs: Self) -> Self::Output {
+        Self(self.0 + rhs.0, self.1 + rhs.1)
+    }
+}
+impl std::ops::Sub for Coord {
+    type Output = Self;
+    fn sub(self, rhs: Self) -> Self::Output {
+        self + Coord(-rhs.0, -rhs.1)
+    }
+}
+impl From<(i64, i64)> for Coord {
+    fn from(value: (i64, i64)) -> Self {
+        Self(value.0, value.1)
+    }
+}
+impl From<&(i64, i64)> for Coord {
+    fn from(value: &(i64, i64)) -> Self {
+        value.clone().into()
+    }
+}
+impl Into<(i64, i64)> for Coord {
+    fn into(self) -> (i64, i64) {
+        (self.0, self.1)
+    }
+}
+impl Into<(i64, i64)> for &Coord {
+    fn into(self) -> (i64, i64) {
+        self.clone().into()
+    }
+}
 
 #[derive(PartialEq, Eq, Debug)]
 pub struct SparseMatrix<T> {
@@ -25,6 +108,30 @@ impl<T> SparseMatrix<T> {
         self.contents
             .iter()
             .map(|(coord, _)| coord.1)
+    }
+    pub fn limits(&self) -> ((i64, i64), (i64, i64)) {
+        let mut iter = self.keys();
+        let (mut xmin, mut xmax) = iter
+            .next()
+            .expect("Can't get limits of empty SparseMatrix!")
+            .into();
+        let (mut ymin, mut ymax) = (xmin, xmax).clone();
+        for xy in iter {
+            let (x, y) = xy.into();
+            if x < xmin {
+                xmin = x
+            }
+            if x > xmax {
+                xmax = x
+            }
+            if y < ymin {
+                ymin = y
+            }
+            if y > ymax {
+                ymax = y
+            }
+        }
+        ((xmin, xmax), (ymin, ymax))
     }
 }
 /// This allows us to call the HashMap methods directly on the SparseMatrix.
@@ -53,7 +160,7 @@ impl<T: Display> Display for SparseMatrix<T> {
             .map(|y| {
                 let line: String = (xmin..xmax + 1)
                     .map(|x| {
-                        self.get(&(x, y))
+                        self.get(&(x, y).into())
                             .map(|val| format!("{val}")) // use the value's Display
                             .unwrap_or(" ".into()) // or default to empty space
                     })
@@ -71,7 +178,7 @@ impl From<&str> for SparseMatrix<char> {
         let mut contents = HashMap::new();
         for (y, line) in value.lines().enumerate() {
             for (x, ch) in line.chars().enumerate() {
-                let coord = (x as i64, y as i64);
+                let coord = Coord(x as i64, y as i64);
                 contents.insert(coord, ch);
             }
         }
@@ -79,10 +186,50 @@ impl From<&str> for SparseMatrix<char> {
     }
 }
 
-// Get the vertical and horizontal neighbours (no diagonals)
-pub fn coord_neighbours(coord: &Coord) -> Vec<Coord> {
-    let (x, y) = coord.clone();
-    vec![(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)]
+#[derive(PartialEq, Eq, Debug, Clone, Copy)]
+pub enum Direction {
+    North,
+    East,
+    South,
+    West,
+}
+use Direction::*;
+impl Direction {
+    pub fn is_horizontal(&self) -> bool {
+        match self {
+            Self::East | Self::West => true,
+            _ => false,
+        }
+    }
+    pub fn clockwise(&self) -> Self {
+        use Direction::*;
+        match self {
+            North => East,
+            East => South,
+            South => West,
+            West => North,
+        }
+    }
+    pub fn counter_clockwise(&self) -> Self {
+        use Direction::*;
+        match self {
+            North => West,
+            West => South,
+            South => East,
+            East => North,
+        }
+    }
+}
+impl Display for Direction {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let ch = match self {
+            Self::East => '>',
+            Self::West => '<',
+            Self::North => '^',
+            Self::South => 'v',
+        };
+        write!(f, "{ch}")
+    }
 }
 
 #[cfg(test)]
@@ -110,7 +257,7 @@ mod tests {
     fn test_from_str() {
         let matrix: SparseMatrix<char> = EXAMPLE.into();
         assert_eq!(matrix.len(), 100);
-        assert_eq!(matrix.contents.get(&(4, 0)), Some(&'#'));
+        assert_eq!(matrix.contents.get(&(4, 0).into()), Some(&'#'));
     }
 
     #[test]
@@ -128,7 +275,7 @@ mod tests {
             matrix.len(), // gets rerouted to matrix.contents.len()
             0
         );
-        let previous = matrix.insert((69, 420), 'x'); // matrix.contents.insert
+        let previous = matrix.insert((69, 420).into(), 'x'); // matrix.contents.insert
         assert_eq!(previous, None);
         assert_eq!(matrix.len(), 1);
     }

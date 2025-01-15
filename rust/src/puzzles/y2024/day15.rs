@@ -1,6 +1,6 @@
 use std::{collections::HashSet, fmt::Display};
 
-use crate::utils::{Coord, SparseMatrix};
+use crate::utils::{Coord, Direction, SparseMatrix};
 
 pub fn part1(input: &str) -> i64 {
     let (mut map, directions) = parse(input);
@@ -13,7 +13,7 @@ pub fn part2(input: &str) -> i64 {
 fn calculate_gps(map: &SparseMatrix<char>) -> i64 {
     map.iter()
         .filter(|(_, ch)| "O[".contains(**ch))
-        .map(|((x, y), _)| x + 100 * y)
+        .map(|(Coord(x, y), _)| x + 100 * y)
         .sum()
 }
 fn execute_robot(map: &mut SparseMatrix<char>, directions: Vec<Direction>) {
@@ -26,9 +26,9 @@ fn execute_robot(map: &mut SparseMatrix<char>, directions: Vec<Direction>) {
         let movable = get_movable(map, robot, &direction);
         // Only move the robot if the box(es) can move
         if movable.len() > 0 {
-            robot = get_neighbour(robot, &direction);
+            robot = robot.neighbour(direction);
         }
-        shift(map, movable, &direction);
+        shift(map, movable, direction);
     }
 }
 /// Check if the given shift is possible. Return the set of coords that will be
@@ -38,7 +38,7 @@ fn get_movable(
     coord: Coord,
     direction: &Direction,
 ) -> HashSet<Coord> {
-    let target = get_neighbour(coord, direction);
+    let target = coord.neighbour(*direction);
     let mut movable: HashSet<Coord> = HashSet::new();
     match map.get(&target) {
         // Base cases -- empty space or wall
@@ -72,8 +72,8 @@ fn get_movable(
         // to move.
         Some(&BOX_LEFT) | Some(&BOX_RIGHT) => {
             let target_neighbour = match map.get(&target) {
-                Some(&BOX_LEFT) => get_neighbour(target, &Direction::East),
-                Some(&BOX_RIGHT) => get_neighbour(target, &Direction::West),
+                Some(&BOX_LEFT) => target.neighbour(Direction::East),
+                Some(&BOX_RIGHT) => target.neighbour(Direction::West),
                 _ => unreachable!(),
             };
             let knock_on1 = get_movable(map, target, direction);
@@ -93,7 +93,7 @@ fn get_movable(
 fn shift(
     map: &mut SparseMatrix<char>,
     coords: HashSet<Coord>,
-    direction: &Direction,
+    direction: Direction,
 ) {
     let removed: Vec<_> = coords
         .into_iter()
@@ -108,17 +108,9 @@ fn shift(
     removed
         .into_iter()
         .for_each(|(coord, ch)| {
-            let target = get_neighbour(coord, direction);
+            let target = coord.neighbour(direction);
             map.insert(target, ch);
         });
-}
-fn get_neighbour((x, y): Coord, direction: &Direction) -> Coord {
-    match direction {
-        Direction::North => (x, y - 1),
-        Direction::South => (x, y + 1),
-        Direction::West => (x - 1, y),
-        Direction::East => (x + 1, y),
-    }
 }
 fn parse(input: &str) -> (SparseMatrix<char>, Vec<Direction>) {
     let mut parts = input.split("\n\n");
@@ -158,32 +150,6 @@ fn adapt_for_part2(input: &str) -> String {
             _ => ch.to_string(),
         })
         .collect()
-}
-#[derive(PartialEq, Eq, Debug)]
-enum Direction {
-    North,
-    East,
-    South,
-    West,
-}
-impl Direction {
-    fn is_horizontal(&self) -> bool {
-        match self {
-            Self::East | Self::West => true,
-            _ => false,
-        }
-    }
-}
-impl Display for Direction {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let ch = match self {
-            Self::East => '>',
-            Self::West => '<',
-            Self::North => '^',
-            Self::South => 'v',
-        };
-        write!(f, "{ch}")
-    }
 }
 #[cfg(test)]
 mod tests {

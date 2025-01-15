@@ -1,4 +1,4 @@
-use crate::utils::{coord_neighbours, Coord, SparseMatrix};
+use crate::utils::{Coord, SparseMatrix};
 use std::collections::HashSet;
 
 /// Find the number of fence parts required to fence in areas with the same
@@ -94,12 +94,14 @@ fn count_edges(region: &HashSet<Coord>) -> usize {
         for x in xmin..xmax + 2 {
             let top = (x, y - 1);
             let bottom = (x, y);
-            let current =
-                match (region.contains(&top), region.contains(&bottom)) {
-                    (false, true) => Some(Edge::Start),
-                    (true, false) => Some(Edge::End),
-                    _ => None,
-                };
+            let current = match (
+                region.contains(&top.into()),
+                region.contains(&bottom.into()),
+            ) {
+                (false, true) => Some(Edge::Start),
+                (true, false) => Some(Edge::End),
+                _ => None,
+            };
             if previous != current && previous.is_some() {
                 num_edges += 1
             }
@@ -113,12 +115,14 @@ fn count_edges(region: &HashSet<Coord>) -> usize {
         for y in ymin..ymax + 2 {
             let left = (x - 1, y);
             let right = (x, y);
-            let current =
-                match (region.contains(&left), region.contains(&right)) {
-                    (false, true) => Some(Edge::Start),
-                    (true, false) => Some(Edge::End),
-                    _ => None,
-                };
+            let current = match (
+                region.contains(&left.into()),
+                region.contains(&right.into()),
+            ) {
+                (false, true) => Some(Edge::Start),
+                (true, false) => Some(Edge::End),
+                _ => None,
+            };
             if previous != current && previous.is_some() {
                 num_edges += 1
             }
@@ -138,11 +142,10 @@ enum Edge {
 fn get_limits(region: &HashSet<Coord>) -> ((i64, i64), (i64, i64)) {
     let mut iter = region.iter();
     if let Some(first) = iter.next() {
-        let (mut xmin, mut ymin) = first.clone();
-        let (mut xmax, mut ymax) = first.clone();
-        for (x, y) in iter {
-            let x = *x;
-            let y = *y;
+        let (mut xmin, mut ymin) = first.into();
+        let (mut xmax, mut ymax) = first.into();
+        for xy in iter {
+            let (x, y) = xy.into();
             if x < xmin {
                 xmin = x;
             }
@@ -202,7 +205,7 @@ fn explore_region(
     loop {
         let mut neighbours = HashSet::new();
         for coord in frontier {
-            for neighbour in coord_neighbours(&coord) {
+            for neighbour in coord.neighbours() {
                 if region.contains(&neighbour) {
                     continue;
                 }
@@ -245,7 +248,7 @@ mod tests {
         // XX
         //  X
         let region: HashSet<Coord> =
-            HashSet::from([(0, 0), (0, 1), (1, 1), (1, 2)]);
+            HashSet::from([Coord(0, 0), Coord(0, 1), Coord(1, 1), Coord(1, 2)]);
         assert_eq!(count_edges(&region), 8);
     }
     #[test]
@@ -253,7 +256,7 @@ mod tests {
         // Differentiate between start/end edges in the middle
         // X
         //  X
-        let region: HashSet<Coord> = HashSet::from([(0, 0), (1, 1)]);
+        let region: HashSet<Coord> = HashSet::from([Coord(0, 0), Coord(1, 1)]);
         assert_eq!(count_edges(&region), 8);
     }
 }
