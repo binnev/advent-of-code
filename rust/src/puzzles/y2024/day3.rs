@@ -1,7 +1,7 @@
 use regex::Regex;
 
 // Just listen to the mul instructions
-pub fn part1(input: &str) -> String {
+pub fn part1(input: &str) -> usize {
     let commands = parse(input);
     let mut out = 0;
     for cmd in commands {
@@ -10,10 +10,10 @@ pub fn part1(input: &str) -> String {
             _ => {}
         }
     }
-    format!("{out}")
+    out
 }
 
-pub fn part2(input: &str) -> String {
+pub fn part2(input: &str) -> usize {
     let commands = parse(input);
     let mut enabled = true;
     let mut out = 0;
@@ -28,7 +28,7 @@ pub fn part2(input: &str) -> String {
             }
         }
     }
-    format!("{out}")
+    out
 }
 
 fn parse(input: &str) -> Vec<Command> {
@@ -88,12 +88,12 @@ mod tests {
 
     #[test]
     fn test_part1() {
-        assert_eq!(part1(EXAMPLE), "161");
+        assert_eq!(part1(EXAMPLE), 161);
     }
 
     #[test]
     fn test_part2() {
-        assert_eq!(part2(EXAMPLE2), "48");
+        assert_eq!(part2(EXAMPLE2), 48);
     }
 
     #[test]

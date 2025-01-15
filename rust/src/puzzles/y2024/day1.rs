@@ -1,23 +1,26 @@
-pub fn part1(input: &str) -> String {
+pub fn part1(input: &str) -> usize {
     let (mut left_list, mut right_list) = parsing(input);
     left_list.sort();
     right_list.sort();
-    let out: usize = left_list
+    left_list
         .iter()
         .zip(right_list)
         .map(|(l, r)| l.abs_diff(r))
-        .sum();
-    format!("{out}")
+        .sum()
 }
 
-pub fn part2(input: &str) -> String {
+pub fn part2(input: &str) -> usize {
     let (left, right) = parsing(input);
-    let out: usize = left.into_iter().map(|l| l * count(&right, l)).sum();
-    format!("{out}")
+    left.into_iter()
+        .map(|l| l * count(&right, l))
+        .sum()
 }
 
 fn count(haystack: &Vec<usize>, needle: usize) -> usize {
-    haystack.iter().filter(|&&item| item == needle).count()
+    haystack
+        .iter()
+        .filter(|&&item| item == needle)
+        .count()
 }
 
 fn parsing(input: &str) -> (Vec<usize>, Vec<usize>) {
@@ -46,11 +49,11 @@ mod tests {
 
     #[test]
     fn test_part1() {
-        assert_eq!(part1(EXAMPLE), "11");
+        assert_eq!(part1(EXAMPLE), 11);
     }
 
     #[test]
     fn test_part2() {
-        assert_eq!(part2(EXAMPLE), "31");
+        assert_eq!(part2(EXAMPLE), 31);
     }
 }

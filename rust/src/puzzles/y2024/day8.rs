@@ -3,7 +3,7 @@ use std::collections::{HashMap, HashSet};
 
 use crate::utils::{Coord, SparseMatrix};
 
-pub fn part1(input: &str) -> String {
+pub fn part1(input: &str) -> usize {
     let grid: SparseMatrix<char> = input.into();
     let antennae = aggregate_antennae(&grid);
     let mut antinodes = HashSet::new();
@@ -16,9 +16,9 @@ pub fn part1(input: &str) -> String {
             }
         }
     }
-    format!("{}", antinodes.len())
+    antinodes.len()
 }
-pub fn part2(input: &str) -> String {
+pub fn part2(input: &str) -> usize {
     let grid: SparseMatrix<char> = input.into();
     let antennae = aggregate_antennae(&grid);
     let mut antinodes = HashSet::new();
@@ -29,7 +29,7 @@ pub fn part2(input: &str) -> String {
             }
         }
     }
-    format!("{}", antinodes.len())
+    antinodes.len()
 }
 
 /// I'd like to iterate over the input matrix just once.
@@ -119,10 +119,10 @@ mod tests {
     use super::*;
     #[test]
     fn test_part1() {
-        assert_eq!(part1(EXAMPLE), "14");
+        assert_eq!(part1(EXAMPLE), 14);
     }
     #[test]
     fn test_part2() {
-        assert_eq!(part2(EXAMPLE), "34");
+        assert_eq!(part2(EXAMPLE), 34);
     }
 }

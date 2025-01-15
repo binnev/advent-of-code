@@ -1,14 +1,14 @@
 /// Get the sum of the checksums for the equations that can be true
-pub fn part1(input: &str) -> String {
+pub fn part1(input: &str) -> usize {
     let equations = parse(input);
     let out = sum_possible_equations(equations, &vec![SUB, DIV]);
-    format!("{out}")
+    out
 }
 /// Same as part 1, but we add another operator
-pub fn part2(input: &str) -> String {
+pub fn part2(input: &str) -> usize {
     let equations = parse(input);
     let out = sum_possible_equations(equations, &vec![SUB, DIV, STRIP]);
-    format!("{out}")
+    out
 }
 
 fn sum_possible_equations(
@@ -194,11 +194,11 @@ mod tests {
     use super::*;
     #[test]
     fn test_part1() {
-        assert_eq!(part1(EXAMPLE), "3749");
+        assert_eq!(part1(EXAMPLE), 3749);
     }
     #[test]
     fn test_part2() {
-        assert_eq!(part2(EXAMPLE), "11387");
+        assert_eq!(part2(EXAMPLE), 11387);
     }
 
     #[test]

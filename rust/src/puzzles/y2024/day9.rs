@@ -1,16 +1,16 @@
 use itertools::Itertools;
 
-pub fn part1(input: &str) -> String {
+pub fn part1(input: &str) -> usize {
     let mut disk = expand(input.trim());
     fragment(&mut disk);
     let checksum = compute_checksum(&disk);
-    format!("{checksum}")
+    checksum
 }
-pub fn part2(input: &str) -> String {
+pub fn part2(input: &str) -> usize {
     let mut disk = expand(input.trim());
     defragment(&mut disk);
     let checksum = compute_checksum(&disk);
-    format!("{checksum}")
+    checksum
 }
 const EXAMPLE: &str = "2333133121414131402";
 fn compute_checksum(disk: &Disk) -> usize {
@@ -226,11 +226,11 @@ mod tests {
     }
     #[test]
     fn test_part1() {
-        assert_eq!(part1(EXAMPLE), "1928");
+        assert_eq!(part1(EXAMPLE), 1928);
     }
     #[test]
     fn test_part2() {
-        assert_eq!(part2(EXAMPLE), "2858");
+        assert_eq!(part2(EXAMPLE), 2858);
     }
 
     #[test]

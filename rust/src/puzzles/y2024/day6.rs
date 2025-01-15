@@ -5,7 +5,7 @@ use crate::utils::SparseMatrix;
 const OBSTACLE: char = '#';
 
 // Find the number of unique squares visited by the guard
-pub fn part1(input: &str) -> String {
+pub fn part1(input: &str) -> usize {
     let mut map = parse(input);
     let guard = remove_guard(&mut map);
     let (history, _) = trace_guard(&map, vec![guard]);
@@ -13,7 +13,7 @@ pub fn part1(input: &str) -> String {
         .iter()
         .map(|guard| guard.position)
         .collect();
-    format!("{}", unique_positions.len())
+    unique_positions.len()
 }
 
 /// Part 2 take 2
@@ -173,7 +173,7 @@ fn scan_for_potential_obstacles(
 
 // Insert an obstacle into every square, and check if that produces an infinite
 // loop for the guard. Count the infinite loops.
-pub fn part2(input: &str) -> String {
+pub fn part2(input: &str) -> usize {
     let mut map = parse(input);
     let start = remove_guard(&mut map);
     let (history, _) = trace_guard(&map, vec![start.clone()]);
@@ -211,7 +211,7 @@ pub fn part2(input: &str) -> String {
         map.insert(obstacle_position, '.'); // remove obstacle
     }
 
-    format!("{infinite_loops}")
+    infinite_loops
 }
 
 fn print_map(map: &Map) {
@@ -362,11 +362,11 @@ mod tests {
     use super::*;
     #[test]
     fn test_part1() {
-        assert_eq!(part1(EXAMPLE), "41");
+        assert_eq!(part1(EXAMPLE), 41);
     }
     #[test]
     fn test_part2() {
-        assert_eq!(part2(EXAMPLE), "6");
+        assert_eq!(part2(EXAMPLE), 6);
     }
 
     #[test]

@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 // Sum the middle page of every correctly ordered list of pages
-pub fn part1(input: &str) -> String {
+pub fn part1(input: &str) -> usize {
     let mut out = 0;
     let (rules, page_lists) = parse(input);
     for pages in page_lists.into_iter() {
@@ -11,10 +11,10 @@ pub fn part1(input: &str) -> String {
             out += middle_page;
         }
     }
-    format!("{out}")
+    out
 }
-pub fn part2(input: &str) -> String {
-    "".into()
+pub fn part2(input: &str) -> usize {
+    0
 }
 const EXAMPLE: &str = "47|53
 97|13
@@ -112,10 +112,10 @@ mod tests {
     use super::*;
     #[test]
     fn test_part1() {
-        assert_eq!(part1(EXAMPLE), "143");
+        assert_eq!(part1(EXAMPLE), 143);
     }
     #[test]
     fn test_part2() {
-        assert_eq!(part2(EXAMPLE), "");
+        assert_eq!(part2(EXAMPLE), 0);
     }
 }

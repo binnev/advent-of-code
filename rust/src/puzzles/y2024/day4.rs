@@ -1,16 +1,16 @@
-pub fn part1(input: &str) -> String {
-    format!("{}", search(input, "XMAS"))
+pub fn part1(input: &str) -> usize {
+    search(input, "XMAS")
 }
 
 /// Search for X-MAS the right way up, and rotate the text grid
-pub fn part2(input: &str) -> String {
+pub fn part2(input: &str) -> usize {
     let mut grid: Vec<String> = griddy(input);
     let mut count = 0;
     for _ in 0..4 {
         count += count_xmas(&grid);
         grid = rotate_grid_90_clockwise(grid);
     }
-    format!("{count}")
+    count
 }
 
 /// Count the number of X-MAS in the grid.
@@ -180,12 +180,12 @@ mod tests {
 
     #[test]
     fn test_part1() {
-        assert_eq!(part1(EXAMPLE), "18");
+        assert_eq!(part1(EXAMPLE), 18);
     }
 
     #[test]
     fn test_part2() {
-        assert_eq!(part2(EXAMPLE), "9");
+        assert_eq!(part2(EXAMPLE), 9);
     }
 
     #[test]

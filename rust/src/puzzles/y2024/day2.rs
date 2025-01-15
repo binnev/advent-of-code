@@ -1,19 +1,17 @@
-pub fn part1(input: &str) -> String {
+pub fn part1(input: &str) -> usize {
     let reports = parse(input);
-    let out = reports
+    reports
         .into_iter()
         .filter(|report| is_safe_tolerant(report, false))
-        .count();
-    format!("{out}")
+        .count()
 }
 
-pub fn part2(input: &str) -> String {
+pub fn part2(input: &str) -> usize {
     let reports = parse(input);
-    let out = reports
+    reports
         .into_iter()
         .filter(|report| is_safe_tolerant(report, true))
-        .count();
-    format!("{out}")
+        .count()
 }
 /// Calculate if the report is safe without any fault tolerance
 fn is_safe(report: &Vec<usize>) -> bool {
@@ -78,12 +76,12 @@ mod tests {
 
     #[test]
     fn test_part1() {
-        assert_eq!(part1(EXAMPLE), "2");
+        assert_eq!(part1(EXAMPLE), 2);
     }
 
     #[test]
     fn test_part2() {
-        assert_eq!(part2(EXAMPLE), "4");
+        assert_eq!(part2(EXAMPLE), 4);
     }
 
     #[test]
