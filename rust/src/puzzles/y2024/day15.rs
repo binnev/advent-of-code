@@ -1,4 +1,4 @@
-use std::fmt::Display;
+use std::{collections::HashSet, fmt::Display};
 
 use crate::utils::{Coord, SparseMatrix};
 
@@ -7,12 +7,12 @@ pub fn part1(input: &str) -> i64 {
     execute_robot(&mut map, directions);
     calculate_gps(&map)
 }
-pub fn part2(input: &str) -> usize {
-    0
+pub fn part2(input: &str) -> i64 {
+    part1(&adapt_for_part2(input))
 }
 fn calculate_gps(map: &SparseMatrix<char>) -> i64 {
     map.iter()
-        .filter(|(_, ch)| ch == &&BOX)
+        .filter(|(_, ch)| "O[".contains(**ch))
         .map(|((x, y), _)| x + 100 * y)
         .sum()
 }
@@ -23,50 +23,94 @@ fn execute_robot(map: &mut SparseMatrix<char>, directions: Vec<Direction>) {
         .map(|(coord, _)| *coord)
         .expect("Couldn't find robot in map!");
     for direction in directions {
-        if let Some(new_robot) = shift_if_possible(map, robot, &direction) {
-            robot = new_robot;
+        let movable = get_movable(map, robot, &direction);
+        // Only move the robot if the box(es) can move
+        if movable.len() > 0 {
+            robot = get_neighbour(robot, &direction);
         }
+        shift(map, movable, &direction);
     }
 }
-/// Try to move the object at `coord` in the specified direction. Also move any
-/// objects in the way, if possible. Return the new Coord if the move was
-/// possible, None otherwise.
-fn shift_if_possible(
+/// Check if the given shift is possible. Return the set of coords that will be
+/// affected by the shift, if it is possible.
+fn get_movable(
     map: &mut SparseMatrix<char>,
     coord: Coord,
     direction: &Direction,
-) -> Option<Coord> {
+) -> HashSet<Coord> {
     let target = get_neighbour(coord, direction);
+    let mut movable: HashSet<Coord> = HashSet::new();
     match map.get(&target) {
         // Base cases -- empty space or wall
-        Some(&WALL) => return None,
+        Some(&WALL) => return movable,
         None => {
-            // empty space
-            shift(map, coord, target);
-            return Some(target);
+            movable.insert(coord);
+            return movable;
         }
 
-        // Recursive case -- box in the way. Try to move that box first.
+        // ----- Recursive cases -----
+        // Boxes always move 1-wide
         Some(&BOX) => {
-            let possible = shift_if_possible(map, target, direction);
-            if possible.is_some() {
-                // If it was possible to move the box, also move the current
-                // object.
-                shift(map, coord, target);
-                return Some(target);
-            } else {
-                return None;
+            let knock_on = get_movable(map, target, direction);
+            if knock_on.len() > 0 {
+                movable.insert(coord);
+                movable.extend(knock_on);
             }
+            return movable;
+        }
+        // Wide boxes behave normally in horizontal movement
+        Some(&BOX_LEFT) | Some(&BOX_RIGHT) if direction.is_horizontal() => {
+            let knock_on = get_movable(map, target, direction);
+            if knock_on.len() > 0 {
+                movable.insert(coord);
+                movable.extend(knock_on);
+            }
+            return movable;
+        }
+        // Wide box vertical movement -- take into account the other half of the
+        // box too. A move is only possible if _both_ halves of the box are able
+        // to move.
+        Some(&BOX_LEFT) | Some(&BOX_RIGHT) => {
+            let target_neighbour = match map.get(&target) {
+                Some(&BOX_LEFT) => get_neighbour(target, &Direction::East),
+                Some(&BOX_RIGHT) => get_neighbour(target, &Direction::West),
+                _ => unreachable!(),
+            };
+            let knock_on1 = get_movable(map, target, direction);
+            let knock_on2 = get_movable(map, target_neighbour, direction);
+            if knock_on1.len() > 0 && knock_on2.len() > 0 {
+                movable.insert(coord);
+                movable.extend(knock_on1);
+                movable.extend(knock_on2);
+            }
+            return movable;
         }
 
         Some(other) => panic!("Unexpected object in map: {other}"),
     }
 }
-fn shift(map: &mut SparseMatrix<char>, from: Coord, to: Coord) {
-    let obj = map
-        .remove(&from)
-        .expect("Trying to move empty space!");
-    map.insert(to, obj);
+/// Moving them one at a time might result in overwrites.
+fn shift(
+    map: &mut SparseMatrix<char>,
+    coords: HashSet<Coord>,
+    direction: &Direction,
+) {
+    let removed: Vec<_> = coords
+        .into_iter()
+        .map(|coord| {
+            (
+                coord,
+                map.remove(&coord)
+                    .expect("Tried to remove nonexistent entry!"),
+            )
+        })
+        .collect();
+    removed
+        .into_iter()
+        .for_each(|(coord, ch)| {
+            let target = get_neighbour(coord, direction);
+            map.insert(target, ch);
+        });
 }
 fn get_neighbour((x, y): Coord, direction: &Direction) -> Coord {
     match direction {
@@ -103,12 +147,32 @@ fn parse(input: &str) -> (SparseMatrix<char>, Vec<Direction>) {
         .collect();
     (map, directions)
 }
+fn adapt_for_part2(input: &str) -> String {
+    input
+        .chars()
+        .map(|ch| match ch {
+            '#' => "##".into(),
+            'O' => "[]".into(),
+            '.' => "..".into(),
+            '@' => "@.".into(),
+            _ => ch.to_string(),
+        })
+        .collect()
+}
 #[derive(PartialEq, Eq, Debug)]
 enum Direction {
     North,
     East,
     South,
     West,
+}
+impl Direction {
+    fn is_horizontal(&self) -> bool {
+        match self {
+            Self::East | Self::West => true,
+            _ => false,
+        }
+    }
 }
 impl Display for Direction {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -130,13 +194,12 @@ mod tests {
     }
     #[test]
     fn test_part2() {
-        assert_eq!(part2(EXAMPLE), 0);
+        assert_eq!(part2(EXAMPLE), 9021);
     }
-
     #[test]
     fn test_execute_robot() {
         let (mut map, directions) = parse(EXAMPLE2);
-        let (expected, _) = parse(&(EXAMPLE2_COMPLETED.to_owned() + "\n\n>"));
+        let (expected, _) = parse(&(EXAMPLE2_COMPLETED.to_owned() + "\n\n"));
         execute_robot(&mut map, directions);
         assert_eq!(map, expected);
     }
@@ -145,12 +208,42 @@ mod tests {
         assert_eq!(calculate_gps(&GPS_EXAMPLE.into()), 104);
         assert_eq!(calculate_gps(&EXAMPLE2_COMPLETED.into()), 2028);
         assert_eq!(calculate_gps(&EXAMPLE_COMPLETED.into()), 10092);
+        assert_eq!(calculate_gps(&GPS_EXAMPLE2.into()), 105);
+    }
+    #[test]
+    fn test_adapt_for_part2() {
+        let expected = "####################
+##....[]....[]..[]##
+##............[]..##
+##..[][]....[]..[]##
+##....[]@.....[]..##
+##[]##....[]......##
+##[]....[]....[]..##
+##..[][]..[]..[][]##
+##........[]......##
+####################
+
+<vv>^<v^>v>^vv^v>v<>v^v<v<^vv<<<^><<><>>v<vvv<>^v^>^<<<><<v<<<v^vv^v>^
+vvv<<^>^v^^><<>>><>^<<><^vv^^<>vvv<>><^^v>^>vv<>v<<<<v<^v>^<^^>>>^<v<v
+><>vv>v^v^<>><>>>><^^>vv>v<^^^>>v^v^<^^>v^^>v^<^v>v<>>v^v^<v>v^^<^^vv<
+<<v<^>>^^^^>>>v^<>vvv^><v<<<>^^^vv^<vvv>^>v<^^^^v<>^>vvvv><>>v^<<^^^^^
+^><^><>>><>^^<<^^v>>><^<v>^<vv>>v>>>^v><>^v><<<<v>>v<v<v>vvv>^<><<>^><
+^>><>^v<><^vvv<^^<><v<<<<<><^v<<<><<<^^<v<^^^><^>>^<v^><<<^>>^v<v^v<v^
+>^>>^v>vv>^<<^v<>><<><<v<<v><>v<^vv<<<>^^v^>^^>>><<^v>>v^v><^^>>^<>vv^
+<><^^>^^^<><vvvvv^v<v<<>^v<v>v<<^><<><<><<<^^<<<^<<>><<><^^^>^^<>^>v<>
+^^>vv<^v^v<vv>^<><v<^v>^^^>>>^^vvv^>vvv<>>>^<^>>>>>^<<^v>^vvv<>^<><<v>
+v^^>>><<^^<>>^v^<v^vv<>v^<<>^<^v^v><^<<<><<^<v><v<>vv>>v><v^<vv<>v^<<^";
+        let adapted = adapt_for_part2(EXAMPLE);
+        assert_eq!(adapted, expected);
     }
 }
 
 const ROBOT: char = '@';
 const WALL: char = '#';
 const BOX: char = 'O';
+const BOX_LEFT: char = '[';
+const BOX_RIGHT: char = ']';
+
 const EXAMPLE: &str = "##########
 #..O..O.O#
 #......O.#
@@ -182,6 +275,16 @@ const EXAMPLE_COMPLETED: &str = "##########
 #O.....OO#
 #OO....OO#
 ##########";
+const EXAMPLE_SCALED_COMPLETED: &str = "####################
+##[].......[].[][]##
+##[]...........[].##
+##[]........[][][]##
+##[]......[]....[]##
+##..##......[]....##
+##..[]............##
+##..@......[].[][]##
+##......[][]..[]..##
+####################";
 const EXAMPLE2: &str = "########
 #..O.O.#
 ##@.O..#
@@ -203,3 +306,29 @@ const EXAMPLE2_COMPLETED: &str = "########
 const GPS_EXAMPLE: &str = "#######
 #...O..
 #......";
+const GPS_EXAMPLE2: &str = "##########
+##...[]...
+##........";
+const EXAMPLE3: &str = "#######
+#...#.#
+#.....#
+#..OO@#
+#..O..#
+#.....#
+#######
+
+<vv<<^^<<^^";
+const EXAMPLE3_SCALED: &str = "##############
+##......##..##
+##..........##
+##....[][]@.##
+##....[]....##
+##..........##
+##############";
+const EXAMPLE3_SCALED_COMPLETED: &str = "##############
+##...[].##..##
+##...@.[]...##
+##....[]....##
+##..........##
+##..........##
+##############";
