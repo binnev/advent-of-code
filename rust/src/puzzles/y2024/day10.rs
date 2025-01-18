@@ -172,7 +172,8 @@ fn downhill_neighbours(coord: &Coord, map: &SparseMatrix<u8>) -> Vec<Coord> {
 }
 /// Get the uphill neighbours of a coord
 fn uphill_neighbours(coord: &Coord, map: &SparseMatrix<u8>) -> Vec<Coord> {
-    coord_neighbours(coord)
+    coord
+        .neighbours()
         .into_iter()
         .filter(|neighbour| is_1_uphill(coord, neighbour, map).unwrap_or(false))
         .collect()
