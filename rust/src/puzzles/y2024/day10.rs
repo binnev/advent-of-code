@@ -69,12 +69,12 @@ pub fn part1(input: &str) -> usize {
     let map = parse(input);
     let summits: HashSet<Coord> = map
         .iter()
-        .filter(|(_, height)| **height == 9)
+        .filter(|(_, height)| **height == SUMMIT)
         .map(|(coord, _)| coord.clone())
         .collect();
     let trailheads: HashSet<Coord> = map
         .iter()
-        .filter(|(_, height)| **height == 0)
+        .filter(|(_, height)| **height == TRAILHEAD)
         .map(|(coord, _)| coord.clone())
         .collect();
     let mut scores: SparseMatrix<usize> = SparseMatrix::new();
@@ -93,41 +93,47 @@ pub fn part1(input: &str) -> usize {
         .sum()
 }
 pub fn part2(input: &str) -> usize {
-    0
+    let map = parse(input);
+    let trailheads: HashSet<Coord> = map
+        .iter()
+        .filter(|(_, height)| **height == TRAILHEAD)
+        .map(|(coord, _)| coord.clone())
+        .collect();
+    let mut out = 0;
+    for trailhead in trailheads {
+        out += bfs_up(&trailhead, &map);
+    }
+    out
 }
-const EXAMPLE: &str = "89010123
-78121874
-87430965
-96549874
-45678903
-32019012
-01329801
-10456732";
-const EXAMPLE2: &str = "10..9..
-2...8..
-3...7..
-4567654
-...8..3
-...9..2
-.....01";
-const EXAMPLE3: &str = "...0...
-...1...
-...2...
-6543456
-7.....7
-8.....8
-9.....9";
-const EXAMPLE4: &str = "0123
-1234
-8765
-9876";
-const EXAMPLE5: &str = "..90..9
-...1.98
-...2..7
-6543456
-765.987
-876....
-987....";
+
+/// BFS up from a trailhead and return the number of possible paths that lead to
+/// summits
+fn bfs_up(start: &Coord, map: &SparseMatrix<u8>) -> usize {
+    let mut frontier = vec![start.clone()];
+    let mut summit_count = 0;
+    loop {
+        // Count the summits in the frontier and add them to the total score
+        let new_summits = frontier
+            .iter()
+            .filter(|coord| map.get(coord) == Some(&SUMMIT))
+            .count();
+        summit_count += new_summits;
+
+        // get neighbours of all frontier nodes. IMPORTANT: don't de-dupe. The
+        // duplication is what allows us to find _all_ the possible paths.
+        let mut neighbours = vec![];
+        for coord in frontier.iter() {
+            neighbours.extend(uphill_neighbours(&coord, map));
+        }
+
+        if neighbours.len() == 0 {
+            break;
+        }
+
+        frontier = neighbours.into_iter().collect();
+    }
+    summit_count
+}
 
 /// BFS downwards from a summit, and return the set of unique coords that are
 /// reachable from this summit.
@@ -164,6 +170,13 @@ fn downhill_neighbours(coord: &Coord, map: &SparseMatrix<u8>) -> Vec<Coord> {
         })
         .collect()
 }
+/// Get the uphill neighbours of a coord
+fn uphill_neighbours(coord: &Coord, map: &SparseMatrix<u8>) -> Vec<Coord> {
+    coord_neighbours(coord)
+        .into_iter()
+        .filter(|neighbour| is_1_uphill(coord, neighbour, map).unwrap_or(false))
+        .collect()
+}
 // Check if the second coord is exactly 1 step lower than the first coord.
 // Return None if either coord is not in the map
 fn is_1_downhill(
@@ -175,6 +188,17 @@ fn is_1_downhill(
         .zip(map.get(&to))
         .map(|(from_height, to_height)| {
             to_height < from_height && to_height.abs_diff(*from_height) == 1
+        })
+}
+fn is_1_uphill(
+    from: &Coord,
+    to: &Coord,
+    map: &SparseMatrix<u8>,
+) -> Option<bool> {
+    map.get(&from)
+        .zip(map.get(&to))
+        .map(|(from_height, to_height)| {
+            to_height > from_height && to_height.abs_diff(*from_height) == 1
         })
 }
 fn parse(input: &str) -> SparseMatrix<u8> {
@@ -205,6 +229,57 @@ mod tests {
     }
     #[test]
     fn test_part2() {
-        assert_eq!(part2(EXAMPLE), 0);
+        assert_eq!(part2(EXAMPLE6), 3);
+        assert_eq!(part2(EXAMPLE5), 13);
+        assert_eq!(part2(EXAMPLE7), 227);
+        assert_eq!(part2(EXAMPLE), 81);
     }
 }
+const EXAMPLE: &str = "89010123
+78121874
+87430965
+96549874
+45678903
+32019012
+01329801
+10456732";
+const EXAMPLE2: &str = "10..9..
+2...8..
+3...7..
+4567654
+...8..3
+...9..2
+.....01";
+const EXAMPLE3: &str = "...0...
+...1...
+...2...
+6543456
+7.....7
+8.....8
+9.....9";
+const EXAMPLE4: &str = "0123
+1234
+8765
+9876";
+const EXAMPLE5: &str = "..90..9
+...1.98
+...2..7
+6543456
+765.987
+876....
+987....";
+const EXAMPLE6: &str = ".....0.
+..4321.
+..5..2.
+..6543.
+..7..4.
+..8765.
+..9....";
+const EXAMPLE7: &str = "012345
+123456
+234567
+345678
+4.6789
+56789.";
+const TRAILHEAD: u8 = 0;
+const SUMMIT: u8 = 9;
