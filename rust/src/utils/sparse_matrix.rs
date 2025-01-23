@@ -186,7 +186,7 @@ impl From<&str> for SparseMatrix<char> {
     }
 }
 
-#[derive(PartialEq, Eq, Debug, Clone, Copy)]
+#[derive(PartialEq, Eq, Debug, Clone, Copy, Hash)]
 pub enum Direction {
     North,
     East,
@@ -197,12 +197,11 @@ use Direction::*;
 impl Direction {
     pub fn is_horizontal(&self) -> bool {
         match self {
-            Self::East | Self::West => true,
+            East | West => true,
             _ => false,
         }
     }
     pub fn clockwise(&self) -> Self {
-        use Direction::*;
         match self {
             North => East,
             East => South,
@@ -211,12 +210,19 @@ impl Direction {
         }
     }
     pub fn counter_clockwise(&self) -> Self {
-        use Direction::*;
         match self {
             North => West,
             West => South,
             South => East,
             East => North,
+        }
+    }
+    pub fn arrow(&self) -> char {
+        match self {
+            North => '^',
+            West => '<',
+            South => 'v',
+            East => '>',
         }
     }
 }
