@@ -1,14 +1,22 @@
-use std::ops::BitXor;
-
-use itertools::Itertools;
-
 pub fn part1(input: &str) -> String {
     let (mut state, program) = parse(input).unwrap();
     compute(&mut state, program);
-    state.out.iter().join(",")
+    state.out_string()
 }
-pub fn part2(input: &str) -> String {
-    "".into()
+pub fn part2(input: &str) -> usize {
+    let (state, program) = parse(input).unwrap();
+    for a in 0.. {
+        if a % 1_000_000 == 0 {
+            println!("Trying a={a}");
+        }
+        let mut new_state = state.clone();
+        new_state.a = a;
+        compute(&mut new_state, program);
+        if new_state.out_string() == program {
+            return a;
+        }
+    }
+    unreachable!()
 }
 fn compute(state: &mut State, program: &str) -> Option<()> {
     let program: Vec<usize> = program
@@ -111,7 +119,7 @@ fn parse_register(input: &str) -> Option<usize> {
             .unwrap(),
     )
 }
-#[derive(Default, Debug, PartialEq)]
+#[derive(Default, Debug, PartialEq, Clone)]
 struct State {
     a:           usize,
     b:           usize,
@@ -119,6 +127,15 @@ struct State {
     out:         Vec<usize>,
     instruction: usize,
     jumped:      bool,
+}
+impl State {
+    fn out_string(&self) -> String {
+        self.out
+            .iter()
+            .map(|n| format!("{n}"))
+            .collect::<Vec<_>>()
+            .join(",")
+    }
 }
 
 #[cfg(test)]
@@ -130,7 +147,15 @@ mod tests {
     }
     #[test]
     fn test_part2() {
-        assert_eq!(part2(EXAMPLE), "");
+        assert_eq!(part2(EXAMPLE2), 117440);
+    }
+
+    #[test]
+    fn test_part2_stuff() {
+        let (mut state, program) = parse(EXAMPLE2).unwrap();
+        state.a = 117440;
+        compute(&mut state, program);
+        assert_eq!(state.out_string(), program);
     }
 
     #[test]
@@ -172,9 +197,26 @@ mod tests {
         compute(&mut state, "4,0");
         assert_eq!(state.b, 44354);
     }
+
+    #[test]
+    fn test_out_string() {
+        let state = State {
+            out: vec![1, 2, 3],
+            ..Default::default()
+        };
+        assert_eq!(state.out_string(), "1,2,3");
+
+        let state = State::default();
+        assert_eq!(state.out_string(), "");
+    }
 }
 const EXAMPLE: &str = "Register A: 729
 Register B: 0
 Register C: 0
 
 Program: 0,1,5,4,3,0";
+const EXAMPLE2: &str = "Register A: 2024
+Register B: 0
+Register C: 0
+
+Program: 0,3,5,4,3,0";
