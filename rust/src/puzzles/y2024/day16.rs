@@ -25,7 +25,105 @@ pub fn part1(input: &str) -> usize {
     dijkstra(&start, end, &maze).expect("No path from S to E!")
 }
 pub fn part2(input: &str) -> usize {
-    0
+    let map: SparseMatrix<char> = input.into();
+    let start = Reindeer {
+        position:  map
+            .iter()
+            .find_map(
+                |(coord, ch)| if ch == &START { Some(coord) } else { None },
+            )
+            .expect("No 'S' square in maze!")
+            .clone(),
+        direction: Direction::East,
+    };
+    let end = map
+        .iter()
+        .find_map(|(coord, ch)| if ch == &END { Some(coord) } else { None })
+        .expect("No 'E' square in maze!");
+    let best_paths =
+        find_all_best_paths(&start, end, &map).expect("No best paths found!");
+    let mut tiles: HashSet<Coord> = HashSet::new();
+    for path in best_paths {
+        tiles.extend(
+            path.path
+                .into_iter()
+                .map(|reindeer| reindeer.position),
+        );
+    }
+    tiles.len()
+}
+/// Keep track of each Reindeer's path so that we can find all the squares that
+/// belong to one of the best paths.
+fn find_all_best_paths(
+    start: &Reindeer,
+    end: &Coord,
+    map: &SparseMatrix<char>,
+) -> Option<Vec<ReindeerPath>> {
+    // We use this to remember the best store for any given Reindeer. This is
+    // used to kill bad paths early.
+    let mut best_scores: HashMap<Reindeer, usize> =
+        HashMap::from([(start.clone(), 0)]);
+    let mut finished_paths: Vec<ReindeerPath> = vec![];
+    let mut paths: HashSet<ReindeerPath> = HashSet::from([ReindeerPath {
+        path:  vec![start.clone()],
+        score: 0,
+    }]);
+    loop {
+        let mut new_paths = HashSet::new();
+        for path in paths.iter() {
+            let reindeer = path
+                .path
+                .last()
+                .expect("Empty ReindeerPath!");
+            // Explore every possible neighbouring square
+            for (movement_cost, new_reindeer) in get_neighbours(reindeer, map) {
+                let new_score = path.score + movement_cost;
+                match best_scores.get(&new_reindeer) {
+                    // If the best score is better, discard this path,
+                    // because we know it is suboptimal
+                    Some(&best_score) if best_score < new_score => {}
+                    // If the new score is equal to or better than the best
+                    // score (or if there is no best score) then continue
+                    // exploring this path
+                    _ => {
+                        best_scores.insert(new_reindeer, new_score);
+                        let mut new_path = path.clone();
+                        new_path.path.push(new_reindeer);
+                        new_path.score = new_score;
+                        if map.get(&new_reindeer.position) == Some(&END) {
+                            finished_paths.push(new_path);
+                        } else {
+                            new_paths.insert(new_path);
+                        }
+                    }
+                }
+            }
+        }
+        if new_paths.len() == 0 {
+            break;
+        }
+        paths = new_paths;
+    }
+    // There may be multiple reindeer that arrived at the end square in
+    // different orientations. We are interested in the minimum score.
+    let best_score = best_scores
+        .into_iter()
+        .filter(|(reindeer, _)| reindeer.position == *end)
+        .min_by_key(|(_, score)| *score)
+        .map(|(_, score)| score)?;
+
+    // Return all the paths that have the best score
+    Some(
+        finished_paths
+            .into_iter()
+            .filter(|path| path.score == best_score)
+            .collect(),
+    )
+}
+#[derive(PartialEq, Eq, Hash, Debug, Clone)]
+struct ReindeerPath {
+    path:  Vec<Reindeer>,
+    score: usize,
 }
 /// Use Dijkstra's algorithm to find the shortest path (by steps and turn
 /// weighting) from S to E. The reindeer always starts facing East.
@@ -160,7 +258,8 @@ mod tests {
     }
     #[test]
     fn test_part2() {
-        assert_eq!(part2(EXAMPLE), 0);
+        assert_eq!(part2(EXAMPLE), 45);
+        assert_eq!(part2(EXAMPLE2), 64);
     }
 }
 const EXAMPLE: &str = "###############
