@@ -134,6 +134,20 @@ impl<T> SparseMatrix<T> {
         ((xmin, xmax), (ymin, ymax))
     }
 }
+impl<T: PartialEq> SparseMatrix<T> {
+    /// Get the coord of the given value, if the value is present
+    pub fn locate(&self, needle: T) -> Option<&Coord> {
+        self.iter().find_map(
+            |(coord, value)| {
+                if value == &needle {
+                    Some(coord)
+                } else {
+                    None
+                }
+            },
+        )
+    }
+}
 /// This allows us to call the HashMap methods directly on the SparseMatrix.
 /// E.g.:
 ///
@@ -217,24 +231,18 @@ impl Direction {
             East => North,
         }
     }
-    pub fn arrow(&self) -> char {
+    pub fn char(&self) -> char {
         match self {
-            North => '^',
-            West => '<',
-            South => 'v',
             East => '>',
+            West => '<',
+            North => '^',
+            South => 'v',
         }
     }
 }
 impl Display for Direction {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let ch = match self {
-            Self::East => '>',
-            Self::West => '<',
-            Self::North => '^',
-            Self::South => 'v',
-        };
-        write!(f, "{ch}")
+        write!(f, "{}", self.char())
     }
 }
 
@@ -285,4 +293,14 @@ mod tests {
         assert_eq!(previous, None);
         assert_eq!(matrix.len(), 1);
     }
+
+    #[test]
+    fn test_locate() {
+        let matrix: SparseMatrix<char> = EXAMPLE.into();
+        assert_eq!(matrix.locate('O'), Some(&Coord(6, 7)));
+        // If there are multiple #s, it will return a random one
+        assert!(matrix.locate('#').is_some());
+        assert_eq!(matrix.locate('X'), None);
+    }
 }
+

@@ -4,44 +4,34 @@ use std::{
     time::Duration,
 };
 
-use crate::utils::{Coord, Direction, SparseMatrix};
+use crate::utils::{shade, Coord, Direction, SparseMatrix};
 
 pub fn part1(input: &str) -> usize {
-    let maze: SparseMatrix<char> = input.into();
+    let map: SparseMatrix<char> = input.into();
     let start = Reindeer {
-        position:  maze
-            .iter()
-            .find_map(
-                |(coord, ch)| if ch == &START { Some(coord) } else { None },
-            )
-            .expect("No 'S' square in maze!")
-            .clone(),
+        position:  *map
+            .locate(START)
+            .expect("No 'S' square in maze!"),
         direction: Direction::East,
     };
-    let end = maze
-        .iter()
-        .find_map(|(coord, ch)| if ch == &END { Some(coord) } else { None })
+    let end = map
+        .locate(END)
         .expect("No 'E' square in maze!");
-    dijkstra(&start, end, &maze).expect("No path from S to E!")
+    dijkstra(&start, end, &map).expect("No path from S to E!")
 }
 pub fn part2(input: &str) -> usize {
     let map: SparseMatrix<char> = input.into();
     let start = Reindeer {
-        position:  map
-            .iter()
-            .find_map(
-                |(coord, ch)| if ch == &START { Some(coord) } else { None },
-            )
-            .expect("No 'S' square in maze!")
-            .clone(),
+        position:  *map
+            .locate(START)
+            .expect("No 'S' square in maze!"),
         direction: Direction::East,
     };
     let end = map
-        .iter()
-        .find_map(|(coord, ch)| if ch == &END { Some(coord) } else { None })
+        .locate(END)
         .expect("No 'E' square in maze!");
     let best_paths =
-        find_all_best_paths(&start, end, &map).expect("No best paths found!");
+        find_all_best_paths(&start, end, &map).expect("No path from S to E!");
     let mut tiles: HashSet<Coord> = HashSet::new();
     for path in best_paths {
         tiles.extend(
@@ -63,7 +53,7 @@ fn find_all_best_paths(
     // used to kill bad paths early.
     let mut best_scores: HashMap<Reindeer, usize> =
         HashMap::from([(start.clone(), 0)]);
-    let mut finished_paths: Vec<ReindeerPath> = vec![];
+    let mut best_paths: HashSet<ReindeerPath> = HashSet::new();
     let mut paths: HashSet<ReindeerPath> = HashSet::from([ReindeerPath {
         path:  vec![start.clone()],
         score: 0,
@@ -71,6 +61,16 @@ fn find_all_best_paths(
     loop {
         let mut new_paths = HashSet::new();
         for path in paths.iter() {
+            // Fail fast: if there exists a path to the end, and its score is
+            // better than the current path's score, stop exploring the current
+            // path
+            match best_paths.iter().next() {
+                Some(best_path) if best_path.score < path.score => {
+                    continue;
+                }
+                _ => {}
+            }
+
             let reindeer = path
                 .path
                 .last()
@@ -91,7 +91,23 @@ fn find_all_best_paths(
                         new_path.path.push(new_reindeer);
                         new_path.score = new_score;
                         if map.get(&new_reindeer.position) == Some(&END) {
-                            finished_paths.push(new_path);
+                            match best_paths.iter().next() {
+                                // If there's already a better complete path to
+                                // the end, don't save this one.
+                                Some(best_path)
+                                    if best_path.score < new_score => {}
+                                // If there's already a complete path with the
+                                // same score, add the new path to the set.
+                                Some(best_path)
+                                    if best_path.score == new_score =>
+                                {
+                                    best_paths.insert(new_path);
+                                }
+                                // If no existing complete path exists yet, or
+                                // the new path beats the record, reset the
+                                // best_paths set
+                                _ => best_paths = HashSet::from([new_path]),
+                            }
                         } else {
                             new_paths.insert(new_path);
                         }
@@ -104,21 +120,20 @@ fn find_all_best_paths(
         }
         paths = new_paths;
     }
-    // There may be multiple reindeer that arrived at the end square in
-    // different orientations. We are interested in the minimum score.
-    let best_score = best_scores
-        .into_iter()
-        .filter(|(reindeer, _)| reindeer.position == *end)
-        .min_by_key(|(_, score)| *score)
-        .map(|(_, score)| score)?;
 
-    // Return all the paths that have the best score
-    Some(
-        finished_paths
-            .into_iter()
-            .filter(|path| path.score == best_score)
-            .collect(),
-    )
+    if true {
+        println!("Num paths to end: {}", best_paths.len());
+        let mut new_map = SparseMatrix {
+            contents: map.contents.clone(),
+        };
+        for (ii, path) in best_paths.iter().enumerate() {
+            for reindeer in path.path.iter() {
+                new_map.insert(reindeer.position, shade::FULL);
+            }
+        }
+        println!("{new_map}");
+    }
+    Some(best_paths.into_iter().collect())
 }
 #[derive(PartialEq, Eq, Hash, Debug, Clone)]
 struct ReindeerPath {
@@ -201,10 +216,7 @@ fn print_stuff(
         }
     }
     for reindeer in frontier {
-        printable.insert(
-            reindeer.position,
-            format!("{}", reindeer.direction.arrow()),
-        );
+        printable.insert(reindeer.position, format!("{}", reindeer.direction));
     }
     println!("{printable}");
 }

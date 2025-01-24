@@ -7,3 +7,11 @@ mod sparse_matrix;
 // I guess this is equivalent to python's `from .loading import *`
 pub use loading::*;
 pub use sparse_matrix::{Coord, Direction, SparseMatrix};
+
+// Useful for drawing
+pub mod shade {
+    pub const LIGHT: char = '░';
+    pub const MEDIUM: char = '▒';
+    pub const DARK: char = '▓';
+    pub const FULL: char = '█';
+}
