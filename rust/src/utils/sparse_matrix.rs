@@ -134,6 +134,19 @@ impl<T> SparseMatrix<T> {
         ((xmin, xmax), (ymin, ymax))
     }
 }
+impl<T: Clone> SparseMatrix<T> {
+    /// Insert the same value at many Coords. The `IntoIterator` makes it such
+    /// that we can pass a Vec<Coord> but also a HashSet<Coord>.
+    pub fn insert_many(
+        &mut self,
+        coords: impl IntoIterator<Item = Coord>,
+        value: T,
+    ) {
+        for coord in coords {
+            self.insert(coord.clone(), value.clone());
+        }
+    }
+}
 impl<T: PartialEq> SparseMatrix<T> {
     /// Get the coord of the given value, if the value is present
     pub fn locate(&self, needle: T) -> Option<&Coord> {
@@ -303,4 +316,3 @@ mod tests {
         assert_eq!(matrix.locate('X'), None);
     }
 }
-
