@@ -1,23 +1,53 @@
-use std::{
-    collections::{HashMap, HashSet},
-    iter::repeat,
-};
-
-use regex::bytes;
-
 use crate::utils::{Coord, SparseMatrix};
+use std::collections::{HashMap, HashSet};
 
 pub fn part1(input: &str) -> usize {
-    do_the_thing(input, 70, 1024)
+    find_shortest_distance(input, 70, 1024)
 }
-pub fn part2(input: &str) -> usize {
-    0
+pub fn part2(input: &str) -> String {
+    let blocking_coord = find_first_blocking_byte(input, 70, 1024);
+    format!("{},{}", blocking_coord.0, blocking_coord.1)
 }
-/// Construct the maze and find the shortest distance from start to finish
-fn do_the_thing(input: &str, grid_size: i64, n_bytes: usize) -> usize {
+/// TODO: Optimisation: find all the possible paths once, and then find the
+/// first byte that blocks all of them
+fn find_first_blocking_byte(
+    input: &str,
+    grid_size: i64,
+    non_blocking_bytes: usize, /* the number of bytes we know won't block
+                                * the way */
+) -> Coord {
     let unsafe_bytes = parse(input);
     let mut map = make_matrix(grid_size + 1);
-    drop_bytes(unsafe_bytes, &mut map, n_bytes);
+    let start = Coord(0, 0);
+    let end = Coord(grid_size, grid_size);
+    for (ii, coord) in unsafe_bytes.into_iter().enumerate() {
+        map.insert(coord, CORRUPTED);
+        // don't bother finding paths for bytes we know to be non-blocking.
+        if ii < non_blocking_bytes {
+            continue;
+        }
+        let distances = dijkstra(start, &map);
+        if distances.get(&end).is_none() {
+            return coord;
+        }
+    }
+    unreachable!()
+}
+/// Construct the maze and find the shortest distance from start to finish
+fn find_shortest_distance(
+    input: &str,
+    grid_size: i64,
+    n_bytes: usize,
+) -> usize {
+    let unsafe_bytes = parse(input);
+    let mut map = make_matrix(grid_size + 1);
+    for idx in 0..n_bytes {
+        let coord = match unsafe_bytes.get(idx) {
+            Some(coord) => coord.clone(),
+            None => break,
+        };
+        map.insert(coord, CORRUPTED);
+    }
     let start = Coord(0, 0);
     let end = Coord(grid_size, grid_size);
     let distances = dijkstra(start, &map);
@@ -64,13 +94,6 @@ fn dijkstra(start: Coord, map: &SparseMatrix<char>) -> HashMap<Coord, usize> {
                 }
             }
         }
-        // {
-        //     let mut printable = SparseMatrix {
-        //         contents: map.contents.clone(),
-        //     };
-        //     printable.insert_many(new_frontier.clone(), 'O');
-        //     println!("\n{printable}");
-        // }
         if new_frontier.len() == 0 {
             break;
         }
@@ -100,28 +123,16 @@ fn parse(input: &str) -> Vec<Coord> {
         })
         .collect()
 }
-/// Simulate the bytes falling at the given coordinates to build the maze
-fn drop_bytes(
-    unsafe_bytes: Vec<Coord>,
-    map: &mut SparseMatrix<char>,
-    n: usize, // number of bytes to simulate
-) -> Option<()> {
-    for idx in 0..n {
-        let coord = unsafe_bytes.get(idx)?.clone();
-        map.insert(coord, CORRUPTED);
-    }
-    Some(())
-}
 #[cfg(test)]
 mod tests {
     use super::*;
     #[test]
     fn test_part1() {
-        assert_eq!(do_the_thing(EXAMPLE, 6, 12), 22);
+        assert_eq!(find_shortest_distance(EXAMPLE, 6, 12), 22);
     }
     #[test]
     fn test_part2() {
-        assert_eq!(part2(EXAMPLE), 0);
+        assert_eq!(find_first_blocking_byte(EXAMPLE, 6, 12), Coord(6, 1));
     }
 }
 const EXAMPLE: &str = "5,4
