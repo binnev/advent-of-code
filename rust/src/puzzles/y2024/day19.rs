@@ -1,23 +1,18 @@
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 pub fn part1(input: &str) -> usize {
     let (available_parts, desired_patterns) = parse(input).unwrap();
-    let mut out = 0;
-    for desired in desired_patterns {
-        if has_solutions(desired, &available_parts) {
-            out += 1;
-        }
-    }
-    out
+    desired_patterns
+        .into_iter()
+        .filter(|desired| has_solutions(desired, &available_parts))
+        .count()
 }
 pub fn part2(input: &str) -> usize {
     let (available_parts, desired_patterns) = parse(input).unwrap();
-    let mut out = 0;
-    for desired in desired_patterns {
-        let solutions = get_solutions(desired, &available_parts);
-        out += solutions.len();
-    }
-    out
+    desired_patterns
+        .into_iter()
+        .map(|desired| get_num_solutions(desired, &available_parts))
+        .sum()
 }
 fn has_solutions(desired: &str, available_parts: &Vec<&str>) -> bool {
     let mut options = HashSet::from([desired]);
@@ -80,53 +75,36 @@ fn has_solutions(desired: &str, available_parts: &Vec<&str>) -> bool {
 ///
 /// We don't need to actually give the solution parts, we just need the solution
 /// _count_.
-fn get_solutions<'a, 'd>(
+fn get_num_solutions<'a, 'd>(
     desired: &'d str,
     available_parts: &Vec<&'a str>,
-) -> HashSet<Vec<&'a str>> {
-    println!("\nFinding solutions for {desired}\n");
-    let start = PotentialSolution {
-        remainder: desired,
-        parts:     vec![],
-    };
-    let mut potential_solutions = HashSet::from([start]);
-    let mut solutions = HashSet::new(); // completed solutions
-    while potential_solutions.len() > 0 {
-        println!("potential solutions:");
-        for s in potential_solutions.iter() {
-            println!("{:?}", s.parts);
-        }
-        if potential_solutions.len() > 10 {
-            break;
-        }
-        let mut continue_investigating = HashSet::new();
-        for solution in potential_solutions.iter() {
+) -> usize {
+    let mut out = 0; // number of ways we can create the desired pattern
+    let mut solutions: HashMap<String, usize> = HashMap::from([("".into(), 1)]);
+    while solutions.len() > 0 {
+        let mut new_solutions = HashMap::new();
+        // e.g. ("rg", 2) because [r, g], [rg]
+        // or   ("r", 1)  because [r]
+        for (solution, count) in solutions {
+            // e.g. "g"
+            // or   "gg"
             for part in available_parts {
-                // If one of the available parts can be subtracted from the
-                // start of the desired pattern
-                if let Some(trimmed) = solution.remainder.strip_prefix(part) {
-                    let mut new_solution = solution.clone();
-                    new_solution.remainder = trimmed;
-                    new_solution.parts.push(part);
-                    // If we've found a complete solution, add it to the output.
-                    // If there is still some of the pattern left, continue
-                    // investigating.
-                    if trimmed.len() == 0 {
-                        solutions.insert(new_solution);
-                    } else {
-                        continue_investigating.insert(new_solution);
-                    }
+                // e.g. "rgg" from [r, g, g] or [rg, g]
+                // or   "rgg" from [r, gg]
+                let new = solution.clone() + part;
+                if desired == new {
+                    out += count;
+                } else if desired.starts_with(&new) {
+                    new_solutions
+                        .entry(new)
+                        .and_modify(|e| *e += count)
+                        .or_insert(count);
                 }
             }
-            // If we get here then none of the parts matched, so the solution is
-            // not viable and it is dropped.
         }
-        potential_solutions = continue_investigating;
+        solutions = new_solutions;
     }
-    solutions
-        .into_iter()
-        .map(|solution| solution.parts)
-        .collect()
+    out
 }
 #[derive(PartialEq, Eq, Hash, Clone, Debug)]
 struct PotentialSolution<'a, 'd> {
@@ -156,10 +134,7 @@ mod tests {
         let desired = "brr";
         let available_parts = vec!["br", "b", "r"];
         // [br, r] and [b, r, r] are both possible.
-        assert_eq!(
-            get_solutions(desired, &available_parts),
-            HashSet::from([vec!["br", "r"], vec!["b", "r", "r"],]),
-        );
+        assert_eq!(get_num_solutions(desired, &available_parts), 2);
     }
 }
 const EXAMPLE: &str = "r, wr, b, g, bwu, rb, gb, br

@@ -39,6 +39,7 @@ use test_case::test_case;
 #[test_case("2024/day18", y2024::day18::part1, 454)]
 #[test_case("2024/day18", y2024::day18::part2, "8,51")]
 #[test_case("2024/day19", y2024::day19::part1, 353)]
+#[test_case("2024/day19", y2024::day19::part2, 880877787214477)]
 fn test_2024<Output, Expected>(
     day: &str,
     func: fn(&str) -> Output,
