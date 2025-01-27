@@ -5,8 +5,10 @@ pub fn part1(input: &str) -> String {
     let rx = Regex::new("\\d").unwrap();
     let mut result = 0;
     for line in input.lines() {
-        let digits: Vec<&str> =
-            rx.find_iter(line).map(|digit| digit.as_str()).collect();
+        let digits: Vec<&str> = rx
+            .find_iter(line)
+            .map(|digit| digit.as_str())
+            .collect();
         result += format!("{}{}", digits[0], digits[digits.len() - 1])
             .parse::<i32>()
             .unwrap();
@@ -34,7 +36,9 @@ pub fn part2(input: &str) -> String {
             .collect();
         let left = digits[0];
         let right = digits[digits.len() - 1];
-        result += format!("{left}{right}").parse::<i32>().unwrap();
+        result += format!("{left}{right}")
+            .parse::<i32>()
+            .unwrap();
     }
     return result.to_string();
 }
@@ -59,12 +63,12 @@ fn regex_magic(s: &str) -> Vec<&str> {
     return matches;
 }
 
-const EXAMPLE1: &str = "1abc2
+pub const EXAMPLE1: &str = "1abc2
 pqr3stu8vwx
 a1b2c3d4e5f
 treb7uchet";
 
-const EXAMPLE2: &str = "two1nine
+pub const EXAMPLE2: &str = "two1nine
 eightwothree
 abcone2threexyz
 xtwone3four

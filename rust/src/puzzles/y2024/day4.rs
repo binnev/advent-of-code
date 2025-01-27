@@ -30,9 +30,9 @@ fn count_xmas(haystack: &Vec<String>) -> usize {
 /// Return true if there is an X-MAS, with the 'A' centered on 'xy'
 /// "X-MAS" here means "an X of MAS":
 ///
-///     M.S
-///     .A.
-///     M.S
+/// M.S
+/// .A.
+/// M.S
 fn search_xmas_here(grid: &Vec<String>, xy: (i32, i32)) -> bool {
     let (x, y) = xy;
     let top_left = (x - 1, y - 1);

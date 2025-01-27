@@ -164,8 +164,8 @@ impl<T: PartialEq> SparseMatrix<T> {
 /// This allows us to call the HashMap methods directly on the SparseMatrix.
 /// E.g.:
 ///
-///     let matrix = SparseMatrix::new();
-///     matrix.insert(coord, '#');
+/// let matrix = SparseMatrix::new();
+/// matrix.insert(coord, '#');
 impl<T> Deref for SparseMatrix<T> {
     type Target = HashMap<Coord, T>;
     fn deref(&self) -> &Self::Target {

@@ -137,7 +137,7 @@ mod tests {
         assert_eq!(get_num_solutions(desired, &available_parts), 2);
     }
 }
-const EXAMPLE: &str = "r, wr, b, g, bwu, rb, gb, br
+pub const EXAMPLE: &str = "r, wr, b, g, bwu, rb, gb, br
 
 brwrr
 bggr

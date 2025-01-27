@@ -36,7 +36,7 @@ fn parsing(input: &str) -> (Vec<usize>, Vec<usize>) {
     }
     (left_list, right_list)
 }
-const EXAMPLE: &str = "3   4
+pub const EXAMPLE: &str = "3   4
 4   3
 2   5
 1   3

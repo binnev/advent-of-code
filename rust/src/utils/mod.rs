@@ -15,3 +15,23 @@ pub mod shade {
     pub const DARK: char = '▓';
     pub const FULL: char = '█';
 }
+
+/// Given a path to a function like `y2024::day1::part1`, expand it to the path
+/// plus the stringified version of it:
+///     (y2024::day1::part1, "y2024::day1::part1")
+///
+/// Useful for DRYing up test cases.
+#[macro_export]
+macro_rules! expand {
+    ($path:path) => {
+        ($path, stringify!($path))
+    };
+}
+/// "y2024::day1::part1" -> ("2024", "day1", "part1")
+pub fn split_path(name: &str) -> (&str, &str, &str) {
+    let parts: Vec<_> = name.split("::").collect();
+    let year = parts[0].trim_start_matches("y");
+    let day = parts[1];
+    let part = parts[2];
+    (year, day, part)
+}

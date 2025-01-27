@@ -9,3 +9,14 @@ edition = "2021"
 itertools = "0.13.0"
 regex = "1.10.2"
 test-case = "*"
+
+[dev-dependencies]
+criterion = { version = "0.5", features = ["html_reports"] }
+
+[[bench]]
+name = "bench_puzzles"
+harness = false
+
+[[bench]]
+name = "bench_examples"
+harness = false
