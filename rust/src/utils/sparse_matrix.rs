@@ -55,6 +55,13 @@ impl Coord {
         }
         out
     }
+    /// Return the taxicab distance (number of steps in x and y) from self to
+    /// other.
+    pub fn taxicab_dist_to(&self, other: &Coord) -> u64 {
+        let dx = self.0.abs_diff(other.0);
+        let dy = self.1.abs_diff(other.1);
+        dx + dy
+    }
 }
 impl std::ops::Add for Coord {
     type Output = Self;

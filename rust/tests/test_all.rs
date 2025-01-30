@@ -48,6 +48,7 @@ use test_case::test_case;
 #[test_case(expand!(y2024::day19::part1), 353)]
 #[test_case(expand!(y2024::day19::part2), 880877787214477)]
 #[test_case(expand!(y2024::day20::part1), 1448)]
+#[test_case(expand!(y2024::day20::part2), 1017615)]
 fn test_puzzles<Output, Expected>(
     (func, name): (fn(&str) -> Output, &str),
     expected: Expected,

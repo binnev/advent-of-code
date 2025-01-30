@@ -14,25 +14,37 @@ pub fn part1(input: &str) -> usize {
     let end = map.locate('E').unwrap();
     let distances_to_end =
         dijkstra(end, &map, get_neighbours_and_movement_cost);
-    let cheats = find_cheats(&map, &distances_to_end);
+    let cheats = find_cheats(&map, &distances_to_end, 2);
     cheats
         .iter()
-        .filter(|(_, _, picoseconds_saved)| picoseconds_saved >= &100)
+        .filter(|(_, _, score)| score >= &100)
         .count()
 }
 pub fn part2(input: &str) -> usize {
-    0
+    let map: SparseMatrix<char> = input.into();
+    let start = map.locate('S').unwrap();
+    let end = map.locate('E').unwrap();
+    let distances_to_end =
+        dijkstra(end, &map, get_neighbours_and_movement_cost);
+    let cheats = find_cheats(&map, &distances_to_end, 20);
+    cheats
+        .iter()
+        .filter(|(_, _, score)| score >= &100)
+        .count()
 }
 
 // Find all the possible "cheats": (start, end, picoseconds saved).
 fn find_cheats(
     map: &SparseMatrix<char>,
     distances_to_end: &HashMap<Coord, usize>,
+    cheat_distance: usize,
 ) -> Vec<(Coord, Coord, usize)> {
     let mut cheats = vec![];
     for (&from, current_distance) in distances_to_end {
-        for to in get_cheat_squares(from, map) {
-            let cheat_distance = distances_to_end.get(&to).unwrap();
+        for to in get_cheat_squares(from, map, cheat_distance) {
+            let cheat_distance = distances_to_end
+                .get(&to)
+                .expect(&format!("Couldn't find distance for {to:?}"));
             if current_distance > cheat_distance {
                 let score = get_cheat_score(from, to, distances_to_end);
                 cheats.push((from, to, score));
@@ -41,33 +53,63 @@ fn find_cheats(
     }
     cheats
 }
-/// These are the cheat squares available from H:
-/// ...C...
-/// ...#...
-/// .C#H#C.
-/// ...#...
-/// ...C...
-fn get_cheat_squares(from: Coord, map: &SparseMatrix<char>) -> Vec<Coord> {
-    let mut cheats = vec![];
-    for (first, second) in [
-        (from.north(), from.north().north()),
-        (from.east(), from.east().east()),
-        (from.south(), from.south().south()),
-        (from.west(), from.west().west()),
-    ] {
-        if !is_empty(first, map) && is_empty(second, map) {
-            cheats.push(second);
+/// Do a mini BFS outwards from the `from` square, up to the max allowable
+/// distance
+/// .................
+/// ........3........
+/// .......323.......
+/// ......32123......
+/// .....321F123.....
+/// ......32123......
+/// .......323.......
+/// ........3........
+/// .................
+fn get_cheat_squares(
+    from: Coord,
+    map: &SparseMatrix<char>,
+    max_distance: usize,
+) -> HashSet<Coord> {
+    // Do a mini BFS to
+    // 1. find all nearby squares within `max_distance`
+    // 2. find all reachable squares within `max_distance`
+    let mut nearby = HashSet::from([from]); // all squares within `max_distance`
+    let mut reachable = HashSet::from([from]); // _reachable_ squares within `max_distance`
+    let mut nearby_frontier = nearby.clone();
+    let mut reachable_frontier = reachable.clone();
+    let mut dist = 1;
+    while dist <= max_distance {
+        let mut nearby_neighbours = HashSet::new();
+        for coord in nearby_frontier {
+            nearby_neighbours.extend(coord.neighbours());
         }
+        nearby_frontier = nearby_neighbours;
+        nearby.extend(&nearby_frontier);
+
+        let mut reachable_neighbours = HashSet::new();
+        for coord in reachable_frontier {
+            reachable_neighbours.extend(get_empty_neighbours(coord, map));
+        }
+        reachable_frontier = reachable_neighbours;
+        reachable.extend(&reachable_frontier);
+        dist += 1;
     }
-    cheats
+
+    nearby
+        .into_iter()
+        // Filter for empty squares that are in the map
+        .filter(|coord| is_empty(*coord, map))
+        // Filter out reachable coords because they are not cheats.
+        .filter(|coord| !reachable.contains(coord))
+        .collect()
 }
+/// Return true if the coord is in the map and the value is not a wall
 fn is_empty(coord: Coord, map: &SparseMatrix<char>) -> bool {
     match map.get(&coord) {
         Some(value) if value != &WALL => true,
         _ => false,
     }
 }
-fn get_neighbours(node: Coord, map: &SparseMatrix<char>) -> Vec<Coord> {
+fn get_empty_neighbours(node: Coord, map: &SparseMatrix<char>) -> Vec<Coord> {
     node.neighbours()
         .into_iter()
         .filter(|neighbour| match map.get(neighbour) {
@@ -81,7 +123,7 @@ fn get_neighbours_and_movement_cost(
     map: &SparseMatrix<char>,
 ) -> Vec<(Coord, usize)> {
     let movement_cost = 1;
-    get_neighbours(node, map)
+    get_empty_neighbours(node, map)
         .into_iter()
         .map(|neighbour| (neighbour, movement_cost))
         .collect()
@@ -93,9 +135,10 @@ fn get_cheat_score(
     to: Coord,
     distances_to_end: &HashMap<Coord, usize>,
 ) -> usize {
+    let dist = from.taxicab_dist_to(&to) as usize;
     distances_to_end.get(&from).unwrap()
         - distances_to_end.get(&to).unwrap()
-        - 2 // because we spend 2 moving through the wall
+        - dist // because we spend movement going through the wall
 }
 /// Generic Dijkstra implementation to find the distance from the start to every
 /// reachable square in the map
@@ -166,28 +209,53 @@ mod tests {
         let end = map.locate('E').unwrap();
         let distances_to_end =
             dijkstra(end, &map, get_neighbours_and_movement_cost);
-        let cheats = find_cheats(&map, &distances_to_end);
-        let mut n_cheats_per_saving = HashMap::new();
+
+        // Part 1: cheat distance = 2
+        let cheats = find_cheats(&map, &distances_to_end, 2);
+        let mut savings = HashMap::new();
         for (_, _, score) in cheats {
-            n_cheats_per_saving
+            savings
                 .entry(score)
                 .and_modify(|e| *e += 1)
                 .or_insert(1);
         }
-        let expected = HashMap::from([
-            (2, 14), // There are 14 cheats that save 2 picoseconds.
-            (4, 14), // There are 14 cheats that save 4 picoseconds.
-            (6, 2),  // There are 2 cheats that save 6 picoseconds.
-            (8, 4),  // There are 4 cheats that save 8 picoseconds.
-            (10, 2), // There are 2 cheats that save 10 picoseconds.
-            (12, 3), // There are 3 cheats that save 12 picoseconds.
-            (20, 1), // There is one cheat that saves 20 picoseconds.
-            (36, 1), // There is one cheat that saves 36 picoseconds.
-            (38, 1), // There is one cheat that saves 38 picoseconds.
-            (40, 1), // There is one cheat that saves 40 picoseconds.
-            (64, 1), // There is one cheat that saves 64 picoseconds.
-        ]);
-        assert_eq!(n_cheats_per_saving, expected);
+        assert_eq!(savings[&2], 14); // There are 14 cheats that save 2 picoseconds.
+        assert_eq!(savings[&4], 14); // There are 14 cheats that save 4 picoseconds.
+        assert_eq!(savings[&6], 2); // There are 2 cheats that save 6 picoseconds.
+        assert_eq!(savings[&8], 4); // There are 4 cheats that save 8 picoseconds.
+        assert_eq!(savings[&10], 2); // There are 2 cheats that save 10 picoseconds.
+        assert_eq!(savings[&12], 3); // There are 3 cheats that save 12 picoseconds.
+        assert_eq!(savings[&20], 1); // There is one cheat that saves 20 picoseconds.
+        assert_eq!(savings[&36], 1); // There is one cheat that saves 36 picoseconds.
+        assert_eq!(savings[&38], 1); // There is one cheat that saves 38 picoseconds.
+        assert_eq!(savings[&40], 1); // There is one cheat that saves 40 picoseconds.
+        assert_eq!(savings[&64], 1); // There is one cheat that saves 64 picoseconds.
+
+        // Part 2: cheat distance = 20
+        let cheats = find_cheats(&map, &distances_to_end, 20);
+        let mut savings = HashMap::new();
+        for (_, _, score) in cheats {
+            savings
+                .entry(score)
+                .and_modify(|e| *e += 1)
+                .or_insert(1);
+        }
+        assert_eq!(savings[&50], 32); // There are 32 cheats that save 50 picoseconds.
+        assert_eq!(savings[&52], 31); // There are 31 cheats that save 52 picoseconds.
+        assert_eq!(savings[&54], 29); // There are 29 cheats that save 54 picoseconds.
+        assert_eq!(savings[&56], 39); // There are 39 cheats that save 56 picoseconds.
+        assert_eq!(savings[&58], 25); // There are 25 cheats that save 58 picoseconds.
+        assert_eq!(savings[&60], 23); // There are 23 cheats that save 60 picoseconds.
+        assert_eq!(savings[&62], 20); // There are 20 cheats that save 62 picoseconds.
+        assert_eq!(savings[&64], 19); // There are 19 cheats that save 64 picoseconds.
+        assert_eq!(savings[&66], 12); // There are 12 cheats that save 66 picoseconds.
+        assert_eq!(savings[&68], 14); // There are 14 cheats that save 68 picoseconds.
+        assert_eq!(savings[&70], 12); // There are 12 cheats that save 70 picoseconds.
+        assert_eq!(savings[&72], 22); // There are 22 cheats that save 72 picoseconds.
+        assert_eq!(savings[&74], 4); // There are 4 cheats that save 74 picoseconds.
+        assert_eq!(savings[&76], 3); // There are 3 cheats that save 76 picoseconds.
+
+        ()
     }
 
     #[test]
