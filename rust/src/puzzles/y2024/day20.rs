@@ -69,6 +69,7 @@ fn get_cheat_squares(
     map: &SparseMatrix<char>,
     max_distance: usize,
 ) -> HashSet<Coord> {
+    let mut cheats = HashSet::new();
     // Do a mini BFS to
     // 1. find all nearby squares within `max_distance`
     // 2. find all reachable squares within `max_distance`
@@ -80,7 +81,12 @@ fn get_cheat_squares(
     while dist <= max_distance {
         let mut nearby_neighbours = HashSet::new();
         for coord in nearby_frontier {
-            nearby_neighbours.extend(coord.neighbours());
+            for neighbour in coord.neighbours() {
+                if map.contains_key(&neighbour) && !nearby.contains(&neighbour)
+                {
+                    nearby_neighbours.insert(neighbour);
+                }
+            }
         }
         nearby_frontier = nearby_neighbours;
         nearby.extend(&nearby_frontier);
@@ -91,15 +97,18 @@ fn get_cheat_squares(
         }
         reachable_frontier = reachable_neighbours;
         reachable.extend(&reachable_frontier);
+
+        for coord in nearby_frontier.clone() {
+            if !reachable_frontier.contains(&coord) {
+                cheats.insert(coord);
+            }
+        }
         dist += 1;
     }
 
-    nearby
+    cheats
         .into_iter()
-        // Filter for empty squares that are in the map
         .filter(|coord| is_empty(*coord, map))
-        // Filter out reachable coords because they are not cheats.
-        .filter(|coord| !reachable.contains(coord))
         .collect()
 }
 /// Return true if the coord is in the map and the value is not a wall
