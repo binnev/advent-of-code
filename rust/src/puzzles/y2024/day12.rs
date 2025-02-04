@@ -164,11 +164,11 @@ fn get_limits(region: &HashSet<Coord>) -> ((i64, i64), (i64, i64)) {
         ((0, 0), (0, 0)) // empty region
     }
 }
-const EXAMPLE1: &str = "AAAA
+pub const EXAMPLE1: &str = "AAAA
 BBCD
 BBCC
 EEEC";
-const EXAMPLE2: &str = "RRRRIICCFF
+pub const EXAMPLE2: &str = "RRRRIICCFF
 RRRRIICCCF
 VVRRRCCFFF
 VVRCCCJFFF
@@ -178,12 +178,12 @@ VVIIICJJEE
 MIIIIIJJEE
 MIIISIJEEE
 MMMISSJEEE";
-const EXAMPLE3: &str = "EEEEE
+pub const EXAMPLE3: &str = "EEEEE
 EXXXX
 EEEEE
 EXXXX
 EEEEE";
-const EXAMPLE4: &str = "AAAAAA
+pub const EXAMPLE4: &str = "AAAAAA
 AAABBA
 AAABBA
 ABBAAA
@@ -227,9 +227,9 @@ fn explore_region(
     (region, perimeter)
 }
 
+#[cfg(test)]
 mod tests {
     use super::*;
-
     #[test]
     fn test_part1() {
         assert_eq!(part1(EXAMPLE1), 140);

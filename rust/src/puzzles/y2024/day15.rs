@@ -1,4 +1,4 @@
-use std::{collections::HashSet, fmt::Display};
+use std::collections::HashSet;
 
 use crate::utils::{Coord, Direction, SparseMatrix};
 
@@ -210,7 +210,7 @@ const BOX: char = 'O';
 const BOX_LEFT: char = '[';
 const BOX_RIGHT: char = ']';
 
-const EXAMPLE: &str = "##########
+pub const EXAMPLE: &str = "##########
 #..O..O.O#
 #......O.#
 #.OO..O.O#
@@ -231,7 +231,7 @@ vvv<<^>^v^^><<>>><>^<<><^vv^^<>vvv<>><^^v>^>vv<>v<<<<v<^v>^<^^>>>^<v<v
 <><^^>^^^<><vvvvv^v<v<<>^v<v>v<<^><<><<><<<^^<<<^<<>><<><^^^>^^<>^>v<>
 ^^>vv<^v^v<vv>^<><v<^v>^^^>>>^^vvv^>vvv<>>>^<^>>>>>^<<^v>^vvv<>^<><<v>
 v^^>>><<^^<>>^v^<v^vv<>v^<<>^<^v^v><^<<<><<^<v><v<>vv>>v><v^<vv<>v^<<^";
-const EXAMPLE_COMPLETED: &str = "##########
+pub const EXAMPLE_COMPLETED: &str = "##########
 #.O.O.OOO#
 #........#
 #OO......#
@@ -241,7 +241,7 @@ const EXAMPLE_COMPLETED: &str = "##########
 #O.....OO#
 #OO....OO#
 ##########";
-const EXAMPLE_SCALED_COMPLETED: &str = "####################
+pub const EXAMPLE_SCALED_COMPLETED: &str = "####################
 ##[].......[].[][]##
 ##[]...........[].##
 ##[]........[][][]##
@@ -251,7 +251,7 @@ const EXAMPLE_SCALED_COMPLETED: &str = "####################
 ##..@......[].[][]##
 ##......[][]..[]..##
 ####################";
-const EXAMPLE2: &str = "########
+pub const EXAMPLE2: &str = "########
 #..O.O.#
 ##@.O..#
 #...O..#
@@ -261,7 +261,7 @@ const EXAMPLE2: &str = "########
 ########
 
 <^^>>>vv<v>>v<<";
-const EXAMPLE2_COMPLETED: &str = "########
+pub const EXAMPLE2_COMPLETED: &str = "########
 #....OO#
 ##.....#
 #.....O#
@@ -269,13 +269,13 @@ const EXAMPLE2_COMPLETED: &str = "########
 #...O..#
 #...O..#
 ########";
-const GPS_EXAMPLE: &str = "#######
+pub const GPS_EXAMPLE: &str = "#######
 #...O..
 #......";
-const GPS_EXAMPLE2: &str = "##########
+pub const GPS_EXAMPLE2: &str = "##########
 ##...[]...
 ##........";
-const EXAMPLE3: &str = "#######
+pub const EXAMPLE3: &str = "#######
 #...#.#
 #.....#
 #..OO@#
@@ -284,14 +284,14 @@ const EXAMPLE3: &str = "#######
 #######
 
 <vv<<^^<<^^";
-const EXAMPLE3_SCALED: &str = "##############
+pub const EXAMPLE3_SCALED: &str = "##############
 ##......##..##
 ##..........##
 ##....[][]@.##
 ##....[]....##
 ##..........##
 ##############";
-const EXAMPLE3_SCALED_COMPLETED: &str = "##############
+pub const EXAMPLE3_SCALED_COMPLETED: &str = "##############
 ##...[].##..##
 ##...@.[]...##
 ##....[]....##

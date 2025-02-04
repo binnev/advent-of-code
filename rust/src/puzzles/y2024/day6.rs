@@ -1,6 +1,6 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 
-use crate::utils::SparseMatrix;
+use crate::utils::{Coord, Direction, Direction::*, SparseMatrix};
 
 const OBSTACLE: char = '#';
 
@@ -95,82 +95,6 @@ pub fn part1(input: &str) -> usize {
 /// - Make a function that can accept a partial path and continue iterating it
 ///   -- maybe iter_guard can continue doing this?
 
-fn scan_for_potential_obstacles(
-    map: &Map,
-    obstacle: &Coord,
-    guard_path: &Vec<Guard>,
-) -> HashSet<Coord> {
-    let mut out: HashSet<Coord> = HashSet::new();
-
-    // Scan south
-    let mut coord = obstacle.clone();
-    coord = coord.west();
-    loop {
-        coord = coord.south();
-        if !map.contains_key(&coord) {
-            break;
-        }
-        let needle = Guard {
-            position:  coord,
-            direction: WEST,
-        };
-        if guard_path.contains(&needle) {
-            out.insert(coord);
-        }
-    }
-
-    // Scan north
-    let mut coord = obstacle.clone();
-    coord = coord.east();
-    loop {
-        coord = coord.north();
-        if !map.contains_key(&coord) {
-            break;
-        }
-        let needle = Guard {
-            position:  coord,
-            direction: EAST,
-        };
-        if guard_path.contains(&needle) {
-            out.insert(coord);
-        }
-    }
-
-    // Scan west
-    let mut coord = obstacle.clone();
-    coord = coord.north();
-    loop {
-        coord = coord.west();
-        if !map.contains_key(&coord) {
-            break;
-        }
-        let needle = Guard {
-            position:  coord,
-            direction: NORTH,
-        };
-        if guard_path.contains(&needle) {
-            out.insert(coord);
-        }
-    }
-    // Scan east
-    let mut coord = obstacle.clone();
-    coord = coord.south();
-    loop {
-        coord = coord.east();
-        if !map.contains_key(&coord) {
-            break;
-        }
-        let needle = Guard {
-            position:  coord,
-            direction: SOUTH,
-        };
-        if guard_path.contains(&needle) {
-            out.insert(coord);
-        }
-    }
-    out
-}
-
 // Insert an obstacle into every square, and check if that produces an infinite
 // loop for the guard. Count the infinite loops.
 pub fn part2(input: &str) -> usize {
@@ -205,7 +129,7 @@ pub fn part2(input: &str) -> usize {
 
         let (_, result) = trace_guard(&map, new_history);
         match result {
-            TraceResult::InfiniteLoop(_) => infinite_loops += 1,
+            TraceResult::InfiniteLoop => infinite_loops += 1,
             _ => {} // do nothing for out of bounds
         }
         map.insert(obstacle_position, '.'); // remove obstacle
@@ -214,19 +138,12 @@ pub fn part2(input: &str) -> usize {
     infinite_loops
 }
 
-fn print_map(map: &Map) {
-    let matrix = SparseMatrix {
-        contents: map
-            .into_iter()
-            .map(|(k, v)| ((k.x as i64, k.y as i64).into(), *v))
-            .collect(),
-    };
-    println!("{matrix}");
-}
-
 // Iterate the guard until it either goes out of bounds or enters an infinite
 // loop
-fn trace_guard(map: &Map, history: Vec<Guard>) -> (Vec<Guard>, TraceResult) {
+fn trace_guard(
+    map: &SparseMatrix<char>,
+    history: Vec<Guard>,
+) -> (Vec<Guard>, TraceResult) {
     let mut history = history;
     // use a set for fast lookup
     let mut unique: HashSet<Guard> = history.clone().into_iter().collect();
@@ -240,23 +157,23 @@ fn trace_guard(map: &Map, history: Vec<Guard>) -> (Vec<Guard>, TraceResult) {
         iter_guard(&map, &mut guard);
         // if the guard's position is not in the map, it has gone out of bounds
         if !map.contains_key(&guard.position) {
-            return (history, TraceResult::OutOfBounds(guard.position));
+            return (history, TraceResult::OutOfBounds);
         }
         // if the guard assumes a position that we've seen before, it means
         // we've entered an infinite loop
         if unique.contains(&guard) {
-            return (history, TraceResult::InfiniteLoop(guard));
+            return (history, TraceResult::InfiniteLoop);
         }
         history.push(guard.clone());
         unique.insert(guard.clone());
     }
 }
 enum TraceResult {
-    OutOfBounds(Coord),
-    InfiniteLoop(Guard),
+    OutOfBounds,
+    InfiniteLoop,
 }
 
-const EXAMPLE: &str = "....#.....
+pub const EXAMPLE: &str = "....#.....
 .........#
 ..........
 ..#.......
@@ -267,53 +184,23 @@ const EXAMPLE: &str = "....#.....
 #.........
 ......#...";
 
-#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
-struct Coord {
-    x: i32,
-    y: i32,
-}
-impl Coord {
-    fn north(&self) -> Self {
-        let Coord { x, y } = *self;
-        Self { x, y: y - 1 }
-    }
-    fn south(&self) -> Self {
-        let Coord { x, y } = *self;
-        Self { x, y: y + 1 }
-    }
-    fn east(&self) -> Self {
-        let Coord { x, y } = *self;
-        Self { x: x + 1, y }
-    }
-    fn west(&self) -> Self {
-        let Coord { x, y } = *self;
-        Self { x: x - 1, y }
-    }
-}
-type Map = HashMap<Coord, char>;
-const NORTH: usize = 0;
-const EAST: usize = 1;
-const SOUTH: usize = 2;
-const WEST: usize = 3;
-
 #[derive(Hash, PartialEq, Eq, Clone)]
 struct Guard {
-    direction: usize,
+    direction: Direction,
     position:  Coord,
 }
 impl Guard {
     fn next_square(&self) -> Coord {
-        let Coord { x, y } = self.position; // yay, destructuring sugar
+        let Coord(x, y) = self.position; // yay, destructuring sugar
         match self.direction {
-            NORTH => Coord { x, y: y - 1 }, // y is positive down
-            EAST => Coord { x: x + 1, y },
-            SOUTH => Coord { x, y: y + 1 },
-            WEST => Coord { x: x - 1, y },
-            _ => unreachable!(),
+            North => Coord(x, y - 1), // y is positive down
+            East => Coord(x + 1, y),
+            South => Coord(x, y + 1),
+            West => Coord(x - 1, y),
         }
     }
     fn turn_right(&mut self) {
-        self.direction = (self.direction + 1) % 4;
+        self.direction = self.direction.clockwise();
     }
     fn walk(&mut self) {
         self.position = self.next_square();
@@ -322,7 +209,7 @@ impl Guard {
 
 /// Move the guard, turning if necessary. Bear in mind that we may need to turn
 /// multiple times.
-fn iter_guard(map: &Map, guard: &mut Guard) {
+fn iter_guard(map: &SparseMatrix<char>, guard: &mut Guard) {
     while map.get(&guard.next_square()) == Some(&OBSTACLE) {
         guard.turn_right();
     }
@@ -331,27 +218,24 @@ fn iter_guard(map: &Map, guard: &mut Guard) {
 
 /// Remove the guard from the map, and return its position. Assuming the guard
 /// always starts facing north
-fn remove_guard(map: &mut Map) -> Guard {
+fn remove_guard(map: &mut SparseMatrix<char>) -> Guard {
     for (coord, ch) in map.iter_mut() {
         if *ch == '^' {
             *ch = '.'; // set to empty
             return Guard {
                 position:  coord.clone(),
-                direction: NORTH,
+                direction: North,
             };
         }
     }
     unreachable!() // if no guard in map
 }
 
-fn parse(input: &str) -> HashMap<Coord, char> {
-    let mut map = HashMap::new();
+fn parse(input: &str) -> SparseMatrix<char> {
+    let mut map = SparseMatrix::new();
     for (y, row) in input.lines().enumerate() {
         for (x, ch) in row.chars().enumerate() {
-            let coord = Coord {
-                x: x as i32,
-                y: y as i32,
-            };
+            let coord = Coord(x as i64, y as i64);
             map.insert(coord, ch);
         }
     }
@@ -368,20 +252,5 @@ mod tests {
     #[test]
     fn test_part2() {
         assert_eq!(part2(EXAMPLE), 6);
-    }
-
-    #[test]
-    fn test_scan_for_potential_obstacles() {
-        let mut map = parse(EXAMPLE);
-        let guard = remove_guard(&mut map);
-        let (guard_path, _) = trace_guard(&map, vec![guard]);
-        let obstacle = Coord { x: 0, y: 8 };
-        assert_eq!(map.get(&obstacle), Some(&OBSTACLE));
-        let potential_obstacles =
-            scan_for_potential_obstacles(&map, &obstacle, &guard_path);
-        for obs in potential_obstacles.iter() {
-            println!("{obs:?}");
-        }
-        assert!(potential_obstacles.contains(&Coord { x: 7, y: 9 }));
     }
 }

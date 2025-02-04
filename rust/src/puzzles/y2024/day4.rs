@@ -161,7 +161,7 @@ fn rotate_grid_90_clockwise(grid: Vec<String>) -> Vec<String> {
     rotated_grid
 }
 
-const EXAMPLE: &str = "MMMSXXMASM
+pub const EXAMPLE: &str = "MMMSXXMASM
 MSAMXMSMSA
 AMXSXMAAMM
 MSAMASMSMX

@@ -38,7 +38,8 @@ fn evolve_stones(stones: Vec<usize>) -> Vec<usize> {
     }
     out
 }
-const EXAMPLE: &str = "125 17";
+
+pub const EXAMPLE: &str = "125 17";
 fn parse(input: &str) -> Vec<usize> {
     input
         .split_whitespace()

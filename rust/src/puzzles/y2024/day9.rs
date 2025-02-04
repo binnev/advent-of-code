@@ -12,7 +12,7 @@ pub fn part2(input: &str) -> usize {
     let checksum = compute_checksum(&disk);
     checksum
 }
-const EXAMPLE: &str = "2333133121414131402";
+pub const EXAMPLE: &str = "2333133121414131402";
 fn compute_checksum(disk: &Disk) -> usize {
     let mut out = 0;
     let mut block_start = 0;

@@ -116,7 +116,7 @@ fn parse(input: &str) -> Vec<Coord> {
         .trim()
         .lines()
         .map(|line| {
-            let mut parts: Vec<&str> = line.split(",").take(2).collect();
+            let parts: Vec<&str> = line.split(",").take(2).collect();
             let x = parts[0].parse().unwrap();
             let y = parts[1].parse().unwrap();
             Coord(x, y)
@@ -135,7 +135,7 @@ mod tests {
         assert_eq!(find_first_blocking_byte(EXAMPLE, 6, 12), Coord(6, 1));
     }
 }
-const EXAMPLE: &str = "5,4
+pub const EXAMPLE: &str = "5,4
 4,2
 4,5
 3,0

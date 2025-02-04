@@ -16,7 +16,7 @@ pub fn part1(input: &str) -> usize {
 pub fn part2(input: &str) -> usize {
     0
 }
-const EXAMPLE: &str = "47|53
+pub const EXAMPLE: &str = "47|53
 97|13
 97|61
 97|47

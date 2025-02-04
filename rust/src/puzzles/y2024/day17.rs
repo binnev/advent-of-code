@@ -48,7 +48,6 @@ fn compute(state: &mut State, program: &str) -> Option<()> {
             state.instruction += 2;
         }
     }
-    unreachable!()
 }
 fn bxl(state: &mut State, operand: usize) {
     state.b = state.b ^ operand
@@ -62,7 +61,7 @@ fn jnz(state: &mut State, operand: usize) {
         state.jumped = true;
     }
 }
-fn bxc(state: &mut State, operand: usize) {
+fn bxc(state: &mut State, _: usize) {
     state.b = state.b ^ state.c;
 }
 fn out(state: &mut State, operand: usize) {
@@ -210,12 +209,12 @@ mod tests {
         assert_eq!(state.out_string(), "");
     }
 }
-const EXAMPLE: &str = "Register A: 729
+pub const EXAMPLE: &str = "Register A: 729
 Register B: 0
 Register C: 0
 
 Program: 0,1,5,4,3,0";
-const EXAMPLE2: &str = "Register A: 2024
+pub const EXAMPLE2: &str = "Register A: 2024
 Register B: 0
 Register C: 0
 

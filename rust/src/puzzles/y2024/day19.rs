@@ -106,11 +106,6 @@ fn get_num_solutions<'a, 'd>(
     }
     out
 }
-#[derive(PartialEq, Eq, Hash, Clone, Debug)]
-struct PotentialSolution<'a, 'd> {
-    remainder: &'d str,
-    parts:     Vec<&'a str>,
-}
 fn parse(input: &str) -> Option<(Vec<&str>, Vec<&str>)> {
     let mut parts = input.split("\n\n");
     let available_parts = parts.next()?.split(", ").collect();

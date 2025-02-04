@@ -1,8 +1,4 @@
-use std::{
-    collections::{HashMap, HashSet},
-    iter, thread,
-    time::Duration,
-};
+use std::collections::{HashMap, HashSet};
 
 use crate::utils::{shade, Coord, Direction, SparseMatrix};
 
@@ -27,11 +23,8 @@ pub fn part2(input: &str) -> usize {
             .expect("No 'S' square in maze!"),
         direction: Direction::East,
     };
-    let end = map
-        .locate(END)
-        .expect("No 'E' square in maze!");
     let best_paths =
-        find_all_best_paths(&start, end, &map).expect("No path from S to E!");
+        find_all_best_paths(&start, &map).expect("No path from S to E!");
     let mut tiles: HashSet<Coord> = HashSet::new();
     for path in best_paths {
         tiles.extend(
@@ -46,7 +39,6 @@ pub fn part2(input: &str) -> usize {
 /// belong to one of the best paths.
 fn find_all_best_paths(
     start: &Reindeer,
-    end: &Coord,
     map: &SparseMatrix<char>,
 ) -> Option<Vec<ReindeerPath>> {
     // We use this to remember the best store for any given Reindeer. This is
@@ -126,7 +118,7 @@ fn find_all_best_paths(
         let mut new_map = SparseMatrix {
             contents: map.contents.clone(),
         };
-        for (ii, path) in best_paths.iter().enumerate() {
+        for path in best_paths.iter() {
             for reindeer in path.path.iter() {
                 new_map.insert(reindeer.position, shade::FULL);
             }
@@ -194,32 +186,6 @@ fn dijkstra(
         .min_by_key(|(_, score)| *score)
         .map(|(_, score)| score)
 }
-fn print_stuff(
-    map: &SparseMatrix<char>,
-    frontier: &HashSet<Reindeer>,
-    scores: &HashMap<Reindeer, usize>,
-) {
-    let mut printable: SparseMatrix<String> = SparseMatrix {
-        contents: map
-            .contents
-            .iter()
-            .map(|(coord, ch)| (coord.clone(), format!("{ch}")))
-            .collect(),
-    };
-    for (reindeer, score) in scores {
-        match map.get(&reindeer.position) {
-            Some(&START) | Some(&END) => continue,
-            _ => {
-                let turns = score / TURN_COST;
-                printable.insert(reindeer.position.clone(), format!("{turns}"));
-            }
-        }
-    }
-    for reindeer in frontier {
-        printable.insert(reindeer.position, format!("{}", reindeer.direction));
-    }
-    println!("{printable}");
-}
 /// Get the neighbouring positions available to the given reindeer, along with
 /// their costs. The results should always be new squares (i.e. not turning
 /// 90deg and staying on the same square)
@@ -274,7 +240,7 @@ mod tests {
         assert_eq!(part2(EXAMPLE2), 64);
     }
 }
-const EXAMPLE: &str = "###############
+pub const EXAMPLE: &str = "###############
 #.......#....E#
 #.#.###.#.###.#
 #.....#.#...#.#
@@ -289,7 +255,7 @@ const EXAMPLE: &str = "###############
 #.###.#.#.#.#.#
 #S..#.....#...#
 ###############";
-const EXAMPLE2: &str = "#################
+pub const EXAMPLE2: &str = "#################
 #...#...#...#..E#
 #.#.#.#.#.#.#.#.#
 #.#.#.#...#...#.#
@@ -306,7 +272,7 @@ const EXAMPLE2: &str = "#################
 #.#.#.#########.#
 #S#.............#
 #################";
-const EMPTY: char = '.';
+pub const EMPTY: char = '.';
 const WALL: char = '#';
 const START: char = 'S';
 const END: char = 'E';

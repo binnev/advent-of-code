@@ -43,7 +43,6 @@ impl Coord {
         ]
     }
     pub fn neighbours_all(&self) -> Vec<Self> {
-        let (x, y) = self.into();
         let mut out = vec![];
         for x in [-1, 0, 1] {
             for y in [-1, 0, 1] {

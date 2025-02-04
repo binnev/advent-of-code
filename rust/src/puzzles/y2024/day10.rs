@@ -236,7 +236,7 @@ mod tests {
         assert_eq!(part2(EXAMPLE), 81);
     }
 }
-const EXAMPLE: &str = "89010123
+pub const EXAMPLE: &str = "89010123
 78121874
 87430965
 96549874
@@ -244,39 +244,39 @@ const EXAMPLE: &str = "89010123
 32019012
 01329801
 10456732";
-const EXAMPLE2: &str = "10..9..
+pub const EXAMPLE2: &str = "10..9..
 2...8..
 3...7..
 4567654
 ...8..3
 ...9..2
 .....01";
-const EXAMPLE3: &str = "...0...
+pub const EXAMPLE3: &str = "...0...
 ...1...
 ...2...
 6543456
 7.....7
 8.....8
 9.....9";
-const EXAMPLE4: &str = "0123
+pub const EXAMPLE4: &str = "0123
 1234
 8765
 9876";
-const EXAMPLE5: &str = "..90..9
+pub const EXAMPLE5: &str = "..90..9
 ...1.98
 ...2..7
 6543456
 765.987
 876....
 987....";
-const EXAMPLE6: &str = ".....0.
+pub const EXAMPLE6: &str = ".....0.
 ..4321.
 ..5..2.
 ..6543.
 ..7..4.
 ..8765.
 ..9....";
-const EXAMPLE7: &str = "012345
+pub const EXAMPLE7: &str = "012345
 123456
 234567
 345678

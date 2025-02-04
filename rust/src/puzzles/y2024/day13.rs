@@ -106,7 +106,7 @@ fn parse_line_xy(line: &str) -> Option<Coord> {
     let y = caps.get(2)?.as_str().parse().ok()?;
     Some(Coord(x, y))
 }
-const EXAMPLE: &str = "Button A: X+94, Y+34
+pub const EXAMPLE: &str = "Button A: X+94, Y+34
 Button B: X+22, Y+67
 Prize: X=8400, Y=5400
 
