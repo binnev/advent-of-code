@@ -35,3 +35,22 @@ pub fn split_path(name: &str) -> (&str, &str, &str) {
     let part = parts[2];
     (year, day, part)
 }
+
+pub fn factorial(n: u64) -> u64 {
+    match n {
+        0 => 1,
+        _ => (1..=n).product(),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_factorial() {
+        for (n, expected) in [(0, 1), (1, 1), (2, 2), (3, 6), (4, 24)] {
+            assert_eq!(factorial(n), expected, "n={n}");
+        }
+    }
+}

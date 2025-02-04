@@ -62,6 +62,21 @@ impl Coord {
         let dy = self.1.abs_diff(other.1);
         dx + dy
     }
+
+    /// Use the formula for Pascal's Triangle to calculate the number of unique
+    /// paths from `self` to `other`. This assumes movemement happens using only
+    /// horizontal/vertical steps (no diagonals)
+    pub fn num_unique_paths_to(&self, other: &Coord) -> u64 {
+        if other == self {
+            return 0; // there are no paths from self to self
+        }
+        let delta = *other - *self;
+        let m = delta.0.abs() as u64;
+        let n = delta.1.abs() as u64;
+        let numerator = factorial(m + n);
+        let denominator = factorial(m) * factorial(n);
+        numerator / denominator
+    }
 }
 impl std::ops::Add for Coord {
     type Output = Self;
@@ -228,6 +243,8 @@ pub enum Direction {
     West,
 }
 use Direction::*;
+
+use super::factorial;
 impl Direction {
     pub fn is_horizontal(&self) -> bool {
         match self {
@@ -321,5 +338,50 @@ mod tests {
         // If there are multiple #s, it will return a random one
         assert!(matrix.locate('#').is_some());
         assert_eq!(matrix.locate('X'), None);
+    }
+
+    #[test]
+    fn test_num_unique_paths_to() {
+        for (from, to, expected) in [
+            // ----- edge case -----
+            (Coord(0, 0), Coord(0, 0), 0),
+            // ----- 1 path -----
+            (Coord(0, 0), Coord(0, 1), 1),
+            (Coord(0, 0), Coord(1, 0), 1),
+            (Coord(0, 0), Coord(0, -1), 1),
+            (Coord(0, 0), Coord(-1, 0), 1),
+            (Coord(0, 1), Coord(0, 0), 1),
+            (Coord(1, 0), Coord(0, 0), 1),
+            (Coord(0, -1), Coord(0, 0), 1),
+            (Coord(-1, 0), Coord(0, 0), 1),
+            // nonzero start point
+            (Coord(2, 3), Coord(2, 4), 1),
+            (Coord(2, 3), Coord(2, 2), 1),
+            (Coord(2, 3), Coord(1, 3), 1),
+            (Coord(2, 3), Coord(3, 3), 1),
+            // straight paths longer than 1 also have 1 unique path
+            (Coord(0, 0), Coord(0, 2), 1),
+            (Coord(0, 0), Coord(0, -2), 1),
+            (Coord(0, 0), Coord(2, 0), 1),
+            (Coord(0, 0), Coord(-2, 0), 1),
+            // ----- 2 paths -----
+            (Coord(0, 0), Coord(1, 1), 2),
+            (Coord(0, 0), Coord(-1, -1), 2),
+            (Coord(1, 1), Coord(0, 0), 2),
+            (Coord(1, -1), Coord(0, 0), 2),
+            // ----- 3 paths -----
+            (Coord(0, 0), Coord(1, 2), 3),
+            (Coord(0, 0), Coord(1, -2), 3),
+            (Coord(0, 0), Coord(-1, 2), 3),
+            (Coord(0, 0), Coord(-1, -2), 3),
+            // ----- more -----
+            (Coord(0, 0), Coord(3, 4), 35),
+            (Coord(0, 0), Coord(4, 3), 35),
+            (Coord(3, 4), Coord(0, 0), 35),
+            (Coord(4, 3), Coord(0, 0), 35),
+        ] {
+            let n_paths = from.num_unique_paths_to(&to);
+            assert_eq!(n_paths, expected, "failed from {:?} to {:?}", from, to);
+        }
     }
 }
