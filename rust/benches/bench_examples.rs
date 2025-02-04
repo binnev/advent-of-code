@@ -21,6 +21,7 @@ pub fn bench_examples(c: &mut Criterion) {
     bench_example(c, expand!(y2024::day3::part1), y2024::day3::EXAMPLE, 161);
     bench_example(c, expand!(y2024::day3::part2), y2024::day3::EXAMPLE, 48);
     bench_example(c, expand!(y2024::day19::part2), y2024::day19::EXAMPLE, 16);
+    bench_example(c, expand!(y2024::day20::part2), y2024::day20::EXAMPLE, 0);
 }
 
 /// Benchmark a puzzle using the example input

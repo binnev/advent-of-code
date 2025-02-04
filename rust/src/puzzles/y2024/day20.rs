@@ -17,7 +17,7 @@ pub fn part1(input: &str) -> usize {
     let cheats = find_cheats(&map, &distances_to_end, 2);
     cheats
         .iter()
-        .filter(|(_, _, score)| score >= &100)
+        .filter(|cheat| cheat.score >= 100)
         .count()
 }
 pub fn part2(input: &str) -> usize {
@@ -29,7 +29,7 @@ pub fn part2(input: &str) -> usize {
     let cheats = find_cheats(&map, &distances_to_end, 20);
     cheats
         .iter()
-        .filter(|(_, _, score)| score >= &100)
+        .filter(|cheat| cheat.score >= 100)
         .count()
 }
 
@@ -38,47 +38,83 @@ fn find_cheats(
     map: &SparseMatrix<char>,
     distances_to_end: &HashMap<Coord, usize>,
     cheat_distance: usize,
-) -> Vec<(Coord, Coord, usize)> {
+) -> Vec<Cheat> {
     let mut cheats = vec![];
-    for (&from, current_distance) in distances_to_end {
+    for (from, current_distance) in distances_to_end {
         for to in get_cheat_squares(from, map, cheat_distance) {
             let cheat_distance = distances_to_end
                 .get(&to)
                 .expect(&format!("Couldn't find distance for {to:?}"));
+            // Only consider cheats that bring us _closer_ to the finish
             if current_distance > cheat_distance {
-                let score = get_cheat_score(from, to, distances_to_end);
-                cheats.push((from, to, score));
+                cheats.push(Cheat {
+                    from: *from,
+                    to,
+                    score: get_cheat_score(from, &to, distances_to_end),
+                });
             }
         }
     }
     cheats
 }
-/// Do a mini BFS outwards from the `from` square, up to the max allowable
-/// distance
-/// .................
-/// ........3........
-/// .......323.......
-/// ......32123......
-/// .....321F123.....
-/// ......32123......
-/// .......323.......
-/// ........3........
-/// .................
+struct Cheat {
+    from:  Coord,
+    to:    Coord,
+    score: usize, // number of steps saved by taking the cheat
+}
+/// Find all the squares that are reachable by cheating (passing through walls)
+/// in __fewer steps__ than via the path. Squares that are inaccessible by the
+/// path are also allowed.
+///
+/// Optimisation: instead of BFSing along the path every time to find reachable
+/// squares, we can just use the difference in `distance_to_end`. After all, ALL
+/// the squares on the path are reachable; it's just a question of whether it
+/// takes more steps than cheating.
+///
+/// ..A
+/// .#B
+/// S#E
+///
+/// distances_to_end = {
+///     B: 1
+///     A: 2
+///     S: 6
+/// }
+///
+/// S -> A
+/// path:  4 (6 - 2)
+/// cheat: 4 (taxicab distance)
+///
+/// S -> B
+/// path:  5 (6 - 1)
+/// cheat: 3 (taxicab distance)
+///
+/// So what we could do is
+/// 1. Build a mask of all the squares reachable by cheating in `max_distance`
+///    steps. These will be our candidate squares
+/// ....x....
+/// ...xxx...
+/// ..xxSxx..
+/// ...xxx...
+/// ....x....
+///
+/// 2. For each of these squares, if the taxicab distance is less than the path
+///    distance (difference in distances_to_end), it's a valid cheat square! No
+///    BFS required!
 fn get_cheat_squares(
-    from: Coord,
+    from: &Coord,
     map: &SparseMatrix<char>,
     max_distance: usize,
 ) -> HashSet<Coord> {
     let mut cheats = HashSet::new();
-    // Do a mini BFS to
-    // 1. find all nearby squares within `max_distance`
-    // 2. find all reachable squares within `max_distance`
-    let mut nearby = HashSet::from([from]); // all squares within `max_distance`
-    let mut reachable = HashSet::from([from]); // _reachable_ squares within `max_distance`
+    let mut nearby = HashSet::from([from.clone()]); // all squares within `max_distance`
+    let mut reachable = HashSet::from([from.clone()]); // _reachable_ squares within `max_distance`
     let mut nearby_frontier = nearby.clone();
     let mut reachable_frontier = reachable.clone();
     let mut dist = 1;
     while dist <= max_distance {
+        // Find all "nearby" squares -- i.e. those reachable by x/y movement,
+        // even if we pass through walls.
         let mut nearby_neighbours = HashSet::new();
         for coord in nearby_frontier {
             for neighbour in coord.neighbours() {
@@ -91,25 +127,33 @@ fn get_cheat_squares(
         nearby_frontier = nearby_neighbours;
         nearby.extend(&nearby_frontier);
 
+        // Find all reachable squares -- i.e. those reachable by valid movement
+        // along the maze path
         let mut reachable_neighbours = HashSet::new();
         for coord in reachable_frontier {
-            reachable_neighbours.extend(get_empty_neighbours(coord, map));
+            for neighbour in get_empty_neighbours(coord, map) {
+                if !reachable.contains(&neighbour) {
+                    reachable_neighbours.insert(neighbour);
+                }
+            }
         }
         reachable_frontier = reachable_neighbours;
         reachable.extend(&reachable_frontier);
 
-        for coord in nearby_frontier.clone() {
-            if !reachable_frontier.contains(&coord) {
-                cheats.insert(coord);
-            }
-        }
+        // Any coord that is nearby but not reachable must be a cheat square,
+        // because it is reachable by taking `dist` steps (including through
+        // walls), but not reachable by taking the same number of steps
+        // on the path.
+        //
+        // Ignore "cheat squares" that are walls.
+        cheats.extend(
+            nearby_frontier
+                .difference(&reachable_frontier)
+                .filter(|coord| is_empty(**coord, map)),
+        );
         dist += 1;
     }
-
     cheats
-        .into_iter()
-        .filter(|coord| is_empty(*coord, map))
-        .collect()
 }
 /// Return true if the coord is in the map and the value is not a wall
 fn is_empty(coord: Coord, map: &SparseMatrix<char>) -> bool {
@@ -140,8 +184,8 @@ fn get_neighbours_and_movement_cost(
 /// Calculate the distance saved by taking the cheat. Bear in mind that
 /// distances are from the _end_ square.
 fn get_cheat_score(
-    from: Coord,
-    to: Coord,
+    from: &Coord,
+    to: &Coord,
     distances_to_end: &HashMap<Coord, usize>,
 ) -> usize {
     let dist = from.taxicab_dist_to(&to) as usize;
@@ -222,9 +266,9 @@ mod tests {
         // Part 1: cheat distance = 2
         let cheats = find_cheats(&map, &distances_to_end, 2);
         let mut savings = HashMap::new();
-        for (_, _, score) in cheats {
+        for cheat in cheats {
             savings
-                .entry(score)
+                .entry(cheat.score)
                 .and_modify(|e| *e += 1)
                 .or_insert(1);
         }
@@ -243,9 +287,9 @@ mod tests {
         // Part 2: cheat distance = 20
         let cheats = find_cheats(&map, &distances_to_end, 20);
         let mut savings = HashMap::new();
-        for (_, _, score) in cheats {
+        for cheat in cheats {
             savings
-                .entry(score)
+                .entry(cheat.score)
                 .and_modify(|e| *e += 1)
                 .or_insert(1);
         }
@@ -279,12 +323,45 @@ mod tests {
             (Coord(8, 7), Coord(8, 9), 38),
             (Coord(7, 7), Coord(5, 7), 64),
         ] {
-            let result = get_cheat_score(from, to, &distances_to_end);
+            let result = get_cheat_score(&from, &to, &distances_to_end);
             assert_eq!(result, expected);
         }
     }
+
+    #[test]
+    fn test_get_cheat_squares() {
+        let my_example = "###
+...
+.#.
+S##
+.#.";
+        let map: SparseMatrix<char> = my_example.into();
+        let from = map.locate('S').unwrap();
+        let cheats = get_cheat_squares(from, &map, 4);
+        // These are all reachable using the path with the same number of steps
+        // as by cheating:
+        assert!(!cheats.contains(&from.south()));
+        assert!(!cheats.contains(&from.north()));
+        assert!(!cheats.contains(&from.north().north()));
+        assert!(!cheats.contains(&from.north().north().east()));
+        assert!(!cheats.contains(&from.north().north().east().east()));
+        // This square is reachable by the path in 5 steps, but reachable by
+        // cheating in 3 steps. Therefore it's a cheat square _even though it is
+        // reachable by the path_.
+        assert!(cheats.contains(
+            &from
+                .north()
+                .north()
+                .east()
+                .east()
+                .south()
+        ));
+        // This square is not reachable at all by the path, so it is a cheat
+        // square.
+        assert!(cheats.contains(&from.east().east().south()));
+    }
 }
-const EXAMPLE: &str = "###############
+pub const EXAMPLE: &str = "###############
 #...#...#.....#
 #.#.#.#.#.###.#
 #S#...#.#.#...#
