@@ -12,6 +12,7 @@ dependencies = [
     "numpy>=2.3.5",
     "pytest>=9.0.1",
     "pytest-timeout>=2.4.0",
+    "pytest-watcher>=0.4.3",
     "redbreast>=1.1.5",
     "robingame>=0.0.12,<0.1.0",
     "ruff>=0.14.5",
@@ -24,3 +25,12 @@ line-length = 80
 [tool.pytest.ini_options]
 addopts = "-p no:cacheprovider"
 testpaths = ["tests"]
+
+[tool.pytest-watcher]
+now = true           # run tests immediately; don't wait for the first file edit
+clear = true         # clear the terminal before each test run
+delay = 0.2
+runner = "pytest"
+runner_args = []
+patterns = ["*.py"]
+ignore_patterns = []
