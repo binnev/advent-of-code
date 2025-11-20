@@ -1,9 +1,12 @@
+from typing import Any, Callable
+
 import pytest
 
 from puzzles import y2020, y2021, y2022, y2023
 from utils import load_puzzle_input
 
 pytestmark = pytest.mark.timeout(5)
+AnyFunc = Callable[..., Any]
 
 
 @pytest.mark.parametrize(
@@ -15,7 +18,7 @@ pytestmark = pytest.mark.timeout(5)
         ("2020/day2", y2020.day2.part2, 705),
     ],
 )
-def test_2020(day, func, expected_output):
+def test_2020(day: str, func: AnyFunc, expected_output: Any) -> None:
     raw = load_puzzle_input(day)
     assert func(raw) == expected_output
 
@@ -75,7 +78,7 @@ def test_2020(day, func, expected_output):
         # ("2021/day25", y2021.day25.part2, None),
     ],
 )
-def test_2021(day, func, expected_output):
+def test_2021(day: str, func: AnyFunc, expected_output: Any) -> None:
     raw = load_puzzle_input(day)
     assert func(raw) == expected_output
 
@@ -145,7 +148,7 @@ def test_2021(day, func, expected_output):
         ("2022/day25", y2022.day25.part1, "20-1-0=-2=-2220=0011"),
     ],
 )
-def test_2022(day, func, expected_output):
+def test_2022(day: str, func: AnyFunc, expected_output: Any) -> None:
     raw = load_puzzle_input(day)
     assert func(raw) == expected_output
 
@@ -187,6 +190,6 @@ def test_2022(day, func, expected_output):
         ("2023/day21", y2023.day21.part1, 3699),
     ],
 )
-def test_2023(day, func, expected_output):
+def test_2023(day: str, func: AnyFunc, expected_output: Any) -> None:
     raw = load_puzzle_input(day)
     assert func(raw) == expected_output
