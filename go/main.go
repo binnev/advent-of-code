@@ -2,10 +2,52 @@ package main
 
 import (
 	_2022 "advent/2022"
+	_2015 "advent/2015"
 	"advent/utils"
+	"fmt"
+	"os"
+	"strconv"
+	"strings"
 )
 
 func main() {
-	input := utils.LoadPuzzleInput("2022/day17")
-	utils.Profile(_2022.Day17Part1, input)
+	// Define command-line arguments for year and day
+	// TODO these have to be passed as -flags, can't be passed as positionals
+	input := os.Args[1]
+	parts := strings.Split(input, "/")
+	fmt.Println(parts)
+	if len(parts) < 3 {
+		panic(fmt.Sprintf("Didn't get enough input! Expected year/day/part, got %v", input))
+	}
+	year, err := strconv.Atoi(parts[0])
+	if err != nil {
+		panic(fmt.Sprintf("Failed to parse year from %v", year))
+	}
+	day, err := strconv.Atoi(parts[1])
+	if err != nil {
+		panic(fmt.Sprintf("Failed to parse day from %v", day))
+	}
+	part, err := strconv.Atoi(parts[2])
+	if err != nil {
+		panic(fmt.Sprintf("Failed to parse part from %v", part))
+	}
+
+	// Get the solution func
+	key := [3]int{year, day, part}
+	fn, ok := REGISTRY[key]
+	if !ok {
+		msg := fmt.Sprintf("No registry entry for %d day %d part %d", year, day, part)
+		panic(msg)
+	}
+	// Load the puzzle input
+	input_path := fmt.Sprintf("%d/day%d", year, day)
+	puzzle_input := utils.LoadPuzzleInput(input_path)
+
+	// Profile and execute the puzzle
+	utils.Profile(fn, puzzle_input)
+}
+
+var REGISTRY = map[[3]int]utils.AdventFunc{
+	{2022, 1, 1}: _2022.Day1Part1,
+	{2015, 1, 1}: _2015.Day1.Part1,
 }

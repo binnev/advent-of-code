@@ -9,6 +9,12 @@ import (
 )
 
 type AdventFunc func(string) string
+
+type Day struct {
+	Part1 AdventFunc
+	Part2 AdventFunc
+}
+
 type AdventTestCase struct {
 	Day      string
 	Func     AdventFunc
