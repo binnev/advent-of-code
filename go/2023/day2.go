@@ -1,4 +1,4 @@
-package day2
+package _2023
 
 import (
 	"advent/utils"
@@ -18,7 +18,7 @@ type Game struct {
 	hands  []RgbTuple
 }
 
-func Part1(input string) string {
+func Day2Part1(input string) string {
 	limit := RgbTuple{red: 12, green: 13, blue: 14}
 	result := 0
 	games := parse_games(input)
@@ -30,7 +30,7 @@ func Part1(input string) string {
 	return fmt.Sprint(result)
 }
 
-func Part2(input string) string {
+func Day2Part2(input string) string {
 	games := parse_games(input)
 	result := 0
 	for _, game := range games {

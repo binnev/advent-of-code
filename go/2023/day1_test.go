@@ -1,4 +1,4 @@
-package day1
+package _2023
 
 import (
 	"testing"
@@ -19,12 +19,12 @@ xtwone3four
 zoneight234
 7pqrstsixteen`
 
-func TestPart1(t *testing.T) {
-	assert.Equal(t, "142", Part1(example1))
+func TestDay1Part1(t *testing.T) {
+	assert.Equal(t, "142", Day1Part1(example1))
 }
 
-func TestPart2(t *testing.T) {
-	assert.Equal(t, "281", Part2(example2))
+func TestDay1Part2(t *testing.T) {
+	assert.Equal(t, "281", Day1Part2(example2))
 }
 
 func Test_regexMagic(t *testing.T) {

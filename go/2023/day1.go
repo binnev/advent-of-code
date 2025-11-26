@@ -1,4 +1,4 @@
-package day1
+package _2023
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func Part1(raw string) string {
+func Day1Part1(raw string) string {
 	raw = strings.TrimSpace(raw)
 	rx := regexp.MustCompile(`(\d)`)
 	result := 0
@@ -21,7 +21,7 @@ func Part1(raw string) string {
 	return fmt.Sprint(result)
 }
 
-func Part2(raw string) string {
+func Day1Part2(raw string) string {
 	digit_map := map[string]string{
 		"one":   "1",
 		"two":   "2",

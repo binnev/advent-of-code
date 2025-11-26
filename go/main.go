@@ -1,8 +1,8 @@
 package main
 
 import (
-	_2022 "advent/2022"
 	_2015 "advent/2015"
+	_2022 "advent/2022"
 	"advent/utils"
 	"fmt"
 	"os"
@@ -48,6 +48,6 @@ func main() {
 }
 
 var REGISTRY = map[[3]int]utils.AdventFunc{
+	{2015, 1, 1}: _2015.Day1Part1,
 	{2022, 1, 1}: _2022.Day1Part1,
-	{2015, 1, 1}: _2015.Day1.Part1,
 }
