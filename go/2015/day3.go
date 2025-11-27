@@ -6,19 +6,24 @@ import (
 )
 
 func Day3Part1(input string) string {
-	presents := count_presents_per_location(input)
+	presents := deliver_presents(input, 1)
 	return fmt.Sprint(len(presents))
 }
 func Day3Part2(input string) string {
-	return ""
+	presents := deliver_presents(input, 2)
+	return fmt.Sprint(len(presents))
 }
 
-func count_presents_per_location(input string) SparseMatrix {
+func deliver_presents(input string, n_workers int) SparseMatrix {
 	presents := SparseMatrix{}
-	pos := Coord{0, 0}
-	for _, arrow := range input {
-		pos = update_pos_with_arrow(pos, arrow)
-		presents[pos] += 1
+	workers := make([]Coord, n_workers)
+	for ii, arrow := range input {
+		worker_index := ii % n_workers
+		pos := workers[worker_index]
+		workers[worker_index] = update_pos_with_arrow(pos, arrow)
+		for _, pos := range workers {
+			presents[pos] += 1
+		}
 	}
 	return presents
 }
