@@ -10,17 +10,21 @@ import (
 const LIMIT = 10_000_000
 
 func Day4Part1(input string) string {
-	for ii := 0; ii < LIMIT; ii++ {
-		hash := _md5(input, ii)
-		if starts_with_five_zeroes(hash) {
-			return fmt.Sprint(ii)
-		}
-	}
-	return ""
+	return find_hash_with_n_leading_zeroes(input, 5)
 }
 
 func Day4Part2(input string) string {
-	return ""
+	return find_hash_with_n_leading_zeroes(input, 6)
+}
+
+func find_hash_with_n_leading_zeroes(input string, n int) string {
+	for ii := 0; ii < LIMIT; ii++ {
+		hash := _md5(input, ii)
+		if starts_with_n_zeroes(hash, n) {
+			return fmt.Sprint(ii)
+		}
+	}
+	panic("Reached search limit!")
 }
 
 func _md5(secret_key string, number int) string {
@@ -30,12 +34,12 @@ func _md5(secret_key string, number int) string {
 	return hex.EncodeToString(hasher.Sum(nil))
 }
 
-func starts_with_five_zeroes(s string) bool {
+func starts_with_n_zeroes(s string, n int) bool {
 	for ii, ch := range s {
 		if ch != '0' {
 			return false
 		}
-		if ii >= 4 {
+		if ii >= n-1 {
 			return true
 		}
 	}

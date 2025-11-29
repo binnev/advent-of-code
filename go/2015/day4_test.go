@@ -28,8 +28,10 @@ func Test__md5(t *testing.T) {
 }
 
 func Test_starts_with_five_zeroes(t *testing.T) {
-	assert.Equal(t, false, starts_with_five_zeroes("a"))
-	assert.Equal(t, false, starts_with_five_zeroes("0000aaaa"))
-	assert.Equal(t, true, starts_with_five_zeroes("00000aaaa"))
-	assert.Equal(t, true, starts_with_five_zeroes("000000aaaa"))
+	assert.Equal(t, false, starts_with_n_zeroes("a", 5))
+	assert.Equal(t, false, starts_with_n_zeroes("0000aaaa", 5))
+	assert.Equal(t, true, starts_with_n_zeroes("00000aaaa", 5))
+	assert.Equal(t, true, starts_with_n_zeroes("000000aaaa", 5))
+	assert.Equal(t, true, starts_with_n_zeroes("000000aaaa", 6))
+	assert.Equal(t, false, starts_with_n_zeroes("00000aaaa", 6))
 }
