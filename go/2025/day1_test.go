@@ -21,6 +21,10 @@ func Test_Day1Part1(t *testing.T) {
 	assert.Equal(t, "3", Day1Part1(example_day1))
 }
 
+func Test_Day1Part2(t *testing.T) {
+	assert.Equal(t, "6", Day1Part2(example_day1))
+}
+
 func Test_parse_dial_instruction(t *testing.T) {
 	dir, n := parse_dial_instruction("L30")
 	assert.Equal(t, Left, dir)

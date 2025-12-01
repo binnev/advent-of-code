@@ -20,7 +20,15 @@ func Day1Part1(input string) string {
 }
 
 func Day1Part2(input string) string {
-	return ""
+	dial := 50
+	zero_count := 0
+	for line := range strings.Lines(input) {
+		dir, n := parse_dial_instruction(line)
+		d, c := move_dial_count_zeros(dial, n, MAX, dir)
+		dial = d
+		zero_count += c
+	}
+	return fmt.Sprint(zero_count)
 }
 
 type Direction int
@@ -48,6 +56,18 @@ func move_dial(dial, n, max int, dir Direction) int {
 	default:
 		panic("Bad Direction!")
 	}
+}
+
+func move_dial_count_zeros(dial, n, max int, dir Direction) (int, int) {
+	// brute force yay
+	zero_count := 0
+	for ii := 0; ii < n; ii++ {
+		dial = move_dial(dial, 1, max, dir)
+		if dial == 0 {
+			zero_count++
+		}
+	}
+	return dial, zero_count
 }
 
 func parse_dial_instruction(line string) (Direction, int) {
