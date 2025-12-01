@@ -11,7 +11,7 @@ func Day1Part1(input string) string {
 	zero_count := 0
 	for line := range strings.Lines(input) {
 		dir, n := parse_dial_instruction(line)
-		dial = move_dial(dial, n, MAX, dir)
+		dial, _ = move_dial(dial, n, dir)
 		if dial == 0 {
 			zero_count++
 		}
@@ -24,7 +24,7 @@ func Day1Part2(input string) string {
 	zero_count := 0
 	for line := range strings.Lines(input) {
 		dir, n := parse_dial_instruction(line)
-		d, c := move_dial_count_zeros(dial, n, MAX, dir)
+		d, c := move_dial(dial, n, dir)
 		dial = d
 		zero_count += c
 	}
@@ -39,30 +39,24 @@ const (
 )
 const MAX = 100
 
-func move_dial(dial, n, max int, dir Direction) int {
-	// Ignore whole rotations and focus on the remainder
-	n %= max
-
-	switch dir {
-	case Right:
-		return (dial + n) % max
-	case Left:
-		if dial >= n {
-			return dial - n
-		} else {
-			remainder := n - dial
-			return max - remainder
-		}
-	default:
-		panic("Bad Direction!")
-	}
-}
-
-func move_dial_count_zeros(dial, n, max int, dir Direction) (int, int) {
-	// brute force yay
+func move_dial(dial int, n int, dir Direction) (int, int) {
 	zero_count := 0
 	for ii := 0; ii < n; ii++ {
-		dial = move_dial(dial, 1, max, dir)
+		switch dir {
+		case Right:
+			dial += 1
+			if dial >= MAX {
+				dial %= MAX
+			}
+		case Left:
+			if dial > 0 {
+				dial -= 1
+			} else {
+				dial = MAX - 1
+			}
+		default:
+			panic("Bad Direction!")
+		}
 		if dial == 0 {
 			zero_count++
 		}
