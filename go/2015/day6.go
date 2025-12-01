@@ -17,7 +17,12 @@ func Day6Part1(input string) string {
 }
 
 func Day6Part2(input string) string {
-	return ""
+	jobs := parse_light_jobs(input)
+	grid := LightGrid{}
+	for _, job := range jobs {
+		grid.change2(job.rect, job.action)
+	}
+	return fmt.Sprint(grid.count())
 }
 
 type Rect struct{ x1, y1, x2, y2 int }
@@ -34,21 +39,42 @@ const (
 )
 
 // [y][x]
-type LightGrid [1000][1000]bool
+type LightGrid [1000][1000]int
 
 func (grid *LightGrid) change(rect Rect, action LightAction) {
-	var value bool
 	for y := rect.y1; y <= rect.y2; y++ {
 		for x := rect.x1; x <= rect.x2; x++ {
+			light := &grid[y][x]
 			switch action {
 			case TurnOn:
-				value = true
+				*light = 1
 			case TurnOff:
-				value = false
+				*light = 0
 			case Toggle:
-				value = !grid[y][x]
+				if *light == 0 {
+					*light = 1
+				} else {
+					*light = 0
+				}
 			}
-			grid[y][x] = value
+		}
+	}
+}
+func (grid *LightGrid) change2(rect Rect, action LightAction) {
+	for y := rect.y1; y <= rect.y2; y++ {
+		for x := rect.x1; x <= rect.x2; x++ {
+			light := &grid[y][x]
+			switch action {
+			case TurnOn:
+				*light += 1
+			case TurnOff:
+				// decrease to a min of zero
+				if *light > 0 {
+					*light -= 1
+				}
+			case Toggle:
+				*light += 2
+			}
 		}
 	}
 }
@@ -56,9 +82,7 @@ func (grid LightGrid) count() int {
 	count := 0
 	for _, line := range grid {
 		for _, light := range line {
-			if light {
-				count++
-			}
+			count += light
 		}
 	}
 	return count
