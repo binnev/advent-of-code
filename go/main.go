@@ -61,8 +61,10 @@ var REGISTRY = map[[3]int]utils.AdventFunc{
 	{2015, 5, 2}: _2015.Day5Part2,
 	{2015, 6, 1}: _2015.Day6Part1,
 	{2015, 6, 2}: _2015.Day6Part2,
-	
+
 	// 2025
 	{2025, 1, 1}: _2025.Day1Part1,
 	{2025, 1, 2}: _2025.Day1Part2,
+	{2025, 2, 1}: _2025.Day2Part1,
+	{2025, 2, 2}: _2025.Day2Part2,
 }
