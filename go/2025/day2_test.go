@@ -14,6 +14,10 @@ func Test_Day2Part1(t *testing.T) {
 	assert.Equal(t, "33", Day2Part1("11-22"))
 }
 
+func Test_Day2Part2(t *testing.T) {
+	assert.Equal(t, "4174379265", Day2Part2(example))
+}
+
 func Test_is_id_valid(t *testing.T) {
 	testcases := []struct {
 		input    string
@@ -30,7 +34,44 @@ func Test_is_id_valid(t *testing.T) {
 			assert.Equal(t, tc.is_valid, is_id_valid(tc.input))
 		})
 	}
+}
 
+func Test_get_repeats(t *testing.T) {
+	testcases := []struct {
+		input, part string
+		expected    int
+	}{
+		{"111", "1", 3},
+		{"111", "0", 0},
+		{"118", "11", 0},
+		{"118118", "11", 0},
+		{"118118", "118", 2},
+	}
+	for _, tc := range testcases {
+		t.Run(tc.input, func(t *testing.T) {
+			assert.Equal(t, tc.expected, get_repeats(tc.input, tc.part))
+		})
+	}
+}
+
+func Test_get_repeating_parts(t *testing.T) {
+	testcases := []struct {
+		input            string
+		expected_part    string
+		expected_repeats int
+	}{
+		{"1", "1", 1},
+		{"111", "1", 3},
+		{"118", "118", 1},
+		{"118118", "118", 2},
+	}
+	for _, tc := range testcases {
+		t.Run(tc.input, func(t *testing.T) {
+			part, repeats := get_repeating_parts(tc.input)
+			assert.Equal(t, tc.expected_part, part)
+			assert.Equal(t, tc.expected_repeats, repeats)
+		})
+	}
 }
 
 func Test_get_invalid_ids(t *testing.T) {
