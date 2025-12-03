@@ -11,44 +11,46 @@ const example_day3 = `987654321111111
 234234234234278
 818181911112111`
 
+const example_day3_part2 = `987654321111111
+811111111111119
+234234234234278
+818181911112111`
+
 func TestDay3Part1(t *testing.T) {
 	assert.Equal(t, "357", Day3Part1(example_day3))
 }
 
-func Test_get_max_joltage(t *testing.T) {
-	testcases := []struct {
-		batteries string
-		expected  string
-	}{
-		{"987654321111111", "98"},
-		{"811111111111119", "89"},
-		{"234234234234278", "78"},
-		{"818181911112111", "92"},
-	}
-	for _, tc := range testcases {
-		t.Run(tc.batteries, func(t *testing.T) {
-			assert.Equal(t, tc.expected, get_max_joltage(tc.batteries))
-		})
-	}
+func TestDay3Part2(t *testing.T) {
+	assert.Equal(t, "3121910778619", Day3Part2(example_day3_part2))
 }
 
-func Test_get_max_joltage_and_rest(t *testing.T) {
+func Test_get_max_joltage(t *testing.T) {
 	testcases := []struct {
-		input         string
-		max_limit     int
-		expected_max  int
-		expected_rest string
+		input    string
+		n        int
+		expected string
 	}{
-		{"811111111111119", 9, 9, ""},
-		{"811111111111119", 8, 8, "11111111111119"},
-		{"811111111111119", 1, 1, "1111111111119"},
-		{"5432", 9, 5, "432"},
+		// Part 1 examples
+		{"987654321111111", 2, "98"},
+		{"811111111111119", 2, "89"},
+		{"234234234234278", 2, "78"},
+		{"818181911112111", 2, "92"},
+		// Part 2 examples
+		{"987654321111111", 12, "987654321111"},
+		{"811111111111119", 12, "811111111119"},
+		{"234234234234278", 12, "434234234278"},
+		{"818181911112111", 12, "888911112111"},
+		// My examples
+		{"0123456789", 1, "9"},
+		{"0123456789", 2, "89"},
+		{"0123456789", 3, "789"},
+		{"0123456789", 200, "0123456789"},
+		{"abdef", 1, "f"}, // useless, but cool side effect
+		{"abdef", 2, "ef"},
 	}
 	for _, tc := range testcases {
 		t.Run(tc.input, func(t *testing.T) {
-			max, rest := get_max_joltage_and_rest(tc.input, tc.max_limit)
-			assert.Equal(t, tc.expected_max, max)
-			assert.Equal(t, tc.expected_rest, rest)
+			assert.Equal(t, tc.expected, get_max_joltage(tc.input, tc.n))
 		})
 	}
 }

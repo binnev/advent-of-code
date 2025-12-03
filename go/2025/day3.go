@@ -1,6 +1,7 @@
 package _2025
 
 import (
+	"advent/utils"
 	"fmt"
 	"strconv"
 	"strings"
@@ -9,56 +10,48 @@ import (
 func Day3Part1(input string) string {
 	total := 0
 	for line := range strings.Lines(input) {
-		s := get_max_joltage(strings.TrimSpace(line))
+		s := get_max_joltage(strings.TrimSpace(line), 2)
 		i, _ := strconv.Atoi(s)
 		total += i
 	}
 	return fmt.Sprint(total)
 }
 func Day3Part2(input string) string {
-	return ""
+	total := 0
+	for line := range strings.Lines(input) {
+		s := get_max_joltage(strings.TrimSpace(line), 12)
+		i, _ := strconv.Atoi(s)
+		total += i
+	}
+	return fmt.Sprint(total)
 }
 
-func get_max_joltage(input string) string {
-	batteries := input
-	out := []int{}
-	max_limit := 9
+// n is the number of batteries we want to turn on
+func get_max_joltage(input string, n int) string {
+	descending_chars := utils.Reverse(utils.Sort([]rune(input)))
+	out := []rune{}
+	search_space := input
 
-	// get first char
-	for {
-		max, rest := get_max_joltage_and_rest(batteries, max_limit)
-		if len(rest) > 0 {
-			out = append(out, max)
-			batteries = rest
-			break
-		}
-		max_limit -= 1
-		if max_limit < 0 {
-			panic(fmt.Sprintf("Couldn't find a numeric char in %v", batteries))
-		}
-	}
-
-	// get second char
-	max_limit = 9
-	max, _ := get_max_joltage_and_rest(batteries, max_limit)
-	out = append(out, max)
-
-	return fmt.Sprintf("%v%v", out[0], out[1])
-}
-
-func get_max_joltage_and_rest(input string, max_limit int) (int, string) {
-	max := -1
-	pos := -1
-	for _, r := range input {
-		i, _ := strconv.Atoi(string(r))
-		if i <= max_limit && i > max {
-			max = i
-			pos = strings.IndexRune(input, r)
+	// Look for n batteries
+	for remaining := n; remaining > 0; remaining-- {
+		// Look for the highest value number first and go downwards
+		for _, r := range descending_chars {
+			// If the number is not in the string, try the next one
+			if !strings.ContainsRune(search_space, r) {
+				continue
+			}
+			pos := strings.IndexRune(search_space, r)
+			rest := search_space[pos+1:]
+			// If there are not enough remaining characters to turn on n
+			// batteries, try the next number
+			if len(rest) < remaining-1 {
+				continue
+			}
+			out = append(out, r)
+			search_space = rest
+			break // start searching from 9 again
 		}
 	}
-	if pos == -1 {
-		panic(fmt.Sprintf("Didn't find any positive integers in %v", input))
-	}
-	rest := input[pos+1:]
-	return max, rest
+
+	return string(out)
 }
