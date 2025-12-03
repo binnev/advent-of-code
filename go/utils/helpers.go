@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"strconv"
 )
 
@@ -12,3 +13,6 @@ func ParseInt(s string) int {
 	return output
 }
 
+func Print(s string, args ...any) {
+	fmt.Println(fmt.Sprintf(s, args...))
+}
