@@ -2,7 +2,6 @@ package _2025
 
 import (
 	. "advent/data_structures/sparse_matrix"
-	"advent/utils"
 	"fmt"
 )
 
@@ -10,21 +9,41 @@ const ROLL = '@'
 
 func Day4Part1(input string) string {
 	grid := SparseMatrix{}.FromString(input, ".")
-	utils.Print("len(grid) = %v", len(grid))
 	total := 0
-	for coord, value := range grid {
-		if value != ROLL {
-			continue
-		}
-		adjacent_rolls := count_adjacent_rolls(grid, coord)
-		if adjacent_rolls < 4 {
+	for coord := range grid {
+		if count_adjacent_rolls(grid, coord) < 4 {
 			total++
 		}
 	}
 	return fmt.Sprint(total)
 }
 func Day4Part2(input string) string {
-	return ""
+	grid := SparseMatrix{}.FromString(input, ".")
+	total := 0
+	for {
+		removed := remove_rolls(&grid)
+		total += removed
+		if removed == 0 {
+			break
+		}
+	}
+	return fmt.Sprint(total)
+}
+
+func remove_rolls(grid *SparseMatrix) int {
+	// First identify the removable ones without removing them, so there's no
+	// race conditions
+	removable := []Coord{}
+	for coord := range *grid {
+		if count_adjacent_rolls(*grid, coord) < 4 {
+			removable = append(removable, coord)
+		}
+	}
+	// Then remove them all at once
+	for _, coord := range removable {
+		delete(*grid, coord)
+	}
+	return len(removable)
 }
 
 func count_adjacent_rolls(grid SparseMatrix, coord Coord) int {
