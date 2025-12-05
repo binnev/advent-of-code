@@ -20,7 +20,7 @@ func Filter[I any](f func(I) bool, arr []I) []I {
 		if f(val) {
 			result = append(result, val)
 		}
-	}
+	}	
 	return result
 }
 
