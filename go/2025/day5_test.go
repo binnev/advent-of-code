@@ -49,32 +49,32 @@ func Test_merge_ranges(t *testing.T) {
 	testcases := []struct {
 		description string
 		ranges      []InclusiveRange
-		expected    []InclusiveRange
+		expected    map[InclusiveRange]bool
 	}{
 		{
 			"No overlapping ranges; output should be unchanged",
 			[]InclusiveRange{{0, 1}, {2, 3}},
-			[]InclusiveRange{{0, 1}, {2, 3}},
+			map[InclusiveRange]bool{{0, 1}: true, {2, 3}: true},
 		},
 		{
 			"2 overlapping ranges merged into 1",
 			[]InclusiveRange{{0, 1}, {1, 2}},
-			[]InclusiveRange{{0, 2}},
+			map[InclusiveRange]bool{{0, 2}: true},
 		},
 		{
 			"3 ranges merged into 2",
 			[]InclusiveRange{{0, 1}, {3, 4}, {1, 2}},
-			[]InclusiveRange{{0, 2}, {3, 4}},
+			map[InclusiveRange]bool{{0, 2}: true, {3, 4}: true},
 		},
 		{
 			"3 overlapping ranges merged into 1",
 			[]InclusiveRange{{0, 1}, {2, 3}, {1, 2}},
-			[]InclusiveRange{{0, 3}},
+			map[InclusiveRange]bool{{0, 3}: true},
 		},
 		{
 			"1 range overlaps 3 other non-overlapping ranges",
 			[]InclusiveRange{{0, 1}, {2, 3}, {4, 5}, {0, 6}},
-			[]InclusiveRange{{0, 6}},
+			map[InclusiveRange]bool{{0, 6}: true},
 		},
 	}
 	for _, tc := range testcases {
