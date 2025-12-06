@@ -4,6 +4,7 @@ import (
 	"advent/utils"
 	"fmt"
 	"strings"
+	"unicode"
 )
 
 func Day6Part1(input string) string {
@@ -17,7 +18,12 @@ func Day6Part1(input string) string {
 	return fmt.Sprint(total)
 }
 func Day6Part2(input string) string {
-	return ""
+	total := 0
+	arr := parse_day6_part2(input)
+	for _, line := range arr {
+		total += string_math(line)
+	}
+	return fmt.Sprint(total)
 }
 
 func string_math(input []string) int {
@@ -47,6 +53,55 @@ func get_col(arr [][]string, x int) []string {
 	out := []string{}
 	for _, line := range arr {
 		out = append(out, line[x])
+	}
+	return out
+}
+func parse_day6_part2(input string) [][]string {
+	out := [][]string{}
+	lines := strings.Split(input, "\n")
+	width := len(lines[0])
+	current := []string{}
+	for x := width - 1; x >= 0; x-- {
+
+		// Construct a 1-wide column
+		col := []byte{}
+		for _, line := range lines {
+			// FIXME: LoadPuzzleInput does TrimSpace, which removes the last few
+			// spaces from the operator line...
+			var char byte
+			if x < len(line) {
+				char = line[x]
+			} else {
+				char = ' '
+			}
+			col = append(col, char)
+		}
+
+		// If every line has a space at this x, skip
+		all_space := true
+		for _, char := range col {
+			if !unicode.IsSpace(rune(char)) {
+				all_space = false
+				break
+			}
+		}
+		if all_space {
+			continue
+		}
+
+		end := len(col) - 1
+		last := col[end:]
+		digits := col[:end]
+		number := strings.TrimSpace(string(digits))
+		current = append(current, number)
+
+		// If the final char is not space, treat it as the operator and append
+		// it to the current sum. Then reset and start parsing the next sum
+		if !unicode.IsSpace(rune(last[0])) {
+			current = append(current, string(last))
+			out = append(out, current)
+			current = []string{}
+		}
 	}
 	return out
 }

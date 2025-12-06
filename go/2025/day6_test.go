@@ -9,11 +9,14 @@ import (
 const example_day6 = `123 328  51 64 
  45 64  387 23 
   6 98  215 314
-*   +   *   +  
-`
+*   +   *   +  `
 
 func Test_Day6Part1(t *testing.T) {
 	assert.Equal(t, "4277556", Day6Part1(example_day6))
+}
+
+func Test_Day6Part2(t *testing.T) {
+	assert.Equal(t, "3263827", Day6Part2(example_day6))
 }
 
 func Test_string_math(t *testing.T) {
@@ -33,4 +36,15 @@ func Test_string_math(t *testing.T) {
 			assert.Equal(t, tc.expected, result)
 		})
 	}
+}
+
+func Test_parse_day6_part2(t *testing.T) {
+	result := parse_day6_part2(example_day6)
+	expected := [][]string{
+		{"4", "431", "623", "+"},
+		{"175", "581", "32", "*"},
+		{"8", "248", "369", "+"},
+		{"356", "24", "1", "*"},
+	}
+	assert.Equal(t, expected, result)
 }
