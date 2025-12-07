@@ -97,3 +97,19 @@ func (grid SparseMatrix) Contains(coord Coord) bool {
 	_, ok := grid[coord]
 	return ok
 }
+
+func (grid SparseMatrix) FindOne(needle rune) Coord {
+	hits := []Coord{}
+	for coord, value := range grid {
+		if value == needle {
+			hits = append(hits, coord)
+		}
+	}
+	if len(hits) == 0 {
+
+		panic(fmt.Sprintf("Couldn't find %v!", needle))
+	} else if len(hits) > 1 {
+		panic(fmt.Sprintf("Multiple hits for %v: %v", needle, hits))
+	}
+	return hits[0]
+}

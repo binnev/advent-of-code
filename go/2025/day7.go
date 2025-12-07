@@ -14,11 +14,7 @@ const (
 func Day7Part1(input string) string {
 	grid := SparseMatrix{}.FromString(input, "")
 	beams := map[Coord]int{}
-	for coord, value := range grid {
-		if value == START {
-			beams[coord] = 1
-		}
-	}
+	beams[grid.FindOne('S')] = 1
 	_, total := run_beams(grid, beams)
 	return fmt.Sprint(total)
 }
@@ -26,11 +22,7 @@ func Day7Part1(input string) string {
 func Day7Part2(input string) string {
 	grid := SparseMatrix{}.FromString(input, "")
 	beams := map[Coord]int{}
-	for coord, value := range grid {
-		if value == START {
-			beams[coord] = 1
-		}
-	}
+	beams[grid.FindOne('S')] = 1
 	beams, _ = run_beams(grid, beams)
 	total := 0
 	for _, n_beams := range beams {
@@ -44,11 +36,11 @@ func Day7Part2(input string) string {
 // number of times a beam was split.
 func run_beams(grid SparseMatrix, beams map[Coord]int) (map[Coord]int, int) {
 	total_n_splits := 0
-	
+
 	// using := in the loop results in `beams` not being updated in the loop!
-	var n_splits int 
+	var n_splits int
 	var new_beams map[Coord]int
-	
+
 	for {
 		new_beams, n_splits = iterate_beams(grid, beams)
 		total_n_splits += n_splits
