@@ -27,3 +27,6 @@ const example_day7 = `.......S.......
 func Test_Day7Part1(t *testing.T) {
 	assert.Equal(t, "21", Day7Part1(example_day7))
 }
+func Test_Day7Part2(t *testing.T) {
+	assert.Equal(t, "40", Day7Part2(example_day7))
+}

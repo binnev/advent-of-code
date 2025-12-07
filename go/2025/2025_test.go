@@ -20,5 +20,6 @@ func Test2025(t *testing.T) {
 		{Day: "2025/day6", Func: Day6Part1, Expected: "5361735137219"},
 		{Day: "2025/day6", Func: Day6Part2, Expected: "11744693538946"},
 		{Day: "2025/day7", Func: Day7Part1, Expected: "1687"},
+		{Day: "2025/day7", Func: Day7Part2, Expected: "390684413472684"},
 	})
 }

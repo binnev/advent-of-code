@@ -2,7 +2,6 @@ package _2025
 
 import (
 	. "advent/data_structures/sparse_matrix"
-	"advent/utils"
 	"fmt"
 )
 
@@ -13,45 +12,67 @@ const (
 )
 
 func Day7Part1(input string) string {
-	// Read input to sparse matrix
 	grid := SparseMatrix{}.FromString(input, "")
-	beams := []Coord{}
+	beams := map[Coord]int{}
 	for coord, value := range grid {
 		if value == START {
-			beams = append(beams, coord)
+			beams[coord] = 1
 		}
 	}
-	// Iterate beams until they all reach the bottom
-	total := 0
-	n_splits := 0 // using := in the loop results in `beams` not being updated in the loop!
-	for {
-		beams, n_splits = iterate_beams(grid, beams)
-		total += n_splits
-		if len(beams) == 0 {
-			break
-		}
-	}
-
+	_, total := run_beams(grid, beams)
 	return fmt.Sprint(total)
 }
+
 func Day7Part2(input string) string {
-	return ""
+	grid := SparseMatrix{}.FromString(input, "")
+	beams := map[Coord]int{}
+	for coord, value := range grid {
+		if value == START {
+			beams[coord] = 1
+		}
+	}
+	beams, _ = run_beams(grid, beams)
+	total := 0
+	for _, n_beams := range beams {
+		total += n_beams
+	}
+	return fmt.Sprint(total)
 }
 
-// Iterate the beams 1 tick. Return the de-duped list of new beams. Also return
-// the number of times a beam was split.
-func iterate_beams(grid SparseMatrix, beams []Coord) ([]Coord, int) {
-	out := []Coord{}
+// Iterate the beams until they're finished. Return a map of coordinates of new
+// beams, and the number of beams that occupy each coordinate. Also return the
+// number of times a beam was split.
+func run_beams(grid SparseMatrix, beams map[Coord]int) (map[Coord]int, int) {
+	total_n_splits := 0
+	
+	// using := in the loop results in `beams` not being updated in the loop!
+	var n_splits int 
+	var new_beams map[Coord]int
+	
+	for {
+		new_beams, n_splits = iterate_beams(grid, beams)
+		total_n_splits += n_splits
+		if len(new_beams) == 0 {
+			break
+		}
+		beams = new_beams
+	}
+	return beams, total_n_splits
+}
+
+// Iterate the beams 1 tick. Return a map of coordinates of new beams, and the
+// number of beams that occupy each coordinate. Also return the number of
+// times a beam was split.
+func iterate_beams(grid SparseMatrix, beams map[Coord]int) (map[Coord]int, int) {
+	out := map[Coord]int{}
 	n_splits := 0
-	for _, beam := range beams {
-		new_beams := iterate_beam(grid, beam)
+	for coord, n_beams := range beams {
+		new_beams := iterate_beam(grid, coord)
 		if len(new_beams) > 1 {
 			n_splits++
 		}
 		for _, new_beam := range new_beams {
-			if !utils.Contains(out, new_beam) {
-				out = append(out, new_beam)
-			}
+			out[new_beam] += n_beams
 		}
 	}
 	return out, n_splits
