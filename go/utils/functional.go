@@ -20,7 +20,7 @@ func Filter[I any](f func(I) bool, arr []I) []I {
 		if f(val) {
 			result = append(result, val)
 		}
-	}	
+	}
 	return result
 }
 
@@ -199,7 +199,7 @@ func TopN[T comparable](arr []T, N int) []T {
 	return keys[:N]
 }
 
-func Contains[V cmp.Ordered](arr []V, value V) bool {
+func Contains[V comparable](arr []V, value V) bool {
 	for _, item := range arr {
 		if item == value {
 			return true
