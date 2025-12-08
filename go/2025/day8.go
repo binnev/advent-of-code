@@ -19,27 +19,45 @@ func Day8Part1(input string) string {
 	return fmt.Sprint(result)
 }
 func Day8Part2(input string) string {
-	return ""
+	boxes := parse_day8(input)
+	final_pair := make_circuits_until_all_connected(boxes)
+	result := final_pair[0][0] * final_pair[1][0]
+	return fmt.Sprint(result)
+}
+
+// Return the pair which causes all of the junction boxes to form a single
+// circuit
+func make_circuits_until_all_connected(boxes set.Set[Coord3]) Pair {
+	distances := calc_distances(boxes)
+	circuits := make(Circuits, len(boxes))
+
+	// Explicitly add all the boxes to the circuits map, so that they are
+	// considered for connectivity
+	for box := range boxes {
+		circuits[box] = 0
+	}
+	for n, pair := range distances.Closest() {
+		circuits.Connect(pair)
+		n_circuits := circuits.NumCircuits()
+		if n_circuits == 1 {
+			utils.Print("Finished after %v connections", n)
+			return pair
+		}
+	}
+	panic("Unreachable!")
 }
 
 func get_product_top3_circuits(input string, n_connections int) int {
 	boxes := parse_day8(input)
-	utils.Print("Parsed %v boxes", len(boxes))
-	circuits := make_circuits(boxes, n_connections)
-	utils.Print("circuits = %v", circuits)
-	largest_circuits := circuits.Largest()
-	top3 := largest_circuits[:3]
-	result := utils.Reduce(func(a, b int) int { return a * b }, top3)
-	return result
-}
-func make_circuits(boxes set.Set[Coord3], n_connections int) Circuits {
 	distances := calc_distances(boxes)
-	utils.Print("From %v boxes calculated %v distances", len(boxes), len(distances))
 	circuits := make(Circuits, len(boxes))
 	for _, pair := range distances.Closest()[:n_connections] {
 		circuits.Connect(pair)
 	}
-	return circuits
+	largest_circuits := circuits.Largest()
+	top3 := largest_circuits[:3]
+	result := utils.Reduce(func(a, b int) int { return a * b }, top3)
+	return result
 }
 
 func parse_day8(input string) set.Set[Coord3] {
@@ -109,8 +127,11 @@ func (circuits Circuits) Count(circuit int) int {
 			total++
 		}
 	}
-	utils.Print("%v coords are in circuit %v", total, circuit)
 	return total
+}
+func (circuits Circuits) NumCircuits() int {
+	unique_circuit_ids := set.FromSlice(slices.Collect(maps.Values(circuits))).ToSlice()
+	return len(unique_circuit_ids)
 }
 
 // Helper struct, mainly to handle ordering of Coord3 pairs

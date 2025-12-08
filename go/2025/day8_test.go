@@ -31,3 +31,7 @@ func Test_get_product_top3_circuits(t *testing.T) {
 	result := get_product_top3_circuits(example_day8, 10)
 	assert.Equal(t, 40, result)
 }
+
+func Test_Day8Part2(t *testing.T) {
+	assert.Equal(t, "25272", Day8Part2(example_day8))
+}
