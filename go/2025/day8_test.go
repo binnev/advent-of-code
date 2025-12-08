@@ -27,6 +27,7 @@ const example_day8 = `162,817,812
 984,92,344
 425,690,689`
 
-func TestDay8Part1(t *testing.T) {
-	assert.Equal(t, "40", Day8Part1(example_day8))
+func Test_get_product_top3_circuits(t *testing.T) {
+	result := get_product_top3_circuits(example_day8, 10)
+	assert.Equal(t, 40, result)
 }
