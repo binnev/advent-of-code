@@ -1,6 +1,12 @@
 package set
 
-import "fmt"
+import (
+	"advent/utils"
+	"fmt"
+	"maps"
+	"slices"
+	"strings"
+)
 
 type Set[T comparable] map[T]bool
 
@@ -40,9 +46,18 @@ func FromSlice[T comparable](arr []T) Set[T] {
 	return set
 }
 func (set Set[T]) ToSlice() []T {
-	out := make([]T, len(set))
+	out := []T{}
 	for val := range set {
 		out = append(out, val)
 	}
+	return out
+}
+
+func (set Set[T]) String() string {
+	out := "{"
+	slice := slices.Collect(maps.Keys(set))
+	f := func(a T) string { return fmt.Sprint(a) }
+	out += strings.Join(utils.Map(f, slice), ", ")
+	out += "}"
 	return out
 }

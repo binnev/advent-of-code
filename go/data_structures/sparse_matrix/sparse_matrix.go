@@ -8,6 +8,11 @@ import (
 
 type Coord [2]int
 type Coord3 [3]int
+
+func (c Coord3) String() string {
+	return fmt.Sprintf("(%v,%v,%v)", c[0], c[1], c[2])
+}
+
 type SparseMatrix map[Coord]rune
 type SparseMatrix3 map[Coord3]rune
 
