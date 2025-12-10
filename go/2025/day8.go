@@ -6,7 +6,6 @@ import (
 	"advent/utils"
 	"fmt"
 	"maps"
-	"math"
 	"math/rand/v2"
 	"slices"
 	"sort"
@@ -146,7 +145,7 @@ type DistanceMap map[Pair]float64
 
 func (dm *DistanceMap) Add(a, b Coord3) {
 	left, right := order_coords(a, b)
-	dist := euclidian_distance(left, right)
+	dist := left.EuclidianDistance(right)
 	(*dm)[Pair{left, right}] = dist
 }
 func (dm DistanceMap) Get(a, b Coord3) float64 {
@@ -189,16 +188,4 @@ func calc_distances(coords set.Set[Coord3]) DistanceMap {
 		}
 	}
 	return out
-}
-
-// sqrt(x**2 + y**2 + z**2)
-func euclidian_distance(left, right Coord3) float64 {
-	dx := left[0] - right[0]
-	dy := left[1] - right[1]
-	dz := left[2] - right[2]
-	return math.Sqrt(
-		math.Pow(float64(dx), 2) +
-			math.Pow(float64(dy), 2) +
-			math.Pow(float64(dz), 2),
-	)
 }
