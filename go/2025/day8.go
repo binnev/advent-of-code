@@ -7,11 +7,11 @@ import (
 	"fmt"
 	"maps"
 	"math"
+	"math/rand/v2"
 	"slices"
 	"sort"
 	"strconv"
 	"strings"
-	"time"
 )
 
 func Day8Part1(input string) string {
@@ -51,10 +51,16 @@ func get_product_top3_circuits(input string, n_connections int) int {
 	boxes := parse_day8(input)
 	distances := calc_distances(boxes)
 	circuits := make(Circuits, len(boxes))
+	utils.Print("input = %v", input)
+	utils.Print("boxes = %v", boxes)
+	// utils.Print("distances = %v", distances)
+	utils.Print("circuits = %v", circuits)
 	for _, pair := range distances.Closest()[:n_connections] {
 		circuits.Connect(pair)
 	}
 	largest_circuits := circuits.Largest()
+	utils.Print("n_connections = %v", n_connections)
+	utils.Print("largest_circuits = %v", largest_circuits)
 	top3 := largest_circuits[:3]
 	result := utils.Reduce(func(a, b int) int { return a * b }, top3)
 	return result
@@ -88,7 +94,7 @@ func (ptr *Circuits) Connect(pair Pair) {
 
 	// if neither is in a circuit, assign them both a new circuit
 	if left_circuit == 0 && right_circuit == 0 {
-		circuit_id := time.Now().UnixNano()
+		circuit_id := rand.Int64N(9999999999999)
 		circuits[left] = int(circuit_id)
 		circuits[right] = int(circuit_id)
 	}
