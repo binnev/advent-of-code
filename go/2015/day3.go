@@ -1,6 +1,7 @@
 package _2015
 
 import (
+	. "advent/data_structures/coord"
 	. "advent/data_structures/sparse_matrix"
 	"fmt"
 )

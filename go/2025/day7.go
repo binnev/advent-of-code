@@ -2,6 +2,7 @@ package _2025
 
 import (
 	. "advent/data_structures/sparse_matrix"
+	. "advent/data_structures/coord"
 	"fmt"
 )
 

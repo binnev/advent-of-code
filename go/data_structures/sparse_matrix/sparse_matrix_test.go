@@ -1,6 +1,7 @@
 package sparse_matrix
 
 import (
+	. "advent/data_structures/coord"
 	"sort"
 	"strings"
 	"testing"

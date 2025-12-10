@@ -1,24 +1,18 @@
 package sparse_matrix
 
 import (
+	. "advent/data_structures/coord"
 	"advent/utils"
 	"fmt"
 	"strings"
 )
-
-type Coord [2]int
-type Coord3 [3]int
-
-func (c Coord3) String() string {
-	return fmt.Sprintf("(%v,%v,%v)", c[0], c[1], c[2])
-}
 
 type SparseMatrix map[Coord]rune
 type SparseMatrix3 map[Coord3]rune
 
 func (grid SparseMatrix) xs() []int {
 	xs := []int{}
-	for coord, _ := range grid {
+	for coord := range grid {
 		xs = append(xs, coord[0])
 	}
 	return xs
@@ -26,7 +20,7 @@ func (grid SparseMatrix) xs() []int {
 
 func (grid SparseMatrix) ys() []int {
 	ys := []int{}
-	for coord, _ := range grid {
+	for coord := range grid {
 		ys = append(ys, coord[1])
 	}
 	return ys
