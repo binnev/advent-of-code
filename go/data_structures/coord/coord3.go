@@ -4,32 +4,32 @@ import (
 	"fmt"
 )
 
-type Coord3 struct{ x, y, z int }
+type Coord3 [3]int
 
 func (c Coord3) String() string {
-	return fmt.Sprintf("(%v, %v, %v)", c.x, c.y, c.z)
+	return fmt.Sprintf("(%v, %v, %v)", c[0], c[1], c[2])
 }
 
 var _ fmt.Stringer = (*Coord3)(nil)
 
 func (c Coord3) Unpack() (int, int, int) {
-	return c.x, c.y, c.z
+	return c[0], c[1], c[2]
 }
 
 func (c Coord3) Dx(other Coord3) int {
-	return other.x - c.x
+	return other[0] - c[0]
 }
 func (c Coord3) AbsDx(other Coord3) int {
 	return abs(c.Dx(other))
 }
 func (c Coord3) Dy(other Coord3) int {
-	return other.y - c.y
+	return other[1] - c[1]
 }
 func (c Coord3) AbsDy(other Coord3) int {
 	return abs(c.Dy(other))
 }
 func (c Coord3) Dz(other Coord3) int {
-	return other.z - c.z
+	return other[2] - c[2]
 }
 func (c Coord3) AbsDz(other Coord3) int {
 	return abs(c.Dz(other))
