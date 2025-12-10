@@ -2,7 +2,7 @@ package _2015
 
 import (
 	. "advent/data_structures/coord"
-	. "advent/data_structures/sparse_matrix"
+	. "advent/data_structures/matrix"
 	"fmt"
 )
 
@@ -15,8 +15,8 @@ func Day3Part2(input string) string {
 	return fmt.Sprint(len(presents))
 }
 
-func deliver_presents(input string, n_workers int) SparseMatrix {
-	presents := SparseMatrix{}
+func deliver_presents(input string, n_workers int) Matrix {
+	presents := Matrix{}
 	workers := make([]Coord, n_workers)
 	for ii, arrow := range input {
 		worker_index := ii % n_workers

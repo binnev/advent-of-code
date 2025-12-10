@@ -2,7 +2,7 @@ package _2022
 
 import (
 	. "advent/data_structures/coord"
-	. "advent/data_structures/sparse_matrix"
+	. "advent/data_structures/matrix"
 
 	"advent/utils"
 	"fmt"
@@ -45,7 +45,7 @@ func Day10Part2(input string) string {
 	code := strings.Split(input, "\n")
 	tasks := []int{}
 	x := 1
-	screen := SparseMatrix{}
+	screen := Matrix{}
 	for cycle := 0; cycle < 240; cycle++ {
 		row := cycle / 40
 		pixelX := cycle % 40

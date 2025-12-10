@@ -1,4 +1,4 @@
-package sparse_matrix
+package matrix
 
 import (
 	. "advent/data_structures/coord"
@@ -10,7 +10,7 @@ import (
 )
 
 func TestSparseMatrixXsYs(t *testing.T) {
-	grid := SparseMatrix{
+	grid := Matrix{
 		Coord{69, 420}:  '#',
 		Coord{666, 888}: '#',
 		Coord{777, 999}: '#',
@@ -24,7 +24,7 @@ func TestSparseMatrixXsYs(t *testing.T) {
 }
 
 func TestSparseMatrixLimits(t *testing.T) {
-	grid := SparseMatrix{
+	grid := Matrix{
 		Coord{666, 888}:  '#',
 		Coord{-69, -420}: '#',
 		Coord{777, 999}:  '#',
@@ -41,7 +41,7 @@ func TestSparseMatrixLimits(t *testing.T) {
 func TestSparseMatrixToString(t *testing.T) {
 	type TestCase struct {
 		description string
-		grid        SparseMatrix
+		grid        Matrix
 		flipY       bool
 		pad         int
 		emptyChar   rune
@@ -50,7 +50,7 @@ func TestSparseMatrixToString(t *testing.T) {
 	cases := []TestCase{
 		{
 			description: "Empty default behaviour",
-			grid:        SparseMatrix{},
+			grid:        Matrix{},
 			flipY:       false,
 			pad:         0,
 			emptyChar:   '.',
@@ -58,7 +58,7 @@ func TestSparseMatrixToString(t *testing.T) {
 		},
 		{
 			description: "Empty with flip",
-			grid:        SparseMatrix{},
+			grid:        Matrix{},
 			flipY:       true,
 			pad:         0,
 			emptyChar:   '.',
@@ -66,7 +66,7 @@ func TestSparseMatrixToString(t *testing.T) {
 		},
 		{
 			description: "Empty with pad",
-			grid:        SparseMatrix{},
+			grid:        Matrix{},
 			flipY:       false,
 			pad:         1,
 			emptyChar:   '.',
@@ -78,7 +78,7 @@ func TestSparseMatrixToString(t *testing.T) {
 		},
 		{
 			description: "Empty with pad and flip",
-			grid:        SparseMatrix{},
+			grid:        Matrix{},
 			flipY:       true,
 			pad:         1,
 			emptyChar:   '.',
@@ -90,7 +90,7 @@ func TestSparseMatrixToString(t *testing.T) {
 		},
 		{
 			description: "Single entry default behaviour",
-			grid:        SparseMatrix{Coord{0, 0}: 'A'},
+			grid:        Matrix{Coord{0, 0}: 'A'},
 			flipY:       false,
 			pad:         0,
 			emptyChar:   '.',
@@ -98,7 +98,7 @@ func TestSparseMatrixToString(t *testing.T) {
 		},
 		{
 			description: "Single entry with flip",
-			grid:        SparseMatrix{Coord{0, 0}: 'A'},
+			grid:        Matrix{Coord{0, 0}: 'A'},
 			flipY:       true,
 			pad:         0,
 			emptyChar:   '.',
@@ -106,7 +106,7 @@ func TestSparseMatrixToString(t *testing.T) {
 		},
 		{
 			description: "Single entry with pad",
-			grid:        SparseMatrix{Coord{0, 0}: 'A'},
+			grid:        Matrix{Coord{0, 0}: 'A'},
 			flipY:       false,
 			pad:         1,
 			emptyChar:   '.',
@@ -118,7 +118,7 @@ func TestSparseMatrixToString(t *testing.T) {
 		},
 		{
 			description: "Single entry with pad and flip",
-			grid:        SparseMatrix{Coord{0, 0}: 'A'},
+			grid:        Matrix{Coord{0, 0}: 'A'},
 			flipY:       true,
 			pad:         1,
 			emptyChar:   '.',
@@ -130,7 +130,7 @@ func TestSparseMatrixToString(t *testing.T) {
 		},
 		{
 			description: "Non-empty default behaviour",
-			grid: SparseMatrix{
+			grid: Matrix{
 				Coord{0, 0}: 'A',
 				Coord{2, 3}: 'B',
 			},
@@ -146,7 +146,7 @@ func TestSparseMatrixToString(t *testing.T) {
 		},
 		{
 			description: "Non-empty with flip",
-			grid: SparseMatrix{
+			grid: Matrix{
 				Coord{0, 0}: 'A',
 				Coord{2, 3}: 'B',
 			},
@@ -162,7 +162,7 @@ func TestSparseMatrixToString(t *testing.T) {
 		},
 		{
 			description: "Non-empty with pad",
-			grid: SparseMatrix{
+			grid: Matrix{
 				Coord{0, 0}: 'A',
 				Coord{2, 3}: 'B',
 			},
@@ -182,7 +182,7 @@ func TestSparseMatrixToString(t *testing.T) {
 		},
 		{
 			description: "Non-empty with pad and flip",
-			grid: SparseMatrix{
+			grid: Matrix{
 				Coord{0, 0}: 'A',
 				Coord{2, 3}: 'B',
 			},
@@ -202,7 +202,7 @@ func TestSparseMatrixToString(t *testing.T) {
 		},
 		{
 			description: "tall 6",
-			grid: SparseMatrix{
+			grid: Matrix{
 				Coord{0, 0}: 'A',
 				Coord{0, 6}: 'B',
 			},
@@ -225,7 +225,7 @@ func TestSparseMatrixToString(t *testing.T) {
 		},
 		{
 			description: "tall 7",
-			grid: SparseMatrix{
+			grid: Matrix{
 				Coord{0, 0}: 'A',
 				Coord{0, 7}: 'B',
 			},
@@ -249,7 +249,7 @@ func TestSparseMatrixToString(t *testing.T) {
 		},
 		{
 			description: "tall 8",
-			grid: SparseMatrix{
+			grid: Matrix{
 				Coord{0, 0}: 'A',
 				Coord{0, 8}: 'B',
 			},
@@ -274,7 +274,7 @@ func TestSparseMatrixToString(t *testing.T) {
 		},
 		{
 			description: "tall 9",
-			grid: SparseMatrix{
+			grid: Matrix{
 				Coord{0, 0}: 'A',
 				Coord{0, 9}: 'B',
 			},
@@ -300,7 +300,7 @@ func TestSparseMatrixToString(t *testing.T) {
 		},
 		{
 			description: "tall 10",
-			grid: SparseMatrix{
+			grid: Matrix{
 				Coord{0, 0}:  'A',
 				Coord{0, 10}: 'B',
 			},
@@ -354,12 +354,12 @@ func TestSparseMatrixConstruct(t *testing.T) {
 	}, "\n")
 
 	t.Run("no ignore", func(t *testing.T) {
-		grid := SparseMatrix{}.FromString(EXPECTED, "")
+		grid := Matrix{}.FromString(EXPECTED, "")
 		assert.Equal(t, 12*11, len(grid), "all characters should be read in")
 		assert.Equal(t, EXPECTED, grid.ToString(false, 0, '.'))
 	})
 	t.Run("with ignore", func(t *testing.T) {
-		grid := SparseMatrix{}.FromString(EXPECTED, ".")
+		grid := Matrix{}.FromString(EXPECTED, ".")
 		assert.Equal(t, 22, len(grid), "only #s should be read in")
 		assert.Equal(t, EXPECTED, grid.ToString(false, 0, '.'))
 	})

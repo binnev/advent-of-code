@@ -2,7 +2,7 @@ package _2022
 
 import (
 	. "advent/data_structures/coord"
-	. "advent/data_structures/sparse_matrix"
+	. "advent/data_structures/matrix"
 
 	"fmt"
 )
@@ -61,7 +61,7 @@ func spawnShape(index, x, y int) Shape {
 	return shape
 }
 
-func moveLeft(shape Shape, grid SparseMatrix) Shape {
+func moveLeft(shape Shape, grid Matrix) Shape {
 	newShape := copyShape(shape)
 	for ii := range newShape {
 		newShape[ii][0]--
@@ -76,7 +76,7 @@ func moveLeft(shape Shape, grid SparseMatrix) Shape {
 	return newShape
 }
 
-func moveRight(shape Shape, grid SparseMatrix) Shape {
+func moveRight(shape Shape, grid Matrix) Shape {
 	newShape := copyShape(shape)
 	for ii := range newShape {
 		newShape[ii][0]++
@@ -91,7 +91,7 @@ func moveRight(shape Shape, grid SparseMatrix) Shape {
 	return newShape
 }
 
-func fall(shape Shape, grid SparseMatrix) (Shape, bool) {
+func fall(shape Shape, grid Matrix) (Shape, bool) {
 	collision := false
 	newShape := copyShape(shape)
 	for ii := range newShape {
@@ -108,7 +108,7 @@ func fall(shape Shape, grid SparseMatrix) (Shape, bool) {
 	return newShape, collision
 }
 
-func addShapeToTower(ii, jet_ii int, grid SparseMatrix, jets string) (int, Shape) {
+func addShapeToTower(ii, jet_ii int, grid Matrix, jets string) (int, Shape) {
 	// spawn rock at correct x/y
 	towerHeight := 0
 	if len(grid) > 0 {
@@ -143,15 +143,15 @@ func addShapeToTower(ii, jet_ii int, grid SparseMatrix, jets string) (int, Shape
 	return jet_ii, shape
 }
 
-func buildTower(Nshapes int, jets string, grid SparseMatrix) {
+func buildTower(Nshapes int, jets string, grid Matrix) {
 	jet_ii := 0
 	for ii := 0; ii < Nshapes; ii++ {
 		jet_ii, _ = addShapeToTower(ii, jet_ii, grid, jets)
 	}
 }
 
-func printTower(grid, scenery SparseMatrix) {
-	forPrint := SparseMatrix{}
+func printTower(grid, scenery Matrix) {
+	forPrint := Matrix{}
 	for key, value := range grid {
 		forPrint[key] = value
 	}
@@ -162,7 +162,7 @@ func printTower(grid, scenery SparseMatrix) {
 }
 
 func Day17Part1(input string) string {
-	grid := SparseMatrix{}
+	grid := Matrix{}
 	N := 2022
 	buildTower(N, input, grid)
 	_, bruteHeight := grid.Ylim()

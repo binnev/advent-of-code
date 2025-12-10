@@ -1,8 +1,8 @@
 package _2022
 
 import (
-	. "advent/data_structures/sparse_matrix"
 	. "advent/data_structures/coord"
+	. "advent/data_structures/matrix"
 
 	"advent/utils"
 	"fmt"
@@ -17,7 +17,7 @@ const (
 	SAND      = '░'
 )
 
-func drawLine(start, end Coord, grid SparseMatrix) {
+func drawLine(start, end Coord, grid Matrix) {
 	startX, startY := start[0], start[1]
 	endX, endY := end[0], end[1]
 	dy := endY - startY
@@ -40,9 +40,9 @@ func drawLine(start, end Coord, grid SparseMatrix) {
 	}
 }
 
-func parseDay14Input(input string) SparseMatrix {
+func parseDay14Input(input string) Matrix {
 	instructions := strings.Split(input, "\n")
-	grid := SparseMatrix{}
+	grid := Matrix{}
 	for _, ins := range instructions {
 		points := []Coord{}
 		for _, pointStr := range strings.Split(ins, " -> ") {
@@ -62,7 +62,7 @@ func parseDay14Input(input string) SparseMatrix {
 
 func sandStep(
 	pos Coord,
-	grid SparseMatrix,
+	grid Matrix,
 	floor int, // y-height of the floor
 	solidFloor bool, // can the sand come to rest on the floor
 ) (newPos Coord, status int) {
@@ -90,7 +90,7 @@ func sandStep(
 	return pos, RESTING
 }
 
-func sandTrace(origin Coord, grid SparseMatrix, floor int, solidFloor bool) int {
+func sandTrace(origin Coord, grid Matrix, floor int, solidFloor bool) int {
 	// return True if sand came to rest OK; false if it fell off the map
 	pos := origin
 	status := FALLING
