@@ -35,11 +35,10 @@ func make_circuits_until_all_connected(boxes set.Set[Coord3]) Pair {
 	for box := range boxes {
 		circuits[box] = 0
 	}
-	for n, pair := range distances.Closest() {
+	for _, pair := range distances.Closest() {
 		circuits.Connect(pair)
 		n_circuits := circuits.NumCircuits()
 		if n_circuits == 1 {
-			utils.Print("Finished after %v connections", n)
 			return pair
 		}
 	}
@@ -50,16 +49,10 @@ func get_product_top3_circuits(input string, n_connections int) int {
 	boxes := parse_day8(input)
 	distances := calc_distances(boxes)
 	circuits := make(Circuits, len(boxes))
-	utils.Print("input = %v", input)
-	utils.Print("boxes = %v", boxes)
-	// utils.Print("distances = %v", distances)
-	utils.Print("circuits = %v", circuits)
 	for _, pair := range distances.Closest()[:n_connections] {
 		circuits.Connect(pair)
 	}
 	largest_circuits := circuits.Largest()
-	utils.Print("n_connections = %v", n_connections)
-	utils.Print("largest_circuits = %v", largest_circuits)
 	top3 := largest_circuits[:3]
 	result := utils.Reduce(func(a, b int) int { return a * b }, top3)
 	return result

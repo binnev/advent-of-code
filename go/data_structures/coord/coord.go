@@ -1,11 +1,14 @@
 package coord
 
 import (
+	"advent/utils"
 	"fmt"
+	"strings"
 )
 
 type Coord [2]int
 
+// Implementations of interfaces -----------------------------------------------
 func (c Coord) String() string {
 	return fmt.Sprintf("(%v, %v)", c[0], c[1])
 }
@@ -17,6 +20,15 @@ func (c Coord) Unpack() (int, int) {
 	return c[0], c[1]
 }
 
+// Utils -----------------------------------------------------------------------
+func (c Coord) FromString(s string) Coord {
+	parts := strings.Split(s, ",")[:2]
+	parts = utils.Map(strings.TrimSpace, parts)
+	numbers := utils.Map(utils.ParseInt, parts)
+	return Coord{numbers[0], numbers[1]}
+}
+
+// Math stuff ------------------------------------------------------------------
 func (c Coord) Dx(other Coord) int {
 	return other[0] - c[0]
 }
