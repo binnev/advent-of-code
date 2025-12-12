@@ -111,3 +111,10 @@ func (m Matrix) FindOne(needle rune) Coord {
 	}
 	return hits[0]
 }
+
+func (m Matrix) Union(other Matrix) Matrix {
+	for coord, val := range other {
+		m[coord] = val
+	}
+	return m
+}

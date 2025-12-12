@@ -37,7 +37,7 @@ func Test_move_dial(t *testing.T) {
 		dial                int
 		n                   int
 		max                 int
-		dir                 Direction
+		dir                 LeftRight
 		expected_dial       int
 		expected_zero_count int
 	}{

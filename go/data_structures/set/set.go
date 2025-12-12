@@ -31,6 +31,13 @@ func (set *Set[T]) Remove(values ...T) {
 	}
 }
 
+func (set Set[T]) Union(other Set[T]) Set[T] {
+	for item := range other {
+		set.Add(item)
+	}
+	return set
+}
+
 func FromString(s string) Set[rune] {
 	set := Set[rune]{}
 	for _, char := range s {

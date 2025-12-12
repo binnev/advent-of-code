@@ -15,17 +15,26 @@ func (c Coord) String() string {
 
 var _ fmt.Stringer = (*Coord)(nil)
 
-// Easy unpacking x, y := coord.Unpack()
+// Utils -----------------------------------------------------------------------
 func (c Coord) Unpack() (int, int) {
 	return c[0], c[1]
 }
-
-// Utils -----------------------------------------------------------------------
 func (c Coord) FromString(s string) Coord {
 	parts := strings.Split(s, ",")[:2]
 	parts = utils.Map(strings.TrimSpace, parts)
 	numbers := utils.Map(utils.ParseInt, parts)
 	return Coord{numbers[0], numbers[1]}
+}
+
+// Return the neighbours in the 4 cardinal directions
+func (c Coord) CardinalNeighbours() []Coord {
+	x, y := c.Unpack()
+	return []Coord{
+		{x + 1, y},
+		{x - 1, y},
+		{x, y + 1},
+		{x, y - 1},
+	}
 }
 
 // Math stuff ------------------------------------------------------------------

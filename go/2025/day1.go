@@ -31,15 +31,15 @@ func Day1Part2(input string) string {
 	return fmt.Sprint(zero_count)
 }
 
-type Direction int
+type LeftRight int
 
 const (
-	Left Direction = iota
+	Left LeftRight = iota
 	Right
 )
 const MAX = 100
 
-func move_dial(dial int, n int, dir Direction) (int, int) {
+func move_dial(dial int, n int, dir LeftRight) (int, int) {
 	zero_count := 0
 	for ii := 0; ii < n; ii++ {
 		switch dir {
@@ -64,9 +64,9 @@ func move_dial(dial int, n int, dir Direction) (int, int) {
 	return dial, zero_count
 }
 
-func parse_dial_instruction(line string) (Direction, int) {
+func parse_dial_instruction(line string) (LeftRight, int) {
 	line = strings.TrimSpace(line)
-	var dir Direction
+	var dir LeftRight
 	var n int
 
 	dir_str := line[:1]
