@@ -6,21 +6,16 @@ import (
 	"advent/utils"
 	"fmt"
 	"slices"
+	"sort"
 	"strings"
 )
 
 func Day9Part1(input string) string {
 	coords := parse_day9(input)
-	max := 0
-	for _, left := range coords {
-		for _, right := range coords {
-			area := rect_area(left, right)
-			if area > max {
-				max = area
-			}
-		}
-	}
-	return fmt.Sprint(max)
+	rects := get_largest_rects(coords)
+	max := rects[0]
+	area := rect_area(max[0], max[1])
+	return fmt.Sprint(area)
 }
 
 // We have several challenges now
@@ -33,20 +28,38 @@ func Day9Part1(input string) string {
 
 func Day9Part2(input string) string {
 	coords := parse_day9(input)
+	utils.Print("Calculating filled squares...")
 	filled := get_filled_squares(coords)
-	max := 0
-	for _, left := range coords {
-		for _, right := range coords {
-			if !is_rect_filled(left, right, filled) {
-				continue
-			}
+	utils.Print("Calculating largest rects...")
+	rects := get_largest_rects(coords)
+	for _, rect := range rects {
+		utils.Print("Considering rect %v", rect)
+		left := rect[0]
+		right := rect[1]
+		if is_rect_filled(left, right, filled) {
 			area := rect_area(left, right)
-			if area > max {
-				max = area
-			}
+			return fmt.Sprint(area)
 		}
 	}
-	return fmt.Sprint(max)
+	panic("No filled rectangles!")
+}
+
+// Sort all possible rects by area descending
+func get_largest_rects(coords []Coord) [][2]Coord {
+	out := [][2]Coord{}
+	for _, left := range coords {
+		for _, right := range coords {
+			out = append(out, [2]Coord{left, right})
+		}
+	}
+	sort.Slice(out, func(i, j int) bool {
+		left := out[i]
+		right := out[j]
+		left_area := rect_area(left[0], left[1])
+		right_area := rect_area(right[0], right[1])
+		return left_area > right_area
+	})
+	return out
 }
 
 func is_rect_filled(c1, c2 Coord, filled matrix.Matrix) bool {

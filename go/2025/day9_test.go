@@ -85,6 +85,8 @@ func Test_is_rect_filled(t *testing.T) {
 	}{
 		{"7,3", "11,1", true},
 		{"2,5", "11,1", false},
+		{"9,5", "2,3", true},
+		{"9,7", "9,5", true},
 	}
 	for _, tc := range testcases {
 		coord1 := Coord{}.FromString(tc.c1)
