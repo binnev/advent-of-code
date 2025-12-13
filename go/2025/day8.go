@@ -137,12 +137,12 @@ type Pair [2]Coord3 // ordered pair of coords
 type DistanceMap map[Pair]float64
 
 func (dm *DistanceMap) Add(a, b Coord3) {
-	left, right := order_coords(a, b)
+	left, right := order_coords3(a, b)
 	dist := left.EuclidianDistance(right)
 	(*dm)[Pair{left, right}] = dist
 }
 func (dm DistanceMap) Get(a, b Coord3) float64 {
-	left, right := order_coords(a, b)
+	left, right := order_coords3(a, b)
 	key := Pair{left, right}
 	return dm[key]
 }
@@ -155,7 +155,7 @@ func (dm DistanceMap) Closest() []Pair {
 }
 
 // Order by smallest X coord, then smallest Y coord if X is equal.
-func order_coords(a, b Coord3) (Coord3, Coord3) {
+func order_coords3(a, b Coord3) (Coord3, Coord3) {
 	if a[0] < b[0] {
 		return a, b
 	} else if b[0] < a[0] {

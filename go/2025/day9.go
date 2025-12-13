@@ -3,6 +3,7 @@ package _2025
 import (
 	. "advent/data_structures/coord"
 	"advent/data_structures/matrix"
+	"advent/data_structures/set"
 	"advent/utils"
 	"fmt"
 	"slices"
@@ -45,13 +46,8 @@ func Day9Part2(input string) string {
 }
 
 // Sort all possible rects by area descending
-func get_largest_rects(coords []Coord) [][2]Coord {
-	out := [][2]Coord{}
-	for _, left := range coords {
-		for _, right := range coords {
-			out = append(out, [2]Coord{left, right})
-		}
-	}
+func get_largest_rects(coords []Coord) []Edge {
+	out := get_unique_edges(coords).ToSlice()
 	sort.Slice(out, func(i, j int) bool {
 		left := out[i]
 		right := out[j]
@@ -262,4 +258,36 @@ func get_edge_direction(p1, p2 Coord) Direction {
 		return West
 	}
 	panic(fmt.Sprintf("Points are not aligned! %v, %v", p1, p2))
+}
+
+type Edge [2]Coord
+
+func get_unique_edges(arr []Coord) set.Set[Edge] {
+	utils.Print("Got %v", arr)
+	seen := set.Set[Edge]{}
+	for _, left := range arr {
+		for _, right := range arr {
+			if left != right {
+				l, r := order_coords(left, right)
+				edge := Edge{l, r}
+				seen.Add(edge)
+			}
+		}
+	}
+	return seen
+}
+
+// Order by smallest X coord, then smallest Y coord if X is equal.
+func order_coords(a, b Coord) (Coord, Coord) {
+	if a[0] < b[0] {
+		return a, b
+	} else if b[0] < a[0] {
+		return b, a
+	} else {
+		if a[1] <= b[1] {
+			return a, b
+		} else {
+			return b, a
+		}
+	}
 }

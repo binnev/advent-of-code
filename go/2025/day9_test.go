@@ -3,6 +3,7 @@ package _2025
 import (
 	. "advent/data_structures/coord"
 	"advent/data_structures/matrix"
+	"advent/data_structures/set"
 	"advent/utils"
 	"fmt"
 	"testing"
@@ -96,4 +97,18 @@ func Test_is_rect_filled(t *testing.T) {
 			assert.Equal(t, tc.expected, result)
 		})
 	}
+}
+
+func Test_get_unique_edges(t *testing.T) {
+	arr := []Coord{{1, 1}, {2, 2}, {3, 3}}
+	result := get_unique_edges(arr)
+	expected := set.FromSlice([]Edge{
+		{Coord{1, 1}, Coord{2, 2}},
+		{Coord{1, 1}, Coord{3, 3}},
+		{Coord{2, 2}, Coord{3, 3}},
+	})
+	utils.Print("expected:\n%v", expected)
+	utils.Print("result:\n%v", result)
+	assert.Equal(t, 3, len(result))
+	assert.Equal(t, expected, result)
 }
