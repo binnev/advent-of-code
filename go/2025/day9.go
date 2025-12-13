@@ -6,6 +6,7 @@ import (
 	"advent/data_structures/set"
 	"advent/utils"
 	"fmt"
+	"iter"
 	"slices"
 	"sort"
 	"strings"
@@ -46,8 +47,9 @@ func Day9Part2(input string) string {
 }
 
 // Sort all possible rects by area descending
-func get_largest_rects(coords []Coord) []Edge {
-	out := get_unique_edges(coords).ToSlice()
+func get_largest_rects(coords []Coord) [][2]Coord {
+	it := get_unique_pairs(slices.Values(coords))
+	out := slices.Collect(it)
 	sort.Slice(out, func(i, j int) bool {
 		left := out[i]
 		right := out[j]
@@ -260,34 +262,24 @@ func get_edge_direction(p1, p2 Coord) Direction {
 	panic(fmt.Sprintf("Points are not aligned! %v, %v", p1, p2))
 }
 
-type Edge [2]Coord
-
-func get_unique_edges(arr []Coord) set.Set[Edge] {
-	utils.Print("Got %v", arr)
-	seen := set.Set[Edge]{}
-	for _, left := range arr {
-		for _, right := range arr {
-			if left != right {
-				l, r := order_coords(left, right)
-				edge := Edge{l, r}
-				seen.Add(edge)
+func get_unique_pairs[T comparable](values iter.Seq[T]) iter.Seq[[2]T] {
+	return func(yield func([2]T) bool) {
+		seen := set.Set[[2]T]{}
+		for left := range values {
+			for right := range values {
+				pair := [2]T{left, right}
+				reverse_pair := [2]T{right, left}
+				if left == right ||
+					seen.Contains(pair) ||
+					seen.Contains(reverse_pair) {
+					continue
+				}
+				seen.Add(pair)
+				if !yield(pair) {
+					return
+				}
 			}
 		}
-	}
-	return seen
-}
 
-// Order by smallest X coord, then smallest Y coord if X is equal.
-func order_coords(a, b Coord) (Coord, Coord) {
-	if a[0] < b[0] {
-		return a, b
-	} else if b[0] < a[0] {
-		return b, a
-	} else {
-		if a[1] <= b[1] {
-			return a, b
-		} else {
-			return b, a
-		}
 	}
 }

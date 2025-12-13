@@ -1,6 +1,7 @@
 package set
 
 import (
+	"slices"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -39,4 +40,17 @@ func TestFromSlice(t *testing.T) {
 		assert.True(t, set.Contains(val))
 	}
 	assert.False(t, set.Contains(69))
+}
+
+func TestCollect(t *testing.T) {
+	it := slices.Values([]int{1, 2, 3})
+	set := Collect(it)
+	assert.Equal(t, FromSlice([]int{1, 2, 3}), set)
+}
+
+func TestAddManyFromSlice(t *testing.T) {
+	set := Set[int]{}
+	set.Add([]int{1, 2}...)
+	assert.True(t, set.Contains(1))
+	assert.True(t, set.Contains(2))
 }

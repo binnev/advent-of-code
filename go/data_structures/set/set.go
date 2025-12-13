@@ -3,6 +3,7 @@ package set
 import (
 	"advent/utils"
 	"fmt"
+	"iter"
 	"maps"
 	"slices"
 	"strings"
@@ -67,4 +68,12 @@ func (set Set[T]) String() string {
 	out += strings.Join(utils.Map(f, slice), ", ")
 	out += "}"
 	return out
+}
+
+func Collect[T comparable](seq iter.Seq[T]) Set[T] {
+	s := Set[T]{}
+	for item := range seq {
+		s.Add(item)
+	}
+	return s
 }

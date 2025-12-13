@@ -3,9 +3,9 @@ package _2025
 import (
 	. "advent/data_structures/coord"
 	"advent/data_structures/matrix"
-	"advent/data_structures/set"
 	"advent/utils"
 	"fmt"
+	"slices"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -99,14 +99,14 @@ func Test_is_rect_filled(t *testing.T) {
 	}
 }
 
-func Test_get_unique_edges(t *testing.T) {
+func Test_get_unique_pairs(t *testing.T) {
 	arr := []Coord{{1, 1}, {2, 2}, {3, 3}}
-	result := get_unique_edges(arr)
-	expected := set.FromSlice([]Edge{
+	result := slices.Collect(get_unique_pairs(slices.Values(arr)))
+	expected := [][2]Coord{
 		{Coord{1, 1}, Coord{2, 2}},
 		{Coord{1, 1}, Coord{3, 3}},
 		{Coord{2, 2}, Coord{3, 3}},
-	})
+	}
 	utils.Print("expected:\n%v", expected)
 	utils.Print("result:\n%v", result)
 	assert.Equal(t, 3, len(result))
