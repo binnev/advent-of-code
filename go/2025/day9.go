@@ -63,7 +63,16 @@ func get_largest_rects(coords []Coord) [][2]Coord {
 func is_rect_filled(c1, c2 Coord, filled matrix.Matrix) bool {
 	x1, y1 := c1.Unpack()
 	x2, y2 := c2.Unpack()
+	// check the horizontal sides
 	for _, x := range my_range(x1, x2) {
+		for _, y := range []int{y1, y2} {
+			coord := Coord{x, y}
+			if _, ok := filled[coord]; !ok {
+				return false
+			}
+		}
+	}
+	for _, x := range []int{x1, x2} {
 		for _, y := range my_range(y1, y2) {
 			coord := Coord{x, y}
 			if _, ok := filled[coord]; !ok {
