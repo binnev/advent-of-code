@@ -30,12 +30,9 @@ func Day9Part1(input string) string {
 
 func Day9Part2(input string) string {
 	coords := parse_day9(input)
-	utils.Print("Calculating filled squares...")
-	filled := get_filled_squares(coords)
-	utils.Print("Calculating largest rects...")
+	filled := get_filled_shape(coords)
 	rects := get_largest_rects(coords)
 	for _, rect := range rects {
-		utils.Print("Considering rect %v", rect)
 		left := rect[0]
 		right := rect[1]
 		if is_rect_filled(left, right, filled) {
@@ -47,19 +44,22 @@ func Day9Part2(input string) string {
 }
 
 // Sort all possible rects by area descending
-func get_largest_rects(coords []Coord) [][2]Coord {
-	it := get_unique_pairs(slices.Values(coords))
-	out := slices.Collect(it)
-	sort.Slice(out, func(i, j int) bool {
-		left := out[i]
-		right := out[j]
+func get_largest_rects(coords []Coord) []Rect {
+	edges := get_edges(coords)
+	horizontal_edges, vertical_edges := sort_horizontal_vertical_edges(edges)
+	rects := get_all_possible_rects(horizontal_edges, vertical_edges)
+	sort.Slice(rects, func(i, j int) bool {
+		left := rects[i]
+		right := rects[j]
 		left_area := rect_area(left[0], left[1])
 		right_area := rect_area(right[0], right[1])
 		return left_area > right_area
 	})
-	return out
+	return rects
 }
 
+// To check if a rect is filled, we only need to check that the _sides_ are
+// filled, because the filled shape does not have any holes.
 func is_rect_filled(c1, c2 Coord, filled matrix.Matrix) bool {
 	x1, y1 := c1.Unpack()
 	x2, y2 := c2.Unpack()
@@ -72,6 +72,7 @@ func is_rect_filled(c1, c2 Coord, filled matrix.Matrix) bool {
 			}
 		}
 	}
+	// check the vertical sides
 	for _, x := range []int{x1, x2} {
 		for _, y := range my_range(y1, y2) {
 			coord := Coord{x, y}
@@ -104,7 +105,8 @@ const (
 	West
 )
 
-func get_filled_squares(coords []Coord) matrix.Matrix {
+// Get all the coords that fall inside the shape described by the puzzle input
+func get_filled_shape(coords []Coord) matrix.Matrix {
 	// Add the first coord to the end to close the loop
 	coords = append(coords, coords[0])
 	filled := matrix.Matrix{}
@@ -235,6 +237,8 @@ func get_inside_direction(coords []Coord) LeftRight {
 		panic("Loop doesn't close!")
 	}
 }
+
+// Given a current and next direction, figure out which direction we turned
 func get_turn_direction(current, next Direction) LeftRight {
 	x := map[[2]Direction]LeftRight{
 		{North, East}: Right,
@@ -252,6 +256,7 @@ func get_turn_direction(current, next Direction) LeftRight {
 	panic(fmt.Sprintf("Not a 90deg turn: %v to %v", current, next))
 }
 
+// Given the start and end point of an edge, figure out its compass direction
 func get_edge_direction(p1, p2 Coord) Direction {
 	if p1 == p2 {
 		panic(fmt.Sprintf("Points are the same! %v, %v", p1, p2))
@@ -289,6 +294,92 @@ func get_unique_pairs[T comparable](values iter.Seq[T]) iter.Seq[[2]T] {
 				}
 			}
 		}
-
 	}
+}
+
+type Edge [2]Coord
+
+func get_edges(coords []Coord) []Edge {
+	out := []Edge{}
+	// Add the first coord to the end to lose the loop
+	coords = append(coords, coords[0])
+	for ii := 1; ii < len(coords); ii++ {
+		current := coords[ii-1]
+		next := coords[ii]
+		edge := Edge{current, next}
+		out = append(out, edge)
+	}
+	return out
+}
+
+func sort_horizontal_vertical_edges(edges []Edge) ([]Edge, []Edge) {
+	horizontal := []Edge{}
+	vertical := []Edge{}
+	for _, edge := range edges {
+		start, end := edge[0], edge[1]
+		switch get_edge_direction(start, end) {
+		case North | South:
+			vertical = append(vertical, edge)
+		case East | West:
+			horizontal = append(horizontal, edge)
+		}
+	}
+	return horizontal, vertical
+}
+
+type Rect [2]Coord
+
+// Instead of considering all possible combos of _points_, consider all possible
+// combos of horizontal/vertical _edges_ -- this gives us rectangles that are
+// not possible when considering only points.
+//
+// Consider the below shape. The largest possible rectangle is one that doesn't
+// share _any_ corners with the outside shape.
+//
+//	┏━━━┓  ┏━━━┓
+//	┃   ┃  ┃   ┃
+//	┃ ╭╴┗━━┛╴╮ ┃
+//	┃ ┆      ┆ ┃
+//	┗━┓      ┏━┛
+//	  ┃      ┃
+//	┏━┛      ┗━┓
+//	┃ ┆      ┆ ┃
+//	┃ ╰╴┏━━┓╴╯ ┃
+//	┃   ┃  ┃   ┃
+//	┗━━━┛  ┗━━━┛
+func get_all_possible_rects(horizontal_edges, vertical_edges []Edge) []Rect {
+	utils.Print("Got %v H edges", len(horizontal_edges))
+	utils.Print("Got %v V edges", len(vertical_edges))
+	unique_pairs_h := slices.Collect(get_unique_pairs(slices.Values(horizontal_edges)))
+	unique_pairs_v := slices.Collect(get_unique_pairs(slices.Values(vertical_edges)))
+	utils.Print("Found %v unique pairs of H edges", len(unique_pairs_h))
+	utils.Print("Found %v unique pairs of V edges", len(unique_pairs_v))
+	out := []Rect{}
+	for h_edges := range get_unique_pairs(slices.Values(horizontal_edges)) {
+		h_edge1 := h_edges[0]
+		h_edge2 := h_edges[1]
+		// utils.Print("Considering H edges %v, %v", h_edge1, h_edge2)
+
+		h_coords := []Coord{h_edge1[0], h_edge1[1], h_edge2[0], h_edge2[1]}
+		ys := utils.Map(func(c Coord) int { return c[1] }, h_coords)
+		min_y := utils.Min(ys)
+		max_y := utils.Max(ys)
+
+		for v_edges := range get_unique_pairs(slices.Values(vertical_edges)) {
+			v_edge1 := v_edges[0]
+			v_edge2 := v_edges[1]
+			// utils.Print("Considering V edges %v, %v", v_edge1, v_edge2)
+
+			v_coords := []Coord{v_edge1[0], v_edge1[1], v_edge2[0], v_edge2[1]}
+			xs := utils.Map(func(c Coord) int { return c[0] }, v_coords)
+			min_x := utils.Min(xs)
+			max_x := utils.Max(xs)
+
+			coord1 := Coord{min_x, min_y}
+			coord2 := Coord{max_x, max_y}
+			rect := Rect{coord1, coord2}
+			out = append(out, rect)
+		}
+	}
+	return out
 }

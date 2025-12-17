@@ -72,14 +72,14 @@ func Test_get_inside_square(t *testing.T) {
 func Test_get_filled_squares(t *testing.T) {
 	utils.Print("Sanity check")
 	coords := parse_day9(example_day9)
-	filled := get_filled_squares(coords)
+	filled := get_filled_shape(coords)
 	mat := matrix.Matrix{}.FromString(example_day9_filled, ".")
 	assert.Equal(t, len(mat), len(filled))
 }
 
 func Test_is_rect_filled(t *testing.T) {
 	coords := parse_day9(example_day9)
-	filled := get_filled_squares(coords)
+	filled := get_filled_shape(coords)
 	testcases := []struct {
 		c1, c2   string
 		expected bool
@@ -111,4 +111,10 @@ func Test_get_unique_pairs(t *testing.T) {
 	utils.Print("result:\n%v", result)
 	assert.Equal(t, 3, len(result))
 	assert.Equal(t, expected, result)
+}
+
+func Test_get_largest_rects(t *testing.T) {
+	coords := parse_day9(example_day9)
+	rects := get_largest_rects(coords)
+	assert.Equal(t, 1, len(rects))
 }
