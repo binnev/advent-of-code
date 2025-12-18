@@ -11,33 +11,64 @@ import (
 
 type Set[T comparable] map[T]bool
 
-func (set Set[T]) Contains(key T) bool {
-	_, ok := set[key]
+func (s Set[T]) Contains(key T) bool {
+	_, ok := s[key]
 	return ok
 }
 
-func (set *Set[T]) Add(values ...T) {
+func (s *Set[T]) Add(values ...T) {
 	for _, val := range values {
-		(*set)[val] = true
+		(*s)[val] = true
 	}
 }
 
-func (set *Set[T]) Remove(values ...T) {
+// NOTE: doesn't panic if the value is not present
+func (s *Set[T]) Remove(values ...T) {
 	for _, val := range values {
-		_, ok := (*set)[val]
-		if !ok {
-			panic(fmt.Sprintf("Value %v is not in set %v", val, set))
-		}
-		delete(*set, val)
+		delete(*s, val)
 	}
 }
 
-func (set Set[T]) Union(other Set[T]) Set[T] {
+// Merge this set with another and return the result without modifying the
+// original.
+func (s Set[T]) Union(other Set[T]) Set[T] {
+	// So much for value receivers not mutating the original... apparently maps
+	// and slices are exempt from this rule because they are rEfErEnCe TyPeS
+	new := Set[T]{}
+	maps.Copy(new, s)
+
 	for item := range other {
-		set.Add(item)
+		new.Add(item)
 	}
-	return set
+	return new
 }
+
+// Merge another set into this set in place
+func (s Set[T]) Update(other Set[T]) {
+	for item := range other {
+		s.Add(item)
+	}
+}
+
+func FromSlice[T comparable](arr []T) Set[T] {
+	return Collect(slices.Values(arr))
+}
+func (s Set[T]) ToSlice() []T {
+	return slices.Collect(s.Values())
+}
+
+// =============================== string stuff ================================
+
+func (s Set[T]) String() string {
+	out := "{"
+	slice := slices.Collect(maps.Keys(s))
+	f := func(a T) string { return fmt.Sprint(a) }
+	out += strings.Join(utils.Map(f, slice), ", ")
+	out += "}"
+	return out
+}
+
+var _ fmt.Stringer = (*Set[any])(nil)
 
 func FromString(s string) Set[rune] {
 	set := Set[rune]{}
@@ -46,29 +77,8 @@ func FromString(s string) Set[rune] {
 	}
 	return set
 }
-func FromSlice[T comparable](arr []T) Set[T] {
-	set := Set[T]{}
-	for _, val := range arr {
-		set[val] = true
-	}
-	return set
-}
-func (set Set[T]) ToSlice() []T {
-	out := []T{}
-	for val := range set {
-		out = append(out, val)
-	}
-	return out
-}
 
-func (set Set[T]) String() string {
-	out := "{"
-	slice := slices.Collect(maps.Keys(set))
-	f := func(a T) string { return fmt.Sprint(a) }
-	out += strings.Join(utils.Map(f, slice), ", ")
-	out += "}"
-	return out
-}
+// ================================= iter stuff ================================
 
 func Collect[T comparable](seq iter.Seq[T]) Set[T] {
 	s := Set[T]{}
@@ -76,4 +86,26 @@ func Collect[T comparable](seq iter.Seq[T]) Set[T] {
 		s.Add(item)
 	}
 	return s
+}
+
+func (s Set[T]) Values() iter.Seq[T] {
+	return func(yield func(T) bool) {
+		for item := range s {
+			if !yield(item) {
+				return
+			}
+		}
+	}
+}
+
+func (s *Set[T]) AddSeq(seq iter.Seq[T]) {
+	for val := range seq {
+		s.Add(val)
+	}
+}
+
+func (s *Set[T]) RemoveSeq(seq iter.Seq[T]) {
+	for val := range seq {
+		s.Remove(val)
+	}
 }
