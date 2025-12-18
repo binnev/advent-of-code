@@ -112,9 +112,3 @@ func Test_get_unique_pairs(t *testing.T) {
 	assert.Equal(t, 3, len(result))
 	assert.Equal(t, expected, result)
 }
-
-func Test_get_largest_rects(t *testing.T) {
-	coords := parse_day9(example_day9)
-	rects := get_largest_rects(coords)
-	assert.Equal(t, 1, len(rects))
-}

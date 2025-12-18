@@ -7,6 +7,7 @@ import (
 	"advent/utils"
 	"fmt"
 	"iter"
+	"maps"
 	"slices"
 	"sort"
 	"strings"
@@ -14,7 +15,8 @@ import (
 
 func Day9Part1(input string) string {
 	coords := parse_day9(input)
-	rects := get_largest_rects(coords)
+	rects := get_all_possible_rects_from_corners(coords)
+	rects = sort_rects_by_largest_area(rects)
 	max := rects[0]
 	area := rect_area(max[0], max[1])
 	return fmt.Sprint(area)
@@ -29,8 +31,11 @@ func Day9Part1(input string) string {
 // figure out if the right side or the left side is the inside.
 
 func Day9Part2(input string) string {
+	utils.Print("input: %v coords", len(input))
 	coords := parse_day9(input)
+	utils.Print("Getting filled shape...")
 	filled := get_filled_shape(coords)
+	filled.Print(false, 0, '.')
 	rects := get_largest_rects(coords)
 	for _, rect := range rects {
 		left := rect[0]
@@ -48,6 +53,11 @@ func get_largest_rects(coords []Coord) []Rect {
 	edges := get_edges(coords)
 	horizontal_edges, vertical_edges := sort_horizontal_vertical_edges(edges)
 	rects := get_all_possible_rects(horizontal_edges, vertical_edges)
+	rects = sort_rects_by_largest_area(rects)
+	return rects
+}
+
+func sort_rects_by_largest_area(rects []Rect) []Rect {
 	sort.Slice(rects, func(i, j int) bool {
 		left := rects[i]
 		right := rects[j]
@@ -318,9 +328,9 @@ func sort_horizontal_vertical_edges(edges []Edge) ([]Edge, []Edge) {
 	for _, edge := range edges {
 		start, end := edge[0], edge[1]
 		switch get_edge_direction(start, end) {
-		case North | South:
+		case North, South:
 			vertical = append(vertical, edge)
-		case East | West:
+		case East, West:
 			horizontal = append(horizontal, edge)
 		}
 	}
@@ -382,4 +392,20 @@ func get_all_possible_rects(horizontal_edges, vertical_edges []Edge) []Rect {
 		}
 	}
 	return out
+}
+func get_all_possible_rects_from_filled(filled matrix.Matrix) []Rect {
+	pairs := slices.Collect(get_unique_pairs(maps.Keys(filled)))
+	rects := []Rect{}
+	for _, pair := range pairs {
+		rects = append(rects, pair)
+	}
+	return rects
+}
+
+func get_all_possible_rects_from_corners(coords []Coord) []Rect {
+	rects := []Rect{}
+	for pair := range get_unique_pairs(slices.Values(coords)) {
+		rects = append(rects, pair)
+	}
+	return rects
 }
