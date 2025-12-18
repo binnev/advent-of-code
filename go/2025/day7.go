@@ -2,7 +2,7 @@ package _2025
 
 import (
 	. "advent/data_structures/coord"
-	. "advent/data_structures/matrix"
+	"advent/data_structures/matrix"
 	"fmt"
 )
 
@@ -13,7 +13,7 @@ const (
 )
 
 func Day7Part1(input string) string {
-	grid := Matrix{}.FromString(input, "")
+	grid := matrix.FromString(input, "")
 	beams := map[Coord]int{}
 	beams[grid.FindOne('S')] = 1
 	_, total := run_beams(grid, beams)
@@ -21,7 +21,7 @@ func Day7Part1(input string) string {
 }
 
 func Day7Part2(input string) string {
-	grid := Matrix{}.FromString(input, "")
+	grid := matrix.FromString(input, "")
 	beams := map[Coord]int{}
 	beams[grid.FindOne('S')] = 1
 	beams, _ = run_beams(grid, beams)
@@ -35,7 +35,7 @@ func Day7Part2(input string) string {
 // Iterate the beams until they're finished. Return a map of coordinates of new
 // beams, and the number of beams that occupy each coordinate. Also return the
 // number of times a beam was split.
-func run_beams(grid Matrix, beams map[Coord]int) (map[Coord]int, int) {
+func run_beams(grid matrix.Matrix, beams map[Coord]int) (map[Coord]int, int) {
 	total_n_splits := 0
 
 	// using := in the loop results in `beams` not being updated in the loop!
@@ -56,7 +56,7 @@ func run_beams(grid Matrix, beams map[Coord]int) (map[Coord]int, int) {
 // Iterate the beams 1 tick. Return a map of coordinates of new beams, and the
 // number of beams that occupy each coordinate. Also return the number of
 // times a beam was split.
-func iterate_beams(grid Matrix, beams map[Coord]int) (map[Coord]int, int) {
+func iterate_beams(grid matrix.Matrix, beams map[Coord]int) (map[Coord]int, int) {
 	out := map[Coord]int{}
 	n_splits := 0
 	for coord, n_beams := range beams {
@@ -73,7 +73,7 @@ func iterate_beams(grid Matrix, beams map[Coord]int) (map[Coord]int, int) {
 
 // Iterate 1 beam 1 tick. Beams continue straight down unless they hit a
 // splitter or exit the grid
-func iterate_beam(grid Matrix, beam Coord) []Coord {
+func iterate_beam(grid matrix.Matrix, beam Coord) []Coord {
 	below := Coord{beam[0], beam[1] + 1}
 	value, ok := grid[below]
 

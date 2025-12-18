@@ -2,6 +2,8 @@ package matrix
 
 import (
 	. "advent/data_structures/coord"
+	"maps"
+	"slices"
 	"sort"
 	"strings"
 	"testing"
@@ -9,21 +11,21 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestSparseMatrixXsYs(t *testing.T) {
+func TestMatrixXsYs(t *testing.T) {
 	grid := Matrix{
 		Coord{69, 420}:  '#',
 		Coord{666, 888}: '#',
 		Coord{777, 999}: '#',
 	}
-	xs := grid.xs()
-	ys := grid.ys()
+	xs := slices.Collect(grid.Xs())
+	ys := slices.Collect(grid.Ys())
 	sort.Ints(xs)
 	sort.Ints(ys)
 	assert.Equal(t, []int{69, 666, 777}, xs)
 	assert.Equal(t, []int{420, 888, 999}, ys)
 }
 
-func TestSparseMatrixLimits(t *testing.T) {
+func TestMatrixLimits(t *testing.T) {
 	grid := Matrix{
 		Coord{666, 888}:  '#',
 		Coord{-69, -420}: '#',
@@ -38,7 +40,7 @@ func TestSparseMatrixLimits(t *testing.T) {
 	assert.Equal(t, 999, max)
 }
 
-func TestSparseMatrixToString(t *testing.T) {
+func TestMatrixToString(t *testing.T) {
 	type TestCase struct {
 		description string
 		grid        Matrix
@@ -338,7 +340,7 @@ func TestSparseMatrixToString(t *testing.T) {
 	}
 }
 
-func TestSparseMatrixConstruct(t *testing.T) {
+func TestMatrixConstruct(t *testing.T) {
 	EXPECTED := strings.Join([]string{
 		"......#.....",
 		"..........#.",
@@ -354,13 +356,31 @@ func TestSparseMatrixConstruct(t *testing.T) {
 	}, "\n")
 
 	t.Run("no ignore", func(t *testing.T) {
-		grid := Matrix{}.FromString(EXPECTED, "")
+		grid := FromString(EXPECTED, "")
 		assert.Equal(t, 12*11, len(grid), "all characters should be read in")
 		assert.Equal(t, EXPECTED, grid.ToString(false, 0, '.'))
 	})
 	t.Run("with ignore", func(t *testing.T) {
-		grid := Matrix{}.FromString(EXPECTED, ".")
+		grid := FromString(EXPECTED, ".")
 		assert.Equal(t, 22, len(grid), "only #s should be read in")
 		assert.Equal(t, EXPECTED, grid.ToString(false, 0, '.'))
 	})
+	t.Run("multiple ignores", func(t *testing.T) {
+		grid := FromString(EXPECTED, ".#")
+		assert.Equal(t, 0, len(grid), "all characters should be ignored")
+	})
+}
+
+func TestInsert(t *testing.T) {
+	m := Matrix{}
+	data := map[Coord]rune{
+		{0, 0}: 0,
+		{1, 1}: 1,
+	}
+	m.Insert(maps.All(data))
+	assert.Equal(t, 2, len(m))
+	assert.True(t, m.Contains(Coord{0, 0}))
+	assert.True(t, m.Contains(Coord{1, 1}))
+	assert.True(t, m.ContainsVal(0))
+	assert.True(t, m.ContainsVal(1))
 }

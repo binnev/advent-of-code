@@ -73,7 +73,7 @@ func Test_get_filled_squares(t *testing.T) {
 	utils.Print("Sanity check")
 	coords := parse_day9(example_day9)
 	filled := get_filled_shape(coords)
-	mat := matrix.Matrix{}.FromString(example_day9_filled, ".")
+	mat := matrix.FromString(example_day9_filled, ".")
 	assert.Equal(t, len(mat), len(filled))
 }
 

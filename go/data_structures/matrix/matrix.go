@@ -4,37 +4,131 @@ import (
 	. "advent/data_structures/coord"
 	"advent/utils"
 	"fmt"
+	"iter"
+	"maps"
 	"strings"
 )
 
 // Sparse matrix type that doesn't store empty positions
 type Matrix map[Coord]rune
 
-func (m Matrix) xs() []int {
-	xs := []int{}
-	for coord := range m {
-		xs = append(xs, coord[0])
+func (m Matrix) Contains(coord Coord) bool {
+	_, ok := m[coord]
+	return ok
+}
+
+func (m Matrix) ContainsVal(needle rune) bool {
+	for _, val := range m {
+		if val == needle {
+			return true
+		}
 	}
-	return xs
+	return false
 }
 
-func (m Matrix) ys() []int {
-	ys := []int{}
-	for coord := range m {
-		ys = append(ys, coord[1])
+// Find the coord for the given value. Panics if there isn't exactly one of the
+// given value in the matrix.
+func (m Matrix) FindOne(needle rune) Coord {
+	hits := []Coord{}
+	for coord, value := range m {
+		if value == needle {
+			hits = append(hits, coord)
+		}
 	}
-	return ys
+	if len(hits) == 0 {
+		panic(fmt.Sprintf("Couldn't find %v!", needle))
+	} else if len(hits) > 1 {
+		panic(fmt.Sprintf("Multiple hits for %v: %v", needle, hits))
+	}
+	return hits[0]
 }
 
-func (m Matrix) Xlim() (int, int) {
-	xs := m.xs()
-	return utils.Min(xs), utils.Max(xs)
+// Equivalent of python dict.update(other_dict).
+// On collisions, values from the other matrix take precedence.
+func (m Matrix) Union(other Matrix) Matrix {
+	for coord, val := range other {
+		m[coord] = val
+	}
+	return m
 }
 
-func (m Matrix) Ylim() (int, int) {
-	ys := m.ys()
-	return utils.Min(ys), utils.Max(ys)
+func (m Matrix) Limits() (x_min, x_max, y_min, y_max int) {
+	if len(m) == 0 {
+		panic("Can't get limits of empty Matrix!")
+	}
+	for coord := range m {
+		x, y := coord.Unpack()
+		x_min, x_max, y_min, y_max = x, x, y, y
+		break
+	}
+	for coord := range m {
+		x, y := coord.Unpack()
+		if x < x_min {
+			x_min = x
+		}
+		if x > x_max {
+			x_max = x
+		}
+		if y < y_min {
+			y_min = y
+		}
+		if y > y_max {
+			y_max = y
+		}
+	}
+	return
 }
+func (m Matrix) Xlim() (x_min, x_max int) {
+	x_min, x_max, _, _ = m.Limits()
+	return
+}
+
+func (m Matrix) Ylim() (y_min, y_max int) {
+	_, _, y_min, y_max = m.Limits()
+	return
+}
+
+func (m Matrix) Xs() iter.Seq[int] {
+	return func(yield func(int) bool) {
+		for coord := range m {
+			if !yield(coord[0]) {
+				return
+			}
+		}
+	}
+}
+
+func (m Matrix) Ys() iter.Seq[int] {
+	return func(yield func(int) bool) {
+		for coord := range m {
+			if !yield(coord[1]) {
+				return
+			}
+		}
+	}
+}
+
+// ================================= iter stuff ================================
+func (m Matrix) Keys() iter.Seq[Coord] {
+	return maps.Keys(m)
+}
+func (m Matrix) Values() iter.Seq[rune] {
+	return maps.Values(m)
+}
+func (m Matrix) All() iter.Seq2[Coord, rune] {
+	return maps.All(m)
+}
+func (m *Matrix) Insert(seq iter.Seq2[Coord, rune]) {
+	maps.Insert(*m, seq)
+}
+
+// ================================ string stuff ===============================
+
+func (m Matrix) String() string {
+	return m.ToString(false, 0, '.')
+}
+
+var _ fmt.Stringer = (*Matrix)(nil)
 
 func (m Matrix) ToString(flipY bool, pad int, emptyChar rune) string {
 	minX, maxX, minY, maxY := 0, 0, 0, 0
@@ -60,21 +154,9 @@ func (m Matrix) ToString(flipY bool, pad int, emptyChar rune) string {
 	return strings.Join(lines, "\n")
 }
 
-/*
-I wanted a classmethod syntax like python:
-
-	matrix := Matrix.FromString("blabla", "")
-
-but Go won't let you do this. A method must be attached to an _instance_ of a
-type. So as a workaround you can call it like this:
-
-	matrix := Matrix{}.FromString("blabla", "")
-
-which creates an empty instance and then fills it using the FromString method.
-It actually kinda makes sense; it's like the __new__ -> __init__ method calls in
-python. __new__ creates an empty object, and __init__ sets the initial values.
-*/
-func (m Matrix) FromString(source string, ignore string) Matrix {
+// ALL runes in the ignore string will be ignored.
+func FromString(source string, ignore string) Matrix {
+	m := Matrix{}
 	for yy, line := range strings.Split(source, "\n") {
 		for xx, char := range line {
 			coord := Coord{xx, yy}
@@ -90,31 +172,4 @@ func (m Matrix) FromString(source string, ignore string) Matrix {
 
 func (m Matrix) Print(flipY bool, pad int, emptyChar rune) {
 	fmt.Println(m.ToString(flipY, pad, emptyChar))
-}
-
-func (m Matrix) Contains(coord Coord) bool {
-	_, ok := m[coord]
-	return ok
-}
-
-func (m Matrix) FindOne(needle rune) Coord {
-	hits := []Coord{}
-	for coord, value := range m {
-		if value == needle {
-			hits = append(hits, coord)
-		}
-	}
-	if len(hits) == 0 {
-		panic(fmt.Sprintf("Couldn't find %v!", needle))
-	} else if len(hits) > 1 {
-		panic(fmt.Sprintf("Multiple hits for %v: %v", needle, hits))
-	}
-	return hits[0]
-}
-
-func (m Matrix) Union(other Matrix) Matrix {
-	for coord, val := range other {
-		m[coord] = val
-	}
-	return m
 }

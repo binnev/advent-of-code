@@ -2,14 +2,14 @@ package _2025
 
 import (
 	. "advent/data_structures/coord"
-	. "advent/data_structures/matrix"
+	"advent/data_structures/matrix"
 	"fmt"
 )
 
 const ROLL = '@'
 
 func Day4Part1(input string) string {
-	grid := Matrix{}.FromString(input, ".")
+	grid := matrix.FromString(input, ".")
 	total := 0
 	for coord := range grid {
 		if count_adjacent_rolls(grid, coord) < 4 {
@@ -19,7 +19,7 @@ func Day4Part1(input string) string {
 	return fmt.Sprint(total)
 }
 func Day4Part2(input string) string {
-	grid := Matrix{}.FromString(input, ".")
+	grid := matrix.FromString(input, ".")
 	total := 0
 	for {
 		removed := remove_rolls(&grid)
@@ -31,7 +31,7 @@ func Day4Part2(input string) string {
 	return fmt.Sprint(total)
 }
 
-func remove_rolls(grid *Matrix) int {
+func remove_rolls(grid *matrix.Matrix) int {
 	// First identify the removable ones without removing them, so there's no
 	// race conditions
 	removable := []Coord{}
@@ -47,7 +47,7 @@ func remove_rolls(grid *Matrix) int {
 	return len(removable)
 }
 
-func count_adjacent_rolls(grid Matrix, coord Coord) int {
+func count_adjacent_rolls(grid matrix.Matrix, coord Coord) int {
 	x, y := coord[0], coord[1]
 	neighbours := [8]Coord{
 		{x - 1, y - 1},
