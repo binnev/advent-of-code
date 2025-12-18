@@ -31,12 +31,10 @@ func Day9Part1(input string) string {
 // figure out if the right side or the left side is the inside.
 
 func Day9Part2(input string) string {
-	utils.Print("input: %v coords", len(input))
 	coords := parse_day9(input)
-	utils.Print("Getting filled shape...")
 	filled := get_filled_shape(coords)
-	filled.Print(false, 0, '.')
-	rects := get_largest_rects(coords)
+	rects := get_all_possible_rects_from_corners(coords)
+	rects = sort_rects_by_largest_area(rects)
 	for _, rect := range rects {
 		left := rect[0]
 		right := rect[1]
