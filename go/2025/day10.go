@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"regexp"
 	"slices"
-	"strconv"
 	"strings"
 )
 
@@ -34,27 +33,77 @@ func Day10Part1(input string) string {
 	total := utils.Sum(utils.Map(calc_fewest_button_presses, machines))
 	return fmt.Sprint(total)
 }
+
+// Same story, but instead of bitwise NOT we increment the relevant counters.
+// Instead of parsing the buttons as ints, we must parse them as tuples of ints.
+// In fact we can probably use the same approach for part 1 -.-
 func Day10Part2(input string) string {
-	return ""
+	machines := parse_day10(input)
+	total := utils.Sum(utils.Map(calc_fewest_button_presses_joltage, machines))
+	return fmt.Sprint(total)
 }
 
-
 func calc_fewest_button_presses(machine Machine) int {
-	frontier := []int{0} // start with 0b_000... i.e. no buttons pressed
-	for ii := 1; ii < 1000; ii++ {
-		new_frontier := []int{}
+	initial := make(State, len(machine.target_state))
+	frontier := []State{initial}
+	MAX := 1000
+	for ii := 1; ii < MAX; ii++ {
+		new_frontier := []State{}
 		for _, state := range frontier {
 			for _, button := range machine.buttons {
-				new_state := state ^ button
-				new_frontier = append(new_frontier, new_state)
-				if new_state == machine.target_state {
+				new := state.apply(button)
+				new_frontier = append(new_frontier, new)
+				if slices.Equal(new, machine.target_state) {
 					return ii
 				}
 			}
 		}
 		frontier = new_frontier
 	}
-	panic("Did 1000 iterations and didn't find anything!")
+	panic("Did MAX iterations and didn't find anything!")
+}
+
+type Container struct {
+	joltages        Joltages
+	pressed_buttons []Button
+}
+
+func (c Container) apply(button Button) Container {
+	new := Container{
+		c.joltages.apply(button),
+		c.pressed_buttons,
+	}
+	new.pressed_buttons = append(new.pressed_buttons, button)
+	return new
+}
+
+func calc_fewest_button_presses_joltage(machine Machine) int {
+	initial := make(Joltages, len(machine.joltage_requirements))
+	pressed_buttons := []Button{}
+	frontier := []Container{{initial, pressed_buttons}}
+	MAX := 2
+	for ii := 1; ii < MAX; ii++ {
+		utils.Print("Frontier len %v", len(frontier))
+		new_frontier := []Container{}
+		for _, container := range frontier {
+			for _, button := range machine.buttons {
+				for _, pressed := range container.pressed_buttons {
+					if slices.Equal(pressed, button) {
+						continue
+					} else {
+						utils.Print("Pressed %v != %v", pressed, button)
+					}
+				}
+				new := container.apply(button)
+				new_frontier = append(new_frontier, new)
+				if slices.Equal(new.joltages, machine.joltage_requirements) {
+					return ii
+				}
+			}
+		}
+		frontier = new_frontier
+	}
+	panic("Did MAX iterations and didn't find anything!")
 }
 
 func parse_day10(input string) []Machine {
@@ -66,13 +115,12 @@ func parse_machine(line string) Machine {
 	state_rx := regexp.MustCompile(`\[(.+)\]`)
 	state_str := state_rx.FindStringSubmatch(line)
 	state := parse_target_state(state_str[1])
-	state_len := len(state_str[1])
 
 	buttons_rx := regexp.MustCompile(`\(([0-9\,]+)\)`)
 	button_matches := buttons_rx.FindAllStringSubmatch(line, -1)
-	buttons := []int{}
+	buttons := []Button{}
 	for _, button_match := range button_matches {
-		button := parse_button(button_match[1], state_len)
+		button := parse_list_of_ints(button_match[1])
 		buttons = append(buttons, button)
 	}
 
@@ -81,7 +129,7 @@ func parse_machine(line string) Machine {
 	joltage_requirements := parse_list_of_ints(joltage_str[1])
 
 	machine := Machine{
-		target_state:         int(state),
+		target_state:         state,
 		buttons:              buttons,
 		joltage_requirements: joltage_requirements,
 	}
@@ -89,43 +137,52 @@ func parse_machine(line string) Machine {
 	return machine
 }
 
-func parse_target_state(s string) int {
-	s = strings.ReplaceAll(s, ".", "0")
-	s = strings.ReplaceAll(s, "#", "1")
-	state, err := strconv.ParseInt(s, 2, 32)
-	if err != nil {
-		panic(err)
+func parse_target_state(input string) State {
+	s := State{}
+	for _, char := range input {
+		if char == '#' {
+			s = append(s, 1)
+		} else {
+			s = append(s, 0)
+		}
 	}
-	return int(state)
+	return s
 }
 func parse_list_of_ints(s string) []int {
 	parts := strings.Split(s, ",")
 	return utils.Map(utils.ParseInt, parts)
 }
-func parse_button(input string, state_len int) int {
-	// Initialise empty bit mask the same length as the target state. So if the
-	// target state is "..##..", we initialise "000000". Store it as a list of
-	// chars (bytes) so that we can flip individual "bits"
-	button_bytes := []byte(strings.Repeat("0", state_len))
-	// For each button index in the comma-separated input string, set the bit at
-	// that location to 1.
-	ints := parse_list_of_ints(input)
-	for _, i := range ints {
-		button_bytes[i] = '1'
-	}
 
-	// Convert the list of chars to a string, and parse it as a base-2 int
-	button_str := string(button_bytes)
-	button, err := strconv.ParseInt(button_str, 2, 32)
-	if err != nil {
-		panic(err)
+type State []int
+
+func (s State) apply(button Button) State {
+	new := make(State, len(s))
+	copy(new, s)
+	for _, wire := range button {
+		if new[wire] == 0 {
+			new[wire] = 1
+		} else {
+			new[wire] = 0
+		}
 	}
-	return int(button)
+	return new
 }
 
+type Joltages []int
+
+func (j Joltages) apply(button Button) Joltages {
+	new := make(Joltages, len(j))
+	copy(new, j)
+	for _, wire := range button {
+		new[wire]++
+	}
+	return new
+}
+
+type Button []int
 type Machine struct {
-	target_state int
+	target_state State
 	// Each button is a bit mask stored as an int e.g. 0b_0110
-	buttons              []int
+	buttons              []Button
 	joltage_requirements []int
 }

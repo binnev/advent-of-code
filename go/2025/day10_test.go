@@ -11,10 +11,16 @@ const example_day10 = `[.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}
 [.###.#] (0,1,2,3,4) (0,3,4) (0,1,2,4,5) (1,2) {10,11,11,5,10,5}
 `
 
+func Test_Day10Part2(t *testing.T) {
+	result := Day10Part2(example_day10)
+	assert.Equal(t, "33", result)
+}
+
 func Test_Day10Part1(t *testing.T) {
 	result := Day10Part1(example_day10)
 	assert.Equal(t, "7", result)
 }
+
 func Test_bitwise_not_works_as_expected(t *testing.T) {
 	target := 0b_0110
 	initial := 0b_0
@@ -26,12 +32,12 @@ func Test_bitwise_not_works_as_expected(t *testing.T) {
 func Test_parse_target_state(t *testing.T) {
 	testcases := []struct {
 		s        string
-		expected int
+		expected State
 	}{
-		{".", 0b_0},
-		{"#", 0b_1},
-		{".##.", 0b_0110},
-		{".###.#", 0b_011101},
+		{".", State{0}},
+		{"#", State{1}},
+		{".##.", State{0, 1, 1, 0}},
+		{".###.#", State{0, 1, 1, 1, 0, 1}},
 	}
 	for _, tc := range testcases {
 		t.Run(tc.s, func(t *testing.T) {
@@ -56,12 +62,12 @@ func Test_parse_machine(t *testing.T) {
 		{
 			"[.###.#] (0,1,2,3,4) (0,3,4) (0,1,2,4,5) (1,2) {10,11,11,5,10,5}",
 			Machine{
-				target_state: 0b_011101,
-				buttons: []int{
-					0b_111110, // {0, 1, 2, 3, 4}
-					0b_100110, // {0, 3, 4}
-					0b_111011, // {0, 1, 2, 4, 5}
-					0b_011000, // {1, 2}
+				target_state: State{0, 1, 1, 1, 0, 1},
+				buttons: []Button{
+					{0, 1, 2, 3, 4},
+					{0, 3, 4},
+					{0, 1, 2, 4, 5},
+					{1, 2},
 				},
 				joltage_requirements: []int{10, 11, 11, 5, 10, 5},
 			},
